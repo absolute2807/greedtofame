@@ -489,10 +489,46 @@
     }
 
     // Listen to auth state changes — updates header button and closes modal on login/logout
-    supabase.auth.onAuthStateChange((event, session) => {
-      updateAuthButton(session?.user ?? null);
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      const user = session?.user ?? null;
+      updateAuthButton(user);
       if (session) {
         closeAuthModal();
+        // Fetch profile from Supabase
+        try {
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          if (profile && !error) {
+            // Apply username from Supabase
+            if (profile.username) {
+              applyUsername(profile.username);
+              usernameInput.value = profile.username;
+            }
+            // Apply screenshots from Supabase
+            ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
+              if (profile[col]) {
+                const slot = slots[index];
+                const previewEl = document.getElementById(slot.preview);
+                const overlayEl = document.getElementById(slot.overlay);
+                const removeEl = document.getElementById(slot.remove);
+                const labelEl = document.getElementById(slot.input).parentElement;
+                previewEl.src = profile[col];
+                previewEl.classList.remove('hidden');
+                overlayEl.classList.add('hidden');
+                removeEl.classList.remove('hidden');
+                labelEl.classList.add('has-image');
+              }
+            });
+          } else if (error && error.code === 'PGRST116') {
+            // No profile found — create one
+            await supabase.from('profiles').insert({ id: user.id, username: user.email || 'User' });
+          }
+        } catch (err) {
+          console.error('Error fetching profile:', err);
+        }
       }
     });
 
@@ -564,7 +600,7 @@
       { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
     ];
 
-    function resetSlot(slot, index) {
+    async function resetSlot(slot, index) {
       const inputEl = document.getElementById(slot.input);
       const previewEl = document.getElementById(slot.preview);
       const overlayEl = document.getElementById(slot.overlay);
@@ -580,6 +616,15 @@
 
       // Remove from localStorage
       localStorage.removeItem(STORAGE_KEYS.screenshot(index));
+
+      // Clear from Supabase if logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from('profiles').upsert({
+          id: session.user.id,
+          [`screenshot_${index + 1}`]: null,
+        });
+      }
     }
 
     slots.forEach((slot, index) => {
@@ -609,7 +654,7 @@
         }
 
         const reader = new FileReader();
-        reader.onload = (evt) => {
+        reader.onload = async (evt) => {
           const dataUrl = evt.target.result;
           previewEl.src = dataUrl;
           previewEl.classList.remove('hidden');
@@ -618,6 +663,14 @@
           labelEl.classList.add('has-image');
           // Persist Base64 image to localStorage
           localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
+          // Save to Supabase if logged in
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            await supabase.from('profiles').upsert({
+              id: session.user.id,
+              [`screenshot_${index + 1}`]: dataUrl,
+            });
+          }
         };
         reader.readAsDataURL(file);
       });
@@ -651,12 +704,17 @@
     backdrop.addEventListener('click', closeUsernameModal);
     document.getElementById('username-cancel').addEventListener('click', closeUsernameModal);
 
-    document.getElementById('username-save').addEventListener('click', () => {
+    document.getElementById('username-save').addEventListener('click', async () => {
       const newName = usernameInput.value.trim();
       if (!newName) return;
       localStorage.setItem(STORAGE_KEYS.username, newName);
       applyUsername(newName);
       closeUsernameModal();
+      // Save to Supabase if logged in
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from('profiles').upsert({ id: session.user.id, username: newName });
+      }
     });
 
     usernameInput.addEventListener('keydown', (e) => {
