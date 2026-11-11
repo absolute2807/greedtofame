@@ -156,16 +156,27 @@
     </div>
   </header>
 
+  <!-- Username Edit Modal -->
+  <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
+    <h3 class="text-lg font-bold text-white mb-4">Edit Username</h3>
+    <input type="text" id="username-input" value="NovaStrike" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+    <div class="flex gap-3">
+      <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
+      <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto px-6 py-10">
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span class="text-purple-400 neon-text">NovaStrike</span></h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span id="welcome-username" class="text-purple-400 neon-text">NovaStrike</span></h2>
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex gap-2">
-        <button class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Edit Profile</button>
-        <button class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
+        <button id="edit-profile" class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Edit Profile</button>
+        <button id="settings-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
     </div>
 
@@ -187,7 +198,7 @@
                 <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse absolute -bottom-1 -right-1 border-2 border-[#0a0a0f]"></span>
               </div>
             </div>
-            <h3 class="text-xl font-bold text-white">NovaStrike</h3>
+            <h3 id="profile-username" class="text-xl font-bold text-white">NovaStrike</h3>
             <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
           </div>
 
@@ -401,14 +412,33 @@
   </div>
 
   <script>
-    // Gallery upload handling — exactly 3 slots (JPG/PNG only)
+    // --- localStorage keys ---
+    const STORAGE_KEYS = {
+      username: 'gt_username',
+      screenshot: (index) => `gt_screenshot_${index}`,
+    };
+
+    // --- Username persistence ---
+    function applyUsername(name) {
+      const welcomeEl = document.getElementById('welcome-username');
+      const profileNameEl = document.getElementById('profile-username');
+      const avatarEl = document.getElementById('profile-avatar');
+
+      if (welcomeEl) welcomeEl.textContent = name;
+      if (profileNameEl) profileNameEl.textContent = name;
+      if (avatarEl) {
+        avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
+      }
+    }
+
+    // --- Gallery upload handling — exactly 3 slots (JPG/PNG only) ---
     const slots = [
       { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
       { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
       { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
     ];
 
-    function resetSlot(slot) {
+    function resetSlot(slot, index) {
       const inputEl = document.getElementById(slot.input);
       const previewEl = document.getElementById(slot.preview);
       const overlayEl = document.getElementById(slot.overlay);
@@ -421,9 +451,12 @@
       removeEl.classList.add('hidden');
       labelEl.classList.remove('has-image');
       inputEl.value = '';
+
+      // Remove from localStorage
+      localStorage.removeItem(STORAGE_KEYS.screenshot(index));
     }
 
-    slots.forEach((slot) => {
+    slots.forEach((slot, index) => {
       const inputEl = document.getElementById(slot.input);
       const previewEl = document.getElementById(slot.preview);
       const overlayEl = document.getElementById(slot.overlay);
@@ -451,11 +484,14 @@
 
         const reader = new FileReader();
         reader.onload = (evt) => {
-          previewEl.src = evt.target.result;
+          const dataUrl = evt.target.result;
+          previewEl.src = dataUrl;
           previewEl.classList.remove('hidden');
           overlayEl.classList.add('hidden');
           removeEl.classList.remove('hidden');
           labelEl.classList.add('has-image');
+          // Persist Base64 image to localStorage
+          localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
         };
         reader.readAsDataURL(file);
       });
@@ -463,9 +499,78 @@
       // Remove image and restore the empty placeholder
       removeEl.addEventListener('click', (e) => {
         e.stopPropagation(); // do not trigger the file picker
-        resetSlot(slot);
+        resetSlot(slot, index);
       });
     });
+
+    // --- Username modal (Edit Profile / Settings) ---
+    const modal = document.getElementById('username-modal');
+    const backdrop = document.getElementById('username-modal-backdrop');
+    const usernameInput = document.getElementById('username-input');
+
+    function openUsernameModal() {
+      usernameInput.value = document.getElementById('welcome-username').textContent;
+      modal.classList.remove('hidden');
+      backdrop.classList.remove('hidden');
+      usernameInput.focus();
+    }
+
+    function closeUsernameModal() {
+      modal.classList.add('hidden');
+      backdrop.classList.add('hidden');
+    }
+
+    document.getElementById('edit-profile').addEventListener('click', openUsernameModal);
+    document.getElementById('settings-btn').addEventListener('click', openUsernameModal);
+    backdrop.addEventListener('click', closeUsernameModal);
+    document.getElementById('username-cancel').addEventListener('click', closeUsernameModal);
+
+    document.getElementById('username-save').addEventListener('click', () => {
+      const newName = usernameInput.value.trim();
+      if (!newName) return;
+      localStorage.setItem(STORAGE_KEYS.username, newName);
+      applyUsername(newName);
+      closeUsernameModal();
+    });
+
+    usernameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('username-save').click();
+      }
+      if (e.key === 'Escape') {
+        closeUsernameModal();
+      }
+    });
+
+    // --- Load persisted state on page load ---
+    function loadState() {
+      // Restore username
+      const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
+      if (savedUsername) {
+        applyUsername(savedUsername);
+        usernameInput.value = savedUsername;
+      }
+
+      // Restore saved screenshots
+      slots.forEach((slot, index) => {
+        const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
+        if (saved) {
+          const inputEl = document.getElementById(slot.input);
+          const previewEl = document.getElementById(slot.preview);
+          const overlayEl = document.getElementById(slot.overlay);
+          const removeEl = document.getElementById(slot.remove);
+          const labelEl = inputEl.parentElement;
+
+          previewEl.src = saved;
+          previewEl.classList.remove('hidden');
+          overlayEl.classList.add('hidden');
+          removeEl.classList.remove('hidden');
+          labelEl.classList.add('has-image');
+        }
+      });
+    }
+
+    loadState();
 
     // Connect Steam button feedback
     document.getElementById('connect-steam').addEventListener('click', () => {
