@@ -170,26 +170,28 @@
   </div>
 
   <!-- Login/Signup Modal -->
-  <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
-  <div id="auth-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-51 hidden w-full max-w-md bg-gray-900 text-white border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
-    <div class="flex justify-between items-start mb-6">
-      <h3 class="text-lg font-bold text-white">Sign in to GameTrack</h3>
-      <button id="btn-close-modal" class="text-gray-400 hover:text-white transition">&times;</button>
-    </div>
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm text-gray-400 mb-1">Email</label>
-        <input type="email" id="auth-email" placeholder="you@example.com" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+  <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
+  <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
+    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
+      <div class="flex justify-between items-start mb-6">
+        <h3 class="text-lg font-bold text-white">Sign in to GameTrack</h3>
+        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition">&times;</button>
       </div>
-      <div>
-        <label class="block text-sm text-gray-400 mb-1">Password</label>
-        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Email</label>
+          <input type="email" id="auth-email" placeholder="you@example.com" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Password</label>
+          <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-signup" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign Up</button>
+          <button id="btn-signin" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-white/5 transition">Sign In</button>
+        </div>
+        <p id="auth-message" class="text-sm mt-4 text-center text-gray-300"></p>
       </div>
-      <div class="flex gap-3">
-        <button id="btn-signup" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign Up</button>
-        <button id="btn-signin" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-white/5 transition">Sign In</button>
-      </div>
-      <p id="auth-message" class="text-sm mt-4 text-center"></p>
     </div>
   </div>
 
