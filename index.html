@@ -169,6 +169,19 @@
     </div>
   </div>
 
+  <!-- Steam Connect Modal -->
+  <div id="steam-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="steam-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
+    <h3 class="text-lg font-bold text-white mb-4">Connect Steam Account</h3>
+    <p class="text-sm text-gray-400 mb-4">Enter your 17-digit SteamID64. You can find it on your Steam profile page (steamcommunity.com/id/yourname) or via any SteamID lookup tool.</p>
+    <input type="text" id="steamid-input" placeholder="76561198XXXXXXXXX" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" maxlength="17" />
+    <p id="steam-error" class="text-sm text-red-400 hidden mb-4">Please enter a valid 17-digit SteamID64 (digits only).</p>
+    <div class="flex gap-3">
+      <button id="steam-connect" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Connect</button>
+      <button id="steam-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
+    </div>
+  </div>
+
   <!-- Login/Signup Modal -->
   <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
@@ -237,7 +250,7 @@
               class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              Connect Steam
+              <span id="steam-btn-text">Connect Steam</span>
             </button>
             <p class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and achievements automatically.</p>
           </div>
@@ -249,11 +262,11 @@
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-400">Total games</span>
-              <span class="text-sm font-semibold text-white">12</span>
+              <span id="stat-total-games" class="text-sm font-semibold text-white">12</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-400">Total hours</span>
-              <span class="text-sm font-semibold text-white stat-number">1,247h</span>
+              <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">1,247h</span>
             </div>
           </div>
         </div>
@@ -387,7 +400,7 @@
                   <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Last Played</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-white/5">
+              <tbody id="games-tbody" class="divide-y divide-white/5">
                 <tr class="hover:bg-white/3 transition group">
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
@@ -756,17 +769,145 @@
 
     loadState();
 
-    // Connect Steam button feedback
-    document.getElementById('connect-steam').addEventListener('click', () => {
-      const btn = document.getElementById('connect-steam');
-      const original = btn.innerHTML;
-      btn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Connecting...';
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.innerHTML = original;
-        btn.disabled = false;
-        alert('Steam account connected successfully!');
-      }, 1500);
+    // Restore previously fetched Steam games (if any)
+    const savedSteam = localStorage.getItem('gt_steam_games');
+    if (savedSteam) {
+      try {
+        renderSteamGames(JSON.parse(savedSteam));
+      } catch (e) {
+        console.error('Failed to restore Steam games:', e);
+      }
+    }
+
+    // --- Steam connect modal ---
+    const steamBackdrop = document.getElementById('steam-modal-backdrop');
+    const steamModal = document.getElementById('steam-modal');
+    const steamInput = document.getElementById('steamid-input');
+    const steamError = document.getElementById('steam-error');
+    const steamConnectBtn = document.getElementById('steam-connect');
+    const steamCancelBtn = document.getElementById('steam-cancel');
+    const steamBtnText = document.getElementById('steam-btn-text');
+    const connectSteamBtn = document.getElementById('connect-steam');
+    const gamesTbody = document.getElementById('games-tbody');
+    const totalGamesEl = document.getElementById('stat-total-games');
+    const totalHoursEl = document.getElementById('stat-total-hours');
+
+    function openSteamModal() {
+      steamInput.value = '';
+      steamError.classList.add('hidden');
+      steamModal.classList.remove('hidden');
+      steamBackdrop.classList.remove('hidden');
+      steamInput.focus();
+    }
+
+    function closeSteamModal() {
+      steamModal.classList.add('hidden');
+      steamBackdrop.classList.add('hidden');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text ?? '';
+      return div.innerHTML;
+    }
+
+    function formatSteamHours(minutes) {
+      return (Math.round((minutes || 0) / 60) || 0).toLocaleString() + 'h';
+    }
+
+    function renderSteamGames(data) {
+      const games = data.games || [];
+      const totalGames = games.length;
+      const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+
+      if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
+      if (totalHoursEl) totalHoursEl.textContent = formatSteamHours(totalMinutes);
+
+      if (!gamesTbody) return;
+      gamesTbody.innerHTML = '';
+
+      if (games.length === 0) {
+        gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
+        return;
+      }
+
+      const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+
+      for (const game of sorted) {
+        const iconUrl = game.img_icon_url
+          ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+          : null;
+        const hours = Math.round((game.playtime_forever || 0) / 60);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/3 transition group';
+        tr.innerHTML = `
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              ${iconUrl
+                ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${escapeHtml(game.name)}" loading="lazy" />`
+                : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>`}
+              <div>
+                <p class="font-medium text-white">${escapeHtml(game.name)}</p>
+                <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours.toLocaleString()}h</span></td>
+          <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
+          <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
+          <td class="px-6 py-4 text-gray-400 text-sm">—</td>
+        `;
+        gamesTbody.appendChild(tr);
+      }
+    }
+
+    connectSteamBtn.addEventListener('click', openSteamModal);
+    steamCancelBtn.addEventListener('click', closeSteamModal);
+    steamBackdrop.addEventListener('click', closeSteamModal);
+
+    steamInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSteamModal();
+    });
+
+    steamConnectBtn.addEventListener('click', async () => {
+      const steamid = steamInput.value.trim();
+      if (!/^\d{17}$/.test(steamid)) {
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      steamError.classList.add('hidden');
+      steamConnectBtn.disabled = true;
+      steamBtnText.textContent = 'Connecting...';
+
+      const { data, error } = await supabase.functions.invoke('steam-api', {
+        body: { steamid },
+      });
+
+      steamConnectBtn.disabled = false;
+
+      if (error) {
+        steamBtnText.textContent = 'Connect Steam';
+        steamError.textContent = error.message || 'Failed to connect Steam account.';
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      if (!data || !Array.isArray(data.games)) {
+        steamBtnText.textContent = 'Connect Steam';
+        steamError.textContent = 'Unexpected response from Steam API.';
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      renderSteamGames(data);
+      steamBtnText.textContent = 'Steam Connected';
+      localStorage.setItem('gt_steam_games', JSON.stringify(data));
+      localStorage.setItem('gt_steamid', steamid);
+      closeSteamModal();
     });
   </script>
 </body>
