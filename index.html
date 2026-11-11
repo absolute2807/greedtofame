@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GameTrack | Gaming Profile Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -149,9 +150,10 @@
         <span class="text-xl font-bold neon-text tracking-tight">GameTrack</span>
       </div>
       <button
+        id="auth-btn"
         class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f]"
       >
-        Logout
+        Login
       </button>
     </div>
   </header>
@@ -164,6 +166,33 @@
     <div class="flex gap-3">
       <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
       <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Login/Signup Modal -->
+  <div id="auth-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="auth-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
+    <div class="flex justify-between items-start mb-6">
+      <h3 class="text-lg font-bold text-white">Sign in to GameTrack</h3>
+      <button id="auth-close" class="text-gray-400 hover:text-white transition">&times;</button>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Email</label>
+        <input type="email" id="auth-email" placeholder="you@example.com" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
+      </div>
+      <div class="text-right text-xs text-gray-500 mb-2">
+        <a href="#" id="auth-forgot" class="text-purple-400 hover:text-purple-300">Forgot password?</a>
+      </div>
+      <div class="flex gap-3">
+        <button id="auth-signup" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign Up</button>
+        <button id="auth-login" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Login</button>
+      </div>
+      <p id="auth-message" class="text-sm mt-4 text-center"></p>
     </div>
   </div>
 
@@ -417,6 +446,105 @@
       username: 'gt_username',
       screenshot: (index) => `gt_screenshot_${index}`,
     };
+
+    // --- Supabase client ---
+    const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- Auth state ---
+    const authBtn = document.getElementById('auth-btn');
+    const authModal = document.getElementById('auth-modal');
+    const authBackdrop = document.getElementById('auth-modal-backdrop');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+    const authLoginBtn = document.getElementById('auth-login');
+    const authSignupBtn = document.getElementById('auth-signup');
+    const authCloseBtn = document.getElementById('auth-close');
+    const authMessage = document.getElementById('auth-message');
+
+    function setAuthButton(isLoggedIn) {
+      authBtn.textContent = isLoggedIn ? 'Logout' : 'Login';
+    }
+
+    function showAuthMessage(msg, isError = false) {
+      authMessage.textContent = msg;
+      authMessage.className = `text-sm mt-4 text-center ${isError ? 'text-red-400' : 'text-green-400'}`;
+    }
+
+    function openAuthModal() {
+      authModal.classList.remove('hidden');
+      authBackdrop.classList.remove('hidden');
+      authEmail.focus();
+      authMessage.textContent = '';
+    }
+
+    function closeAuthModal() {
+      authModal.classList.add('hidden');
+      authBackdrop.classList.add('hidden');
+      authMessage.textContent = '';
+    }
+
+    // Listen to auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      const isLoggedIn = !!session;
+      setAuthButton(isLoggedIn);
+      if (isLoggedIn) {
+        closeAuthModal();
+        showAuthMessage('Welcome back!', false);
+      }
+    });
+
+    // Login
+    authLoginBtn.addEventListener('click', async () => {
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      if (!email || !password) {
+        showAuthMessage('Please enter email and password.', true);
+        return;
+      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        showAuthMessage(error.message, true);
+      } else {
+        showAuthMessage('Logged in successfully!', false);
+      }
+    });
+
+    // Sign Up
+    authSignupBtn.addEventListener('click', async () => {
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      if (!email || !password) {
+        showAuthMessage('Please enter email and password.', true);
+        return;
+      }
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        showAuthMessage(error.message, true);
+      } else {
+        showAuthMessage('Account created! Please check your email to confirm.', false);
+      }
+    });
+
+    // Header Login/Logout toggle
+    authBtn.addEventListener('click', async () => {
+      if (authBtn.textContent === 'Logout') {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          showAuthMessage(error.message, true);
+        } else {
+          setAuthButton(false);
+          showAuthMessage('Logged out.', false);
+        }
+      } else {
+        openAuthModal();
+      }
+    });
+
+    // Close modal
+    authCloseBtn.addEventListener('click', closeAuthModal);
+    authBackdrop.addEventListener('click', closeAuthModal);
 
     // --- Username persistence ---
     function applyUsername(name) {
