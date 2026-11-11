@@ -816,12 +816,21 @@
     }
 
     function renderSteamGames(data) {
-      const games = data.games || [];
-      const totalGames = games.length;
+      if (!data || !data.response || !data.response.games) {
+        if (totalGamesEl) totalGamesEl.textContent = '0';
+        if (totalHoursEl) totalHoursEl.textContent = '0h';
+        if (!gamesTbody) return;
+        gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
+        return;
+      }
+
+      const games = data.response.games;
+      const totalGames = data.response.game_count || games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+      const totalHours = Math.round(totalMinutes / 60);
 
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-      if (totalHoursEl) totalHoursEl.textContent = formatSteamHours(totalMinutes);
+      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
 
       if (!gamesTbody) return;
       gamesTbody.innerHTML = '';
@@ -868,15 +877,9 @@
       console.log("RAW DATA FROM SUPABASE:", data); // Добавь это!
       if (error) { alert("Error: " + error.message); return; }
 
-      // Проверяем, где именно лежат игры
-      let gamesArray = null;
-      if (data && data.games) { gamesArray = data.games; }
-      else if (data && data.response && data.response.games) { gamesArray = data.response.games; }
-      else if (data && data.data && data.data.games) { gamesArray = data.data.games; }
-
-      if (gamesArray) {
-        alert("Успех! Найдено игр: " + gamesArray.length);
-        renderSteamGames({ games: gamesArray });
+      if (data && data.response && data.response.games) {
+        alert("Успех! Найдено игр: " + data.response.game_count);
+        renderSteamGames(data);
       } else {
         alert("Игры не найдены. Смотри консоль, что вернул сервер.");
         console.log("Full response:", JSON.stringify(data, null, 2));
@@ -915,7 +918,7 @@
         return;
       }
 
-      if (!data || !Array.isArray(data.games)) {
+      if (!data || !data.response || !Array.isArray(data.response.games)) {
         steamBtnText.textContent = 'Connect Steam';
         steamError.textContent = 'Unexpected response from Steam API.';
         steamError.classList.remove('hidden');
