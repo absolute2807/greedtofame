@@ -447,7 +447,7 @@
     // --- Supabase client ---
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- Auth state ---
     const authBtn = document.getElementById('auth-btn');
