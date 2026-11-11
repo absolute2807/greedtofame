@@ -872,68 +872,7 @@
       }
     }
 
-    connectSteamBtn.addEventListener('click', async () => {
-      const steamId = prompt("ВВЕДИ СВОЙ STEAM ID:");
-      if (!steamId) return;
-      const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
-      console.log("RAW DATA FROM SUPABASE:", data); // Добавь это!
-      if (error) { alert("Error: " + error.message); return; }
 
-      if (data && data.response && data.response.games) {
-        alert("Успех! Найдено игр: " + data.response.game_count);
-
-        // Update stats and games table directly from Steam response
-        const games = data.response.games;
-        const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-        const totalHours = Math.round(totalMinutes / 60);
-
-        // Hours Played card
-        const hoursEl = document.getElementById('stat-hours-played');
-        if (hoursEl) hoursEl.textContent = totalHours + 'h';
-        const hoursBar = document.getElementById('stat-hours-bar');
-        if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
-
-        // Achievements card
-        const achievementsEl = document.getElementById('stat-achievements');
-        if (achievementsEl) achievementsEl.textContent = '0 / 0';
-        const achievementsBar = document.getElementById('stat-achievements-bar');
-        if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
-        const achievementsPct = document.getElementById('stat-achievements-pct');
-        if (achievementsPct) achievementsPct.textContent = '0% completion';
-
-        // Level card
-        const levelEl = document.getElementById('stat-level');
-        if (levelEl) levelEl.textContent = '0';
-        const levelBar = document.getElementById('stat-level-bar');
-        if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
-        const levelXp = document.getElementById('stat-level-xp');
-        if (levelXp) levelXp.textContent = '0 XP to next level';
-
-        // Profile card totals
-        if (totalGamesEl) totalGamesEl.textContent = data.response.game_count || games.length;
-        if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
-
-        // Clear and populate games table
-        if (gamesTbody) {
-          gamesTbody.innerHTML = '';
-          if (games.length === 0) {
-            gamesTbody.innerHTML = '<tr id="steam-placeholder"><td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td></tr>';
-          } else {
-            const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-            for (const game of sorted) {
-              const hours = Math.round((game.playtime_forever || 0) / 60);
-              const tr = document.createElement('tr');
-              tr.className = 'hover:bg-white/3 transition group';
-              tr.innerHTML = `\n              <td class="px-6 py-4">\n                <div class="flex items-center gap-3">\n                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>\n                  <div>\n                    <p class="font-medium text-white">${escapeHtml(game.name)}</p>\n                    <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>\n                  </div>\n                </div>\n              </td>\n              <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>\n              <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>\n              <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>\n              <td class="px-6 py-4 text-gray-400 text-sm">—</td>\n            `;
-              gamesTbody.appendChild(tr);
-            }
-          }
-        }
-      } else {
-        alert("Игры не найдены. Смотри консоль, что вернул сервер.");
-        console.log("Full response:", JSON.stringify(data, null, 2));
-      }
-    });
     steamCancelBtn.addEventListener('click', closeSteamModal);
     steamBackdrop.addEventListener('click', closeSteamModal);
 
@@ -1054,33 +993,6 @@
       localStorage.setItem('gt_steam_games', JSON.stringify(data));
       localStorage.setItem('gt_steamid', steamid);
       closeSteamModal();
-    });// ВСТАВЛЯЕШЬ МОЙ КОД СЮДА (на строку 931)
-    document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('steam-btn-text');
-        
-        if (btn) {
-            const parentBtn = btn.closest('button');
-            const newBtn = parentBtn.cloneNode(true);
-            parentBtn.parentNode.replaceChild(newBtn, parentBtn);
-
-            newBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const steamId = prompt("ВВЕДИ СВОЙ STEAM ID:");
-                if (!steamId) return; 
-                
-                newBtn.style.opacity = "0.5";
-                try {
-                    const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
-                    alert("Данные пришли! Смотри F12 (Console).");
-                    console.log("ЧТО ПРИШЛО ОТ SUPABASE:", data);
-                } catch (err) {
-                    alert("Ошибка: " + err.message);
-                    console.error(err);
-                } finally {
-                    newBtn.style.opacity = "1";
-                }
-            });
-        }
     });
   </script>
 </body>
