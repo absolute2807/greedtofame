@@ -865,10 +865,21 @@
       const steamId = prompt("ВВЕДИ СВОЙ STEAM ID:");
       if (!steamId) return;
       const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
-      if (error) {
-        alert(error.message);
+      console.log("RAW DATA FROM SUPABASE:", data); // Добавь это!
+      if (error) { alert("Error: " + error.message); return; }
+
+      // Проверяем, где именно лежат игры
+      let gamesArray = null;
+      if (data && data.games) { gamesArray = data.games; }
+      else if (data && data.response && data.response.games) { gamesArray = data.response.games; }
+      else if (data && data.data && data.data.games) { gamesArray = data.data.games; }
+
+      if (gamesArray) {
+        alert("Успех! Найдено игр: " + gamesArray.length);
+        renderSteamGames({ games: gamesArray });
       } else {
-        renderSteamGames({ games: data.response.games });
+        alert("Игры не найдены. Смотри консоль, что вернул сервер.");
+        console.log("Full response:", JSON.stringify(data, null, 2));
       }
     });
     steamCancelBtn.addEventListener('click', closeSteamModal);
