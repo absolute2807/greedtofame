@@ -862,14 +862,13 @@
     }
 
     connectSteamBtn.addEventListener('click', async () => {
-      let steamId = prompt("Enter your 17-digit Steam ID:");
-      if (steamId) {
-        const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
-        if (error) {
-          alert("Error: " + error.message);
-        } else {
-          alert("Success! Games found: " + data.response.games.length);
-        }
+      const steamId = prompt("ВВЕДИ СВОЙ STEAM ID:");
+      if (!steamId) return;
+      const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
+      if (error) {
+        alert(error.message);
+      } else {
+        renderSteamGames({ games: data.response.games });
       }
     });
     steamCancelBtn.addEventListener('click', closeSteamModal);
