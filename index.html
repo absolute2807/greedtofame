@@ -301,9 +301,9 @@
               <svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
-            <p class="text-4xl font-extrabold text-white mt-2 stat-number">1,247h</p>
+            <p id="stat-hours-played" class="text-4xl font-extrabold text-white mt-2 stat-number">0h</p>
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-3/4 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
+              <div id="stat-hours-bar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
             </div>
             <p class="text-xs text-green-400 mt-2 font-medium">+12h this week</p>
           </div>
@@ -313,11 +313,11 @@
               <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Achievements</p>
-            <p class="text-4xl font-extrabold text-white mt-2 stat-number">42 / 128</p>
+            <p id="stat-achievements" class="text-4xl font-extrabold text-white mt-2 stat-number">0 / 0</p>
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-1/3 shadow-[0_0_10px_rgba(37,99,235,0.6)]"></div>
+              <div id="stat-achievements-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]"></div>
             </div>
-            <p class="text-xs text-gray-400 mt-2 font-medium">32.8% completion</p>
+            <p id="stat-achievements-pct" class="text-xs text-gray-400 mt-2 font-medium">0% completion</p>
           </div>
 
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
@@ -325,11 +325,11 @@
               <svg class="w-24 h-24 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Level</p>
-            <p class="text-4xl font-extrabold text-white mt-2 stat-number">24</p>
+            <p id="stat-level" class="text-4xl font-extrabold text-white mt-2 stat-number">0</p>
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-1/2 shadow-[0_0_10px_rgba(34,211,238,0.6)]"></div>
+              <div id="stat-level-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]"></div>
             </div>
-            <p class="text-xs text-gray-400 mt-2 font-medium">480 XP to next level</p>
+            <p id="stat-level-xp" class="text-xs text-gray-400 mt-2 font-medium">0 XP to next level</p>
           </div>
         </section>
 
@@ -780,6 +780,22 @@
       if (!data || !data.response || !data.response.games) {
         if (totalGamesEl) totalGamesEl.textContent = '0';
         if (totalHoursEl) totalHoursEl.textContent = '0h';
+        const hoursPlayedEl = document.getElementById('stat-hours-played');
+        if (hoursPlayedEl) hoursPlayedEl.textContent = '0h';
+        const hoursBar = document.getElementById('stat-hours-bar');
+        if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
+        const achievementsEl = document.getElementById('stat-achievements');
+        if (achievementsEl) achievementsEl.textContent = '0 / 0';
+        const achievementsBar = document.getElementById('stat-achievements-bar');
+        if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
+        const achievementsPct = document.getElementById('stat-achievements-pct');
+        if (achievementsPct) achievementsPct.textContent = '0% completion';
+        const levelEl = document.getElementById('stat-level');
+        if (levelEl) levelEl.textContent = '0';
+        const levelBar = document.getElementById('stat-level-bar');
+        if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
+        const levelXp = document.getElementById('stat-level-xp');
+        if (levelXp) levelXp.textContent = '0 XP to next level';
         if (!gamesTbody) return;
         gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
@@ -792,6 +808,31 @@
 
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
       if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
+
+      // Update Hours Played card
+      const hoursPlayedEl = document.getElementById('stat-hours-played');
+      if (hoursPlayedEl) hoursPlayedEl.textContent = totalHours + 'h';
+      const hoursBar = document.getElementById('stat-hours-bar');
+      if (hoursBar) {
+        const hoursPct = Math.min(totalHours / 1000, 1);
+        hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
+      }
+
+      // Update Achievements card (Steam API GetOwnedGames doesn't return achievements, keep at 0)
+      const achievementsEl = document.getElementById('stat-achievements');
+      if (achievementsEl) achievementsEl.textContent = '0 / 0';
+      const achievementsBar = document.getElementById('stat-achievements-bar');
+      if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
+      const achievementsPct = document.getElementById('stat-achievements-pct');
+      if (achievementsPct) achievementsPct.textContent = '0% completion';
+
+      // Update Level card (Steam API GetOwnedGames doesn't return level, keep at 0)
+      const levelEl = document.getElementById('stat-level');
+      if (levelEl) levelEl.textContent = '0';
+      const levelBar = document.getElementById('stat-level-bar');
+      if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
+      const levelXp = document.getElementById('stat-level-xp');
+      if (levelXp) levelXp.textContent = '0 XP to next level';
 
       if (!gamesTbody) return;
       gamesTbody.innerHTML = '';
@@ -840,7 +881,54 @@
 
       if (data && data.response && data.response.games) {
         alert("Успех! Найдено игр: " + data.response.game_count);
-        renderSteamGames(data);
+
+        // Update stats and games table directly from Steam response
+        const games = data.response.games;
+        const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+        const totalHours = Math.round(totalMinutes / 60);
+
+        // Hours Played card
+        const hoursEl = document.getElementById('stat-hours-played');
+        if (hoursEl) hoursEl.textContent = totalHours + 'h';
+        const hoursBar = document.getElementById('stat-hours-bar');
+        if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
+
+        // Achievements card
+        const achievementsEl = document.getElementById('stat-achievements');
+        if (achievementsEl) achievementsEl.textContent = '0 / 0';
+        const achievementsBar = document.getElementById('stat-achievements-bar');
+        if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
+        const achievementsPct = document.getElementById('stat-achievements-pct');
+        if (achievementsPct) achievementsPct.textContent = '0% completion';
+
+        // Level card
+        const levelEl = document.getElementById('stat-level');
+        if (levelEl) levelEl.textContent = '0';
+        const levelBar = document.getElementById('stat-level-bar');
+        if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
+        const levelXp = document.getElementById('stat-level-xp');
+        if (levelXp) levelXp.textContent = '0 XP to next level';
+
+        // Profile card totals
+        if (totalGamesEl) totalGamesEl.textContent = data.response.game_count || games.length;
+        if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
+
+        // Clear and populate games table
+        if (gamesTbody) {
+          gamesTbody.innerHTML = '';
+          if (games.length === 0) {
+            gamesTbody.innerHTML = '<tr id="steam-placeholder"><td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td></tr>';
+          } else {
+            const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+            for (const game of sorted) {
+              const hours = Math.round((game.playtime_forever || 0) / 60);
+              const tr = document.createElement('tr');
+              tr.className = 'hover:bg-white/3 transition group';
+              tr.innerHTML = `\n              <td class="px-6 py-4">\n                <div class="flex items-center gap-3">\n                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>\n                  <div>\n                    <p class="font-medium text-white">${escapeHtml(game.name)}</p>\n                    <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>\n                  </div>\n                </div>\n              </td>\n              <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>\n              <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>\n              <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>\n              <td class="px-6 py-4 text-gray-400 text-sm">—</td>\n            `;
+              gamesTbody.appendChild(tr);
+            }
+          }
+        }
       } else {
         alert("Игры не найдены. Смотри консоль, что вернул сервер.");
         console.log("Full response:", JSON.stringify(data, null, 2));
@@ -887,7 +975,67 @@
         return;
       }
 
-      renderSteamGames(data);
+      // Update stats and games table directly from Steam response
+      const games = data.response.games;
+      const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+      const totalHours = Math.round(totalMinutes / 60);
+
+      // Hours Played card
+      const hoursEl = document.getElementById('stat-hours-played');
+      if (hoursEl) hoursEl.textContent = totalHours + 'h';
+      const hoursBar = document.getElementById('stat-hours-bar');
+      if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
+
+      // Achievements card
+      const achievementsEl = document.getElementById('stat-achievements');
+      if (achievementsEl) achievementsEl.textContent = '0 / 0';
+      const achievementsBar = document.getElementById('stat-achievements-bar');
+      if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
+      const achievementsPct = document.getElementById('stat-achievements-pct');
+      if (achievementsPct) achievementsPct.textContent = '0% completion';
+
+      // Level card
+      const levelEl = document.getElementById('stat-level');
+      if (levelEl) levelEl.textContent = '0';
+      const levelBar = document.getElementById('stat-level-bar');
+      if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
+      const levelXp = document.getElementById('stat-level-xp');
+      if (levelXp) levelXp.textContent = '0 XP to next level';
+
+      // Profile card totals
+      if (totalGamesEl) totalGamesEl.textContent = data.response.game_count || games.length;
+      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
+
+      // Clear and populate games table
+      if (gamesTbody) {
+        gamesTbody.innerHTML = '';
+        if (games.length === 0) {
+          gamesTbody.innerHTML = '<tr id="steam-placeholder"><td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td></tr>';
+        } else {
+          const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+          for (const game of sorted) {
+            const hours = Math.round((game.playtime_forever || 0) / 60);
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-white/3 transition group';
+            tr.innerHTML = `
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>
+                  <div>
+                    <p class="font-medium text-white">${escapeHtml(game.name)}</p>
+                    <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
+              <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
+              <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
+              <td class="px-6 py-4 text-gray-400 text-sm">—</td>
+            `;
+            gamesTbody.appendChild(tr);
+          }
+        }
+      }
 
       // Update username to Steam name if available in the response
       const steamName = data.response?.personaname || data.response?.steam_name || data.response?.name;
