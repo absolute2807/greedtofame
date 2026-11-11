@@ -162,7 +162,7 @@
   <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
   <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
     <h3 class="text-lg font-bold text-white mb-4">Edit Username</h3>
-    <input type="text" id="username-input" value="NovaStrike" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+    <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
     <div class="flex gap-3">
       <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
       <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
@@ -212,7 +212,7 @@
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span id="welcome-username" class="text-purple-400 neon-text">NovaStrike</span></h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span id="welcome-username" class="text-purple-400 neon-text">Guest</span></h2>
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex gap-2">
@@ -231,7 +231,7 @@
             <div class="relative mb-4">
               <img
                 id="profile-avatar"
-                src="https://ui-avatars.com/api/?name=NovaStrike&background=random&size=512"
+                src="https://ui-avatars.com/api/?name=Guest&background=random&size=512"
                 alt="Avatar"
                 class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover"
               />
@@ -239,7 +239,7 @@
                 <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse absolute -bottom-1 -right-1 border-2 border-[#0a0a0f]"></span>
               </div>
             </div>
-            <h3 id="profile-username" class="text-xl font-bold text-white">NovaStrike</h3>
+            <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
             <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
           </div>
 
@@ -262,11 +262,11 @@
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-400">Total games</span>
-              <span id="stat-total-games" class="text-sm font-semibold text-white">12</span>
+              <span id="stat-total-games" class="text-sm font-semibold text-white">0</span>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-400">Total hours</span>
-              <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">1,247h</span>
+              <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">0h</span>
             </div>
           </div>
         </div>
@@ -401,47 +401,8 @@
                 </tr>
               </thead>
               <tbody id="games-tbody" class="divide-y divide-white/5">
-                <tr class="hover:bg-white/3 transition group">
-                  <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-red-900 flex items-center justify-center text-white font-bold shadow-lg">CS</div>
-                      <div>
-                        <p class="font-medium text-white">Counter-Strike 2</p>
-                        <p class="text-xs text-gray-500">FPS • Competitive</p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <tr class="hover:bg-white/3 transition group">
-                  <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-900 flex items-center justify-center text-white font-bold shadow-lg">D</div>
-                      <div>
-                        <p class="font-medium text-white">Dota 2</p>
-                        <p class="text-xs text-gray-500">MOBA • Ranked</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">310h</span></td>
-                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">214</span></td>
-                  <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">Divine 2</span></td>
-                  <td class="px-6 py-4 text-gray-400 text-sm">1 day ago</td>
-                </tr>
-
-                <tr class="hover:bg-white/3 transition group">
-                  <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-pink-900 flex items-center justify-center text-white font-bold shadow-lg">ML</div>
-                      <div>
-                        <p class="font-medium text-white">Mobile Legends</p>
-                        <p class="text-xs text-gray-500">MOBA • Mobile</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">180h</span></td>
-                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">95</span></td>
-                  <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">Mythic Glory</span></td>
-                  <td class="px-6 py-4 text-gray-400 text-sm">3 days ago</td>
+                <tr id="steam-placeholder">
+                  <td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td>
                 </tr>
               </tbody>
             </table>
@@ -927,6 +888,20 @@
       }
 
       renderSteamGames(data);
+
+      // Update username to Steam name if available in the response
+      const steamName = data.response?.personaname || data.response?.steam_name || data.response?.name;
+      if (steamName) {
+        const welcomeEl = document.getElementById('welcome-username');
+        const profileEl = document.getElementById('profile-username');
+        const avatarEl = document.getElementById('profile-avatar');
+        const inputEl = document.getElementById('username-input');
+        if (welcomeEl) welcomeEl.textContent = steamName;
+        if (profileEl) profileEl.textContent = steamName;
+        if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(steamName)}&background=random&size=512`;
+        if (inputEl) inputEl.value = steamName;
+      }
+
       steamBtnText.textContent = 'Steam Connected';
       localStorage.setItem('gt_steam_games', JSON.stringify(data));
       localStorage.setItem('gt_steamid', steamid);
