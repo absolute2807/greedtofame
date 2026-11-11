@@ -861,7 +861,30 @@
       }
     }
 
-    connectSteamBtn.addEventListener('click', openSteamModal);
+    connectSteamBtn.addEventListener('click', async () => {
+      const steamId = prompt("Enter your 17-digit Steam ID:");
+      if (!steamId) return;
+
+      const { data, error } = await supabase.functions.invoke('steam-api', {
+        body: { steamid: steamId },
+      });
+
+      if (error) {
+        alert("Error: " + error.message);
+        return;
+      }
+
+      alert("Success! Data fetched.");
+
+      const games = (data && data.response && data.response.games)
+        ? data.response.games
+        : (data && data.games ? data.games : []);
+      renderSteamGames({ games });
+
+      steamBtnText.textContent = 'Steam Connected';
+      localStorage.setItem('gt_steam_games', JSON.stringify(data));
+      localStorage.setItem('gt_steamid', steamId);
+    });
     steamCancelBtn.addEventListener('click', closeSteamModal);
     steamBackdrop.addEventListener('click', closeSteamModal);
 
