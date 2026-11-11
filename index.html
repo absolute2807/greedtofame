@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GameTrack | Gaming Profile Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-purple: #a855f7;
+      --neon-blue: #2563eb;
+      --neon-cyan: #22d3ee;
+      --bg-dark: #0a0a0f;
+      --card-bg: #111117;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-dark);
+      color: #e2e8f0;
+    }
+
+    .neon-text {
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.55),
+                   0 0 20px rgba(168, 85, 247, 0.3);
+    }
+
+    .neon-border {
+      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25),
+                  0 0 20px rgba(168, 85, 247, 0.15);
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
+    }
+
+    .btn-gradient:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+    }
+
+    .btn-gradient:active {
+      transform: translateY(1px);
+    }
+
+    .glass-card {
+      background: linear-gradient(145deg, #171722 0%, #111117 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .gallery-placeholder {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      border: 2px dashed rgba(168, 85, 247, 0.35);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-placeholder:hover {
+      border-color: var(--neon-purple);
+      background: linear-gradient(135deg, #161e35 0%, #221335 100%);
+      box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
+    }
+
+    .gallery-placeholder.has-image {
+      border-style: solid;
+      border-color: var(--neon-cyan);
+      background: #0f172a;
+    }
+
+    .remove-btn {
+      width: 26px;
+      height: 26px;
+      min-width: 26px;
+      min-height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.7);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .remove-btn:hover {
+      background: rgba(168, 85, 247, 0.9);
+      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.9), 0 2px 8px rgba(168, 85, 247, 0.4);
+    }
+
+    .remove-btn:active {
+      transform: scale(0.92);
+    }
+
+    .remove-btn:focus-visible {
+      outline: 2px solid var(--neon-cyan);
+      outline-offset: 2px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .stat-number {
+      background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .rank-badge {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      color: #d8b4fe;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333340;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4338ca;
+    }
+  </style>
+</head>
+<body class="min-h-screen selection:bg-purple-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.6)]">
+          <span class="text-white font-extrabold tracking-tight">GT</span>
+        </div>
+        <span class="text-xl font-bold neon-text tracking-tight">GameTrack</span>
+      </div>
+      <button
+        class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f]"
+      >
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <!-- Intro / Welcome -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span class="text-purple-400 neon-text">NovaStrike</span></h2>
+        <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Edit Profile</button>
+        <button class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
+      </div>
+    </div>
+
+    <!-- Grid: Sidebar (profile) + Main -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+      <!-- Left Column: Profile Card -->
+      <aside class="lg:col-span-3 space-y-6">
+        <div class="glass-card rounded-2xl p-6 neon-border">
+          <div class="flex flex-col items-center">
+            <div class="relative mb-4">
+              <img
+                id="profile-avatar"
+                src="https://ui-avatars.com/api/?name=NovaStrike&background=random&size=512"
+                alt="Avatar"
+                class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover"
+              />
+              <div class="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-[#0a0a0f]">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse absolute -bottom-1 -right-1 border-2 border-[#0a0a0f]"></span>
+              </div>
+            </div>
+            <h3 class="text-xl font-bold text-white">NovaStrike</h3>
+            <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-white/5">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect Platform</p>
+            <button
+              id="connect-steam"
+              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5"
+            >
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              Connect Steam
+            </button>
+            <p class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and achievements automatically.</p>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-white/5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Member since</span>
+              <span class="text-sm font-semibold text-white">Mar 2021</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Total games</span>
+              <span class="text-sm font-semibold text-white">12</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-400">Total hours</span>
+              <span class="text-sm font-semibold text-white stat-number">1,247h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="glass-card rounded-2xl p-6 neon-border">
+          <h4 class="text-sm font-bold text-white mb-4">Quick Actions</h4>
+          <div class="space-y-2">
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
+              <span>View Achievements</span>
+              <span class="text-purple-400">42</span>
+            </button>
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
+              <span>Friends Online</span>
+              <span class="text-green-400">3</span>
+            </button>
+            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
+              <span>Wishlist</span>
+              <span class="text-blue-400">8</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column: Main Content -->
+      <main class="lg:col-span-9 space-y-10">
+
+        <!-- Statistics -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+              <svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
+            <p class="text-4xl font-extrabold text-white mt-2 stat-number">1,247h</p>
+            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-3/4 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
+            </div>
+            <p class="text-xs text-green-400 mt-2 font-medium">+12h this week</p>
+          </div>
+
+          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+              <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Achievements</p>
+            <p class="text-4xl font-extrabold text-white mt-2 stat-number">42 / 128</p>
+            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-1/3 shadow-[0_0_10px_rgba(37,99,235,0.6)]"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 font-medium">32.8% completion</p>
+          </div>
+
+          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
+              <svg class="w-24 h-24 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
+            </div>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Level</p>
+            <p class="text-4xl font-extrabold text-white mt-2 stat-number">24</p>
+            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-1/2 shadow-[0_0_10px_rgba(34,211,238,0.6)]"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 font-medium">480 XP to next level</p>
+          </div>
+        </section>
+
+        <!-- Photo Gallery -->
+        <section class="glass-card rounded-2xl p-6 neon-border">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-white">Game Screenshots</h3>
+              <p class="text-sm text-gray-400">Upload exactly 3 screenshots from your recent matches.</p>
+            </div>
+            <span class="text-xs font-semibold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">3 / 3 slots</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
+            <!-- Placeholder 1 -->
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-1">
+              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-1">
+                <div class="flex flex-col items-center">
+                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <span class="text-sm font-medium text-white">Add screenshot</span>
+                </div>
+              </div>
+              <img id="preview-1" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
+              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-1" aria-label="Remove screenshot">&times;</button>
+              <input type="file" id="upload-1" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
+            </label>
+
+            <!-- Placeholder 2 -->
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-2">
+              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-2">
+                <div class="flex flex-col items-center">
+                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <span class="text-sm font-medium text-white">Add screenshot</span>
+                </div>
+              </div>
+              <img id="preview-2" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
+              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-2" aria-label="Remove screenshot">&times;</button>
+              <input type="file" id="upload-2" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
+            </label>
+
+            <!-- Placeholder 3 -->
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-3">
+              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-3">
+                <div class="flex flex-col items-center">
+                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <span class="text-sm font-medium text-white">Add screenshot</span>
+                </div>
+              </div>
+              <img id="preview-3" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
+              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-3" aria-label="Remove screenshot">&times;</button>
+              <input type="file" id="upload-3" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
+            </label>
+          </div>
+          <p id="gallery-hint" class="mt-4 text-xs text-gray-500 text-center">Select up to 3 images (JPG/PNG, max 5MB each).</p>
+        </section>
+
+        <!-- Games List -->
+        <section class="glass-card rounded-2xl p-6 neon-border">
+          <h3 class="text-xl font-bold text-white mb-6">Your Games</h3>
+          <div class="overflow-hidden rounded-xl border border-white/5">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="border-b border-white/5 bg-white/3">
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Game</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Playtime</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Wins</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Rank / Tier</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Last Played</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/5">
+                <tr class="hover:bg-white/3 transition group">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-red-900 flex items-center justify-center text-white font-bold shadow-lg">CS</div>
+                      <div>
+                        <p class="font-medium text-white">Counter-Strike 2</p>
+                        <p class="text-xs text-gray-500">FPS • Competitive</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr class="hover:bg-white/3 transition group">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-900 flex items-center justify-center text-white font-bold shadow-lg">D</div>
+                      <div>
+                        <p class="font-medium text-white">Dota 2</p>
+                        <p class="text-xs text-gray-500">MOBA • Ranked</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">310h</span></td>
+                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">214</span></td>
+                  <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">Divine 2</span></td>
+                  <td class="px-6 py-4 text-gray-400 text-sm">1 day ago</td>
+                </tr>
+
+                <tr class="hover:bg-white/3 transition group">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-pink-900 flex items-center justify-center text-white font-bold shadow-lg">ML</div>
+                      <div>
+                        <p class="font-medium text-white">Mobile Legends</p>
+                        <p class="text-xs text-gray-500">MOBA • Mobile</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">180h</span></td>
+                  <td class="px-6 py-4"><span class="text-white font-mono text-sm">95</span></td>
+                  <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">Mythic Glory</span></td>
+                  <td class="px-6 py-4 text-gray-400 text-sm">3 days ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Gallery upload handling — exactly 3 slots (JPG/PNG only)
+    const slots = [
+      { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
+      { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
+      { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
+    ];
+
+    function resetSlot(slot) {
+      const inputEl = document.getElementById(slot.input);
+      const previewEl = document.getElementById(slot.preview);
+      const overlayEl = document.getElementById(slot.overlay);
+      const removeEl = document.getElementById(slot.remove);
+      const labelEl = inputEl.parentElement;
+
+      previewEl.src = '';
+      previewEl.classList.add('hidden');
+      overlayEl.classList.remove('hidden');
+      removeEl.classList.add('hidden');
+      labelEl.classList.remove('has-image');
+      inputEl.value = '';
+    }
+
+    slots.forEach((slot) => {
+      const inputEl = document.getElementById(slot.input);
+      const previewEl = document.getElementById(slot.preview);
+      const overlayEl = document.getElementById(slot.overlay);
+      const removeEl = document.getElementById(slot.remove);
+      const labelEl = inputEl.parentElement;
+
+      // Clicking the box (its <label>) opens the file picker — works when empty or to replace an image
+      inputEl.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Only JPG/PNG allowed (checked by extension and MIME type)
+        const isJpgOrPng = /\.(jpe?g|png)$/i.test(file.name);
+        const isImageType = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng || !isImageType) {
+          alert('Please select a JPG or PNG image only.');
+          inputEl.value = '';
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File too large (max 5MB).');
+          inputEl.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          previewEl.src = evt.target.result;
+          previewEl.classList.remove('hidden');
+          overlayEl.classList.add('hidden');
+          removeEl.classList.remove('hidden');
+          labelEl.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Remove image and restore the empty placeholder
+      removeEl.addEventListener('click', (e) => {
+        e.stopPropagation(); // do not trigger the file picker
+        resetSlot(slot);
+      });
+    });
+
+    // Connect Steam button feedback
+    document.getElementById('connect-steam').addEventListener('click', () => {
+      const btn = document.getElementById('connect-steam');
+      const original = btn.innerHTML;
+      btn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Connecting...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.disabled = false;
+        alert('Steam account connected successfully!');
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
