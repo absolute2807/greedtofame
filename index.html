@@ -928,6 +928,33 @@
       localStorage.setItem('gt_steam_games', JSON.stringify(data));
       localStorage.setItem('gt_steamid', steamid);
       closeSteamModal();
+    });// ВСТАВЛЯЕШЬ МОЙ КОД СЮДА (на строку 931)
+    document.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('steam-btn-text');
+        
+        if (btn) {
+            const parentBtn = btn.closest('button');
+            const newBtn = parentBtn.cloneNode(true);
+            parentBtn.parentNode.replaceChild(newBtn, parentBtn);
+
+            newBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const steamId = prompt("ВВЕДИ СВОЙ STEAM ID:");
+                if (!steamId) return; 
+                
+                newBtn.style.opacity = "0.5";
+                try {
+                    const { data, error } = await supabase.functions.invoke('steam-api', { body: { steamid: steamId } });
+                    alert("Данные пришли! Смотри F12 (Console).");
+                    console.log("ЧТО ПРИШЛО ОТ SUPABASE:", data);
+                } catch (err) {
+                    alert("Ошибка: " + err.message);
+                    console.error(err);
+                } finally {
+                    newBtn.style.opacity = "1";
+                }
+            });
+        }
     });
   </script>
 </body>
