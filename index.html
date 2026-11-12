@@ -318,7 +318,7 @@
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
               <div id="stat-hours-bar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
             </div>
-            <p class="text-xs text-green-400 mt-2 font-medium">+12h this week</p>
+            <p id="stat-recent-hours" class="text-xs text-green-400 mt-2 font-medium">0hrs this week</p>
           </div>
 
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
@@ -824,7 +824,7 @@
           return;
         }
 
-        if (data && data.response && data.response.games) {
+        if (data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
           updateSteamUI(data, profile.steam_id);
         }
       } catch (e) {
@@ -869,7 +869,7 @@
           const { data, error } = await supabase.functions.invoke('steam-api', {
             body: { steamid },
           });
-          if (!error && data && data.response && data.response.games) {
+          if (!error && data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
             updateSteamUI(data, steamid);
             return;
           }
@@ -889,7 +889,7 @@
     }
 
     function renderSteamGames(data) {
-      if (!data || !data.response || !data.response.games) {
+      if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
         if (totalGamesEl) totalGamesEl.textContent = '0';
         if (totalHoursEl) totalHoursEl.textContent = '0h';
         const hoursPlayedEl = document.getElementById('stat-hours-played');
@@ -911,10 +911,19 @@
         return;
       }
 
-      const games = data.response.games;
-      const totalGames = data.response.game_count || games.length;
+      const games = data.ownedGames.response.games;
+      const totalGames = data.ownedGames.response.game_count || games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
+
+      // Update recent hours played (last 2 weeks)
+      const recentHoursEl = document.getElementById('stat-recent-hours');
+      if (recentHoursEl) {
+        const recentGames = data.recentGames?.response?.games || [];
+        const recentMinutes = recentGames.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
+        const recentHours = Math.round(recentMinutes / 60);
+        recentHoursEl.textContent = `+${recentHours}h this week`;
+      }
 
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
       if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
@@ -992,9 +1001,18 @@
 
     // Shared UI update logic for Steam data (used by both connect button and auto-load)
     function updateSteamUI(data, steamid) {
-      const games = data.response.games;
+      const games = data.ownedGames.response.games;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
+
+      // Update recent hours played (last 2 weeks)
+      const recentHoursEl = document.getElementById('stat-recent-hours');
+      if (recentHoursEl) {
+        const recentGames = data.recentGames?.response?.games || [];
+        const recentMinutes = recentGames.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
+        const recentHours = Math.round(recentMinutes / 60);
+        recentHoursEl.textContent = `+${recentHours}h this week`;
+      }
 
       // Hours Played card
       const hoursEl = document.getElementById('stat-hours-played');
@@ -1030,7 +1048,7 @@
       if (levelXp) levelXp.textContent = '0 XP to next level';
 
       // Profile card totals
-      if (totalGamesEl) totalGamesEl.textContent = data.response.game_count || games.length;
+      if (totalGamesEl) totalGamesEl.textContent = data.ownedGames.response.game_count || games.length;
       if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
 
       // Clear and populate games table
@@ -1070,7 +1088,7 @@
       }
 
       // Update username to Steam name if available in the response
-      const steamName = data.response?.personaname || data.response?.steam_name || data.response?.name;
+      const steamName = data.ownedGames.response?.personaname || data.ownedGames.response?.steam_name || data.ownedGames.response?.name;
       if (steamName) {
         const welcomeEl = document.getElementById('welcome-username');
         const profileEl = document.getElementById('profile-username');
