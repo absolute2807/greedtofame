@@ -742,20 +742,20 @@
 
     // Auto-fetch Steam games if user has a saved steamid in their Supabase profile
     async function autoLoadSteamGames() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('steamid')
-        .eq('id', session.user.id)
+        .select('steam_id')
+        .eq('id', user.id)
         .single();
 
-      if (profileError || !profile || !profile.steamid) return;
+      if (profileError || !profile || !profile.steam_id) return;
 
       try {
         const { data, error } = await supabase.functions.invoke('steam-api', {
-          body: { steamid: profile.steamid },
+          body: { steamid: profile.steam_id },
         });
 
         if (error) {
@@ -764,9 +764,7 @@
         }
 
         if (data && data.response && data.response.games) {
-          renderSteamGames(data);
-          localStorage.setItem('gt_steam_games', JSON.stringify(data));
-          localStorage.setItem('gt_steamid', profile.steamid);
+          updateSteamUI(data, profile.steam_id);
         }
       } catch (e) {
         console.error('Failed to auto-load Steam games:', e);
@@ -907,53 +905,8 @@
       }
     }
 
-
-    steamCancelBtn.addEventListener('click', closeSteamModal);
-    steamBackdrop.addEventListener('click', closeSteamModal);
-
-    steamInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSteamModal();
-    });
-
-    connectSteamBtn.addEventListener('click', () => {
-      openSteamModal();
-    });
-
-    steamConnectBtn.addEventListener('click', async () => {
-      const steamid = steamInput.value.trim();
-      if (!/^\d{17}$/.test(steamid)) {
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      steamError.classList.add('hidden');
-      steamConnectBtn.disabled = true;
-      steamBtnText.textContent = 'Connecting...';
-
-      const { data, error } = await supabase.functions.invoke('steam-api', {
-        body: { steamid },
-      });
-
-      steamConnectBtn.disabled = false;
-
-      if (error) {
-        steamBtnText.textContent = 'Connect Steam';
-        steamError.textContent = error.message || 'Failed to connect Steam account.';
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      if (!data || !data.response || !Array.isArray(data.response.games)) {
-        steamBtnText.textContent = 'Connect Steam';
-        steamError.textContent = 'Unexpected response from Steam API.';
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      // Update stats and games table directly from Steam response
+    // Shared UI update logic for Steam data (used by both connect button and auto-load)
+    function updateSteamUI(data, steamid) {
       const games = data.response.games;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
@@ -1001,11 +954,13 @@
             tr.innerHTML = `
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${escapeHtml(game.name)}" loading="lazy" />` : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>`}
-                  <div>
-                    <p class="font-medium text-white">${escapeHtml(game.name)}</p>
-                    <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
-                  </div>
+                ${iconUrl
+                  ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${escapeHtml(game.name)}" loading="lazy" />`
+                  : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>`}
+                <div>
+                  <p class="font-medium text-white">${escapeHtml(game.name)}</p>
+                  <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
+                </div>
                 </div>
               </td>
               <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
@@ -1034,15 +989,65 @@ ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt
       steamBtnText.textContent = 'Steam Connected';
       localStorage.setItem('gt_steam_games', JSON.stringify(data));
       localStorage.setItem('gt_steamid', steamid);
+    }
 
-      // Save steamid to Supabase profiles table if logged in
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.from('profiles').upsert({ id: session.user.id, steamid: steamid });
+    steamCancelBtn.addEventListener('click', closeSteamModal);
+    steamBackdrop.addEventListener('click', closeSteamModal);
+
+    steamInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSteamModal();
+    });
+
+    connectSteamBtn.addEventListener('click', () => {
+      openSteamModal();
+    });
+
+    steamConnectBtn.addEventListener('click', async () => {
+      const steamid = steamInput.value.trim();
+      if (!/^\d{17}$/.test(steamid)) {
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
       }
+
+      steamError.classList.add('hidden');
+      steamConnectBtn.disabled = true;
+      steamBtnText.textContent = 'Connecting...';
+
+      const { data, error } = await supabase.functions.invoke('steam-api', {
+        body: { steamid },
+      });
+
+      steamConnectBtn.disabled = false;
+
+      if (error) {
+        steamBtnText.textContent = 'Connect Steam';
+        steamError.textContent = error.message || 'Failed to connect Steam account.';
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      if (!data || !data.response || !Array.isArray(data.response.games)) {
+        steamBtnText.textContent = 'Connect Steam';
+        steamError.textContent = 'Unexpected response from Steam API.';
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      // Save steam_id to Supabase profiles table if logged in (before UI update)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('profiles').upsert({ id: user.id, steam_id: steamid });
+      }
+
+      updateSteamUI(data, steamid);
 
       closeSteamModal();
     });
   </script>
 </body>
 </html>
+
+
