@@ -169,19 +169,6 @@
     </div>
   </div>
 
-  <!-- Steam Connect Modal -->
-  <div id="steam-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
-  <div id="steam-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
-    <h3 class="text-lg font-bold text-white mb-4">Connect Steam Account</h3>
-    <p class="text-sm text-gray-400 mb-4">Enter your 17-digit SteamID64. You can find it on your Steam profile page (steamcommunity.com/id/yourname) or via any SteamID lookup tool.</p>
-    <input type="text" id="steamid-input" placeholder="76561198XXXXXXXXX" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" maxlength="17" />
-    <p id="steam-error" class="text-sm text-red-400 hidden mb-4">Please enter a valid 17-digit SteamID64 (digits only).</p>
-    <div class="flex gap-3">
-      <button id="steam-connect" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Connect</button>
-      <button id="steam-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
-    </div>
-  </div>
-
   <!-- Login/Signup Modal -->
   <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
@@ -245,13 +232,13 @@
 
           <div class="mt-6 pt-6 border-t border-white/5">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect Platform</p>
-            <button
+            <a
               id="connect-steam-btn"
-              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5"
+              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center block"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span id="steam-btn-text">Connect Steam</span>
-            </button>
+            </a>
             <p class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and achievements automatically.</p>
             <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden flex items-center justify-center gap-2">Loading Steam games...</p>
           </div>
@@ -783,30 +770,53 @@
       }
     }
 
-    autoLoadSteamGames();
-
-    // --- Steam connect modal ---
-    const steamBackdrop = document.getElementById('steam-modal-backdrop');
-    const steamModal = document.getElementById('steam-modal');
-    const steamInput = document.getElementById('steamid-input');
-    const steamError = document.getElementById('steam-error');
-    const steamConnectBtn = document.getElementById('steam-connect');
-    const steamCancelBtn = document.getElementById('steam-cancel');
+    // --- Steam OpenID connect ---
     const steamBtnText = document.getElementById('steam-btn-text');
     const connectSteamBtn = document.getElementById('connect-steam-btn');
     const steamAutoLoadEl = document.getElementById('steam-auto-load');
 
-    function openSteamModal() {
-      steamInput.value = '';
-      steamError.classList.add('hidden');
-      steamModal.classList.remove('hidden');
-      steamBackdrop.classList.remove('hidden');
-      steamInput.focus();
+    const STEAM_AUTH_CALLBACK_URL = 'https://tcdtdfgtpgdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
+
+    connectSteamBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentUrl = window.location.origin + window.location.pathname;
+      window.location.href = `${STEAM_AUTH_CALLBACK_URL}?frontend_url=${encodeURIComponent(currentUrl)}`;
+    });
+
+    // Handle Steam OpenID callback (returned from Steam authentication)
+    const urlParams = new URLSearchParams(window.location.search);
+    const openidMode = urlParams.get('openid.mode');
+    if (openidMode === 'id_res') {
+      const claimedId = urlParams.get('openid.claimed_id');
+      const steamid = claimedId ? claimedId.split('/').pop() : null;
+      window.history.replaceState({}, document.title, window.location.pathname);
+      if (steamid) {
+        handleSteamCallback(steamid);
+      } else {
+        autoLoadSteamGames();
+      }
+    } else {
+      autoLoadSteamGames();
     }
 
-    function closeSteamModal() {
-      steamModal.classList.add('hidden');
-      steamBackdrop.classList.add('hidden');
+    async function handleSteamCallback(steamid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error: upsertError } = await supabase.from('profiles').upsert({
+          id: user.id,
+          steam_id: String(steamid),
+        });
+        if (!upsertError) {
+          const { data, error } = await supabase.functions.invoke('steam-api', {
+            body: { steamid },
+          });
+          if (!error && data && data.response && data.response.games) {
+            updateSteamUI(data, steamid);
+            return;
+          }
+        }
+      }
+      autoLoadSteamGames();
     }
 
     function escapeHtml(text) {
@@ -1004,69 +1014,6 @@
       localStorage.setItem('gt_steamid', steamid);
     }
 
-    steamCancelBtn.addEventListener('click', closeSteamModal);
-    steamBackdrop.addEventListener('click', closeSteamModal);
-
-    steamInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSteamModal();
-    });
-
-    connectSteamBtn.addEventListener('click', () => {
-      openSteamModal();
-    });
-
-    steamConnectBtn.addEventListener('click', async () => {
-      const steamid = steamInput.value.trim();
-      if (!/^\d{17}$/.test(steamid)) {
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      steamError.classList.add('hidden');
-      steamConnectBtn.disabled = true;
-      steamBtnText.textContent = 'Connecting...';
-
-      const { data, error } = await supabase.functions.invoke('steam-api', {
-        body: { steamid },
-      });
-
-      steamConnectBtn.disabled = false;
-
-      if (error) {
-        steamBtnText.textContent = 'Connect Steam';
-        steamError.textContent = error.message || 'Failed to connect Steam account.';
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      if (!data || !data.response || !Array.isArray(data.response.games)) {
-        steamBtnText.textContent = 'Connect Steam';
-        steamError.textContent = 'Unexpected response from Steam API.';
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      // Save steam_id to Supabase profiles table if logged in (before UI update)
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error: upsertError } = await supabase.from('profiles').upsert({
-          id: user.id,
-          steam_id: String(steamid),
-        });
-        if (upsertError) {
-          console.error("UPSERT ERROR:", upsertError);
-        } else {
-          console.log("Steam ID saved to database!");
-        }
-      }
-
-      updateSteamUI(data, steamid);
-
-      closeSteamModal();
-    });
   </script>
 </body>
 </html>
