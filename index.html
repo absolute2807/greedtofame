@@ -730,6 +730,11 @@
 
     loadState();
 
+    // Steam DOM elements (declared here so they're available before first use)
+    const gamesTbody = document.getElementById('games-tbody');
+    const totalGamesEl = document.getElementById('stat-total-games');
+    const totalHoursEl = document.getElementById('stat-total-hours');
+
     // Restore previously fetched Steam games (if any)
     const savedSteam = localStorage.getItem('gt_steam_games');
     if (savedSteam) {
@@ -782,9 +787,6 @@
     const steamCancelBtn = document.getElementById('steam-cancel');
     const steamBtnText = document.getElementById('steam-btn-text');
     const connectSteamBtn = document.getElementById('connect-steam-btn');
-    const gamesTbody = document.getElementById('games-tbody');
-    const totalGamesEl = document.getElementById('stat-total-games');
-    const totalHoursEl = document.getElementById('stat-total-hours');
 
     function openSteamModal() {
       steamInput.value = '';
@@ -1042,8 +1044,15 @@
       // Save steam_id to Supabase profiles table if logged in (before UI update)
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase.from('profiles').upsert({ id: user.id, steam_id: steamid });
-        console.log("Steam ID saved to database!");
+        const { error: upsertError } = await supabase.from('profiles').upsert({
+          id: user.id,
+          steam_id: String(steamid),
+        });
+        if (upsertError) {
+          console.error("UPSERT ERROR:", upsertError);
+        } else {
+          console.log("Steam ID saved to database!");
+        }
       }
 
       updateSteamUI(data, steamid);
