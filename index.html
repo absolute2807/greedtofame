@@ -200,6 +200,28 @@
     </div>
   </div>
 
+  <!-- Account Switcher Modal -->
+  <div id="account-switcher-backdrop" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="account-switcher-modal" class="fixed inset-0 z-50 hidden bg-[#111117] overflow-y-auto">
+    <div class="flex flex-col items-center justify-center min-h-screen p-6">
+      <div class="w-full max-w-2xl bg-[#111117] rounded-2xl border border-white/10 shadow-2xl">
+        <div class="flex items-center justify-between p-6 border-b border-white/10">
+          <h3 class="text-lg font-bold text-white">Switch Account</h3>
+          <button id="account-switcher-close" class="text-gray-400 hover:text-white transition">&times;</button>
+        </div>
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+          <p class="text-sm text-gray-400 mb-4">Select an account below to switch.</p>
+          <div id="saved-accounts-list" class="space-y-2">
+            <!-- Saved accounts will be rendered here -->
+          </div>
+          <div class="mt-4 flex gap-3">
+            <button id="add-new-account" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Add New Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Login/Signup Modal -->
   <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
@@ -450,6 +472,11 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
     const authLogoutBtn = document.getElementById('auth-logout');
+    const accountSwitcherBackdrop = document.getElementById('account-switcher-backdrop');
+    const accountSwitcherModal = document.getElementById('account-switcher-modal');
+    const accountSwitcherClose = document.getElementById('account-switcher-close');
+    const savedAccountsList = document.getElementById('saved-accounts-list');
+    const addNewAccountBtn = document.getElementById('add-new-account');
 
     function updateAuthButton(user) {
       if (user) {
@@ -469,23 +496,124 @@
     }
 
     async function handleSignOut() {
+      const currentSession = supabase.auth.getCurrentSession();
+      // Save current session to localStorage before signing out
+      if (currentSession) {
+        const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+        const account = {
+          id: currentSession.user.id,
+          email: currentSession.user.email,
+          session: {
+            access_token: currentSession.access_token,
+            refresh_token: currentSession.refresh_token,
+            token_type: 'bearer',
+            expires_in: currentSession.expires_in,
+            user: {
+              id: currentSession.user.id,
+              email: currentSession.user.email,
+              app_metadata: currentSession.user.app_metadata,
+              user_metadata: currentSession.user.user_metadata,
+            },
+          },
+        };
+        savedAccounts.push(account);
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+      }
+
       closeAuthDropdown();
       const { error } = await supabase.auth.signOut();
       if (error) {
         setAuthMessage(error.message, true);
+      } else {
+        // Redirect to login page (show login modal)
+        openAuthModal();
       }
     }
 
     authChangeAccountBtn.addEventListener('click', handleSignOut);
     authLogoutBtn.addEventListener('click', handleSignOut);
 
-    // Close dropdown when clicking outside
+    // Account Switcher modal controls
+    accountSwitcherClose.addEventListener('click', () => {
+      accountSwitcherModal.classList.add('hidden');
+      accountSwitcherBackdrop.classList.add('hidden');
+    });
+
+    accountSwitcherBackdrop.addEventListener('click', () => {
+      accountSwitcherModal.classList.add('hidden');
+      accountSwitcherBackdrop.classList.add('hidden');
+    });
+
+    addNewAccountBtn.addEventListener('click', () => {
+      // Clear the saved accounts array so only the new account shows
+      localStorage.setItem('saved_accounts', JSON.stringify([]));
+      // Open the sign-in modal to add a new account
+      closeAuthDropdown();
+      openAuthModal();
+      // Close the account switcher
+      accountSwitcherModal.classList.add('hidden');
+      accountSwitcherBackdrop.classList.add('hidden');
+      // Focus on the email input in the sign-in modal
+      setTimeout(() => {
+        const authEmail = document.getElementById('auth-email');
+        if (authEmail) authEmail.focus();
+      }, 100);
+    });
+
+    // Render saved accounts in the switcher modal
+    function renderSavedAccounts() {
+      const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+      if (savedAccounts.length === 0) {
+        savedAccountsList.innerHTML = '<p class="text-sm text-gray-500">No saved accounts found.</p>';
+        return;
+      }
+      savedAccountsList.innerHTML = savedAccounts.map((acc, index) => `
+        <div class="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-white/5 transition group">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-300 font-semibold">
+              ${acc.email ? acc.email.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div>
+              <p class="text-sm font-medium text-white">${acc.email || 'Unknown'}</p>
+              <p class="text-xs text-gray-500">ID: ${acc.id ? acc.id.substring(0, 8) : 'Unknown'}</p>
+            </div>
+          </div>
+          <button class="text-xs text-purple-400 hover:text-white transition" data-email="${acc.email || ''}" data-id="${acc.id || ''}">Switch</button>
+        </div>
+      `).join('');
+
+    // Add click listeners to saved account Switch buttons
     document.addEventListener('click', (e) => {
-      const container = document.getElementById('auth-btn-container');
-      if (container && !container.contains(e.target)) {
-        closeAuthDropdown();
+      const switchBtn = e.target.closest('button[data-email]');
+      if (switchBtn) {
+        const email = switchBtn.dataset.email;
+        const id = switchBtn.dataset.id;
+        const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
+        const account = savedAccounts.find(a => a.email === email || a.id === id);
+        if (account && account.session) {
+          // Set the session to switch to this account
+          if (typeof supabase.auth.setSession === 'function') {
+            supabase.auth.setSession({
+              access_token: account.session.access_token,
+              refresh_token: account.session.refresh_token,
+            }).then(({ data, error }) => {
+              if (error) {
+                console.error('Error setting session:', error);
+              }
+            });
+          }
+          // Close the account switcher
+          accountSwitcherModal.classList.add('hidden');
+          accountSwitcherBackdrop.classList.add('hidden');
+          // Re-render the account list
+          renderSavedAccounts();
+        }
       }
     });
+    }
+
+    // Load and render saved accounts on page load
+    renderSavedAccounts();
 
     function setAuthMessage(msg, isError = false) {
       authMessage.textContent = msg;
