@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GameTrack | Gaming Profile Dashboard</title>
+  <title>GreedToFame | Gaming Profile Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -136,6 +136,30 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #4338ca;
     }
+
+    /* Auth dropdown */
+    #auth-dropdown {
+      background: #111117;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
+    }
+    #auth-dropdown button {
+      width: 100%;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #9ca3af;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    #auth-dropdown button:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -147,14 +171,21 @@
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.6)]">
           <span class="text-white font-extrabold tracking-tight">GT</span>
         </div>
-        <span class="text-xl font-bold neon-text tracking-tight">GameTrack</span>
+        <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
-      <button
-        id="auth-btn"
-        class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f]"
-      >
-        Login
-      </button>
+      <div id="auth-btn-container" class="relative">
+        <button
+          id="auth-btn"
+          class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2"
+        >
+          <span id="auth-btn-text">Login</span>
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
+          <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
+          <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -174,7 +205,7 @@
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
     <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
       <div class="flex justify-between items-start mb-6">
-        <h3 class="text-lg font-bold text-white">Sign in to GameTrack</h3>
+        <h3 class="text-lg font-bold text-white">Sign in to GreedToFame</h3>
         <button id="btn-close-modal" class="text-gray-400 hover:text-white transition">&times;</button>
       </div>
       <div class="space-y-4">
@@ -260,22 +291,15 @@
           </div>
         </div>
 
-        <!-- Quick actions -->
+        <!-- Community -->
         <div class="glass-card rounded-2xl p-6 neon-border">
-          <h4 class="text-sm font-bold text-white mb-4">Quick Actions</h4>
-          <div class="space-y-2">
-            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
-              <span>View Achievements</span>
-              <span class="text-purple-400">42</span>
-            </button>
-            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
-              <span>Friends Online</span>
-              <span class="text-green-400">3</span>
-            </button>
-            <button class="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">
-              <span>Wishlist</span>
-              <span class="text-blue-400">8</span>
-            </button>
+          <h4 class="text-sm font-bold text-white mb-4">Community</h4>
+          <div class="space-y-3">
+            <div class="relative">
+              <input type="text" id="community-search" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+              <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <button id="view-all-profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
           </div>
         </div>
       </aside>
@@ -301,12 +325,9 @@
             <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
               <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Achievements</p>
-            <p id="stat-achievements" class="text-4xl font-extrabold text-white mt-2 stat-number">0 / 0</p>
-            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div id="stat-achievements-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]"></div>
-            </div>
-            <p id="stat-achievements-pct" class="text-xs text-gray-400 mt-2 font-medium">0% completion</p>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Playstyle</p>
+            <p id="stat-playstyle-label" class="text-4xl font-extrabold text-white mt-2 stat-number">—</p>
+            <p id="stat-playstyle-avg" class="text-xs text-gray-400 mt-2 font-medium">—</p>
           </div>
 
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
@@ -425,13 +446,46 @@
     const btnCloseModal = document.getElementById('btn-close-modal');
     const authMessage = document.getElementById('auth-message');
 
+    const authBtnText = document.getElementById('auth-btn-text');
+    const authDropdown = document.getElementById('auth-dropdown');
+    const authChangeAccountBtn = document.getElementById('auth-change-account');
+    const authLogoutBtn = document.getElementById('auth-logout');
+
     function updateAuthButton(user) {
       if (user) {
-        authBtn.textContent = user.email || 'Account';
+        authBtnText.textContent = user.email || 'Account';
       } else {
-        authBtn.textContent = 'Login';
+        authBtnText.textContent = 'Login';
+        authDropdown.classList.add('hidden');
       }
     }
+
+    function toggleAuthDropdown() {
+      authDropdown.classList.toggle('hidden');
+    }
+
+    function closeAuthDropdown() {
+      authDropdown.classList.add('hidden');
+    }
+
+    async function handleSignOut() {
+      closeAuthDropdown();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        setAuthMessage(error.message, true);
+      }
+    }
+
+    authChangeAccountBtn.addEventListener('click', handleSignOut);
+    authLogoutBtn.addEventListener('click', handleSignOut);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('auth-btn-container');
+      if (container && !container.contains(e.target)) {
+        closeAuthDropdown();
+      }
+    });
 
     function setAuthMessage(msg, isError = false) {
       authMessage.textContent = msg;
@@ -496,16 +550,13 @@
     });
 
     // Header Login/Logout toggle
-    authBtn.addEventListener('click', async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // Currently logged in -> log out
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          setAuthMessage(error.message, true);
-        }
-      } else {
+    authBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const text = authBtnText.textContent;
+      if (text === 'Login') {
         openAuthModal();
+      } else {
+        toggleAuthDropdown();
       }
     });
 
@@ -832,12 +883,10 @@
         if (hoursPlayedEl) hoursPlayedEl.textContent = '0h';
         const hoursBar = document.getElementById('stat-hours-bar');
         if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
-        const achievementsEl = document.getElementById('stat-achievements');
-        if (achievementsEl) achievementsEl.textContent = '0 / 0';
-        const achievementsBar = document.getElementById('stat-achievements-bar');
-        if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
-        const achievementsPct = document.getElementById('stat-achievements-pct');
-        if (achievementsPct) achievementsPct.textContent = '0% completion';
+        const playstyleLabelEl = document.getElementById('stat-playstyle-label');
+        if (playstyleLabelEl) playstyleLabelEl.textContent = '—';
+        const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
+        if (playstyleAvgEl) playstyleAvgEl.textContent = '—';
         const levelEl = document.getElementById('stat-level');
         if (levelEl) levelEl.textContent = '0';
         const levelBar = document.getElementById('stat-level-bar');
@@ -857,6 +906,22 @@
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
       if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
 
+      // Update Playstyle card
+      const avgHours = totalHours / games.length;
+      const playstyleLabelEl = document.getElementById('stat-playstyle-label');
+      const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
+      let label = 'Collector';
+      let labelRu = 'Коллекционер';
+      if (avgHours > 20) {
+        label = 'Devoted';
+        labelRu = 'Верный';
+      } else if (avgHours > 5) {
+        label = 'Balanced';
+        labelRu = 'Сбалансированный';
+      }
+      if (playstyleLabelEl) playstyleLabelEl.textContent = `${label} (${labelRu})`;
+      if (playstyleAvgEl) playstyleAvgEl.textContent = `${Math.round(avgHours)}h/game`;
+
       // Update Hours Played card
       const hoursPlayedEl = document.getElementById('stat-hours-played');
       if (hoursPlayedEl) hoursPlayedEl.textContent = totalHours + 'h';
@@ -865,14 +930,6 @@
         const hoursPct = Math.min(totalHours / 1000, 1);
         hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
       }
-
-      // Update Achievements card (Steam API GetOwnedGames doesn't return achievements, keep at 0)
-      const achievementsEl = document.getElementById('stat-achievements');
-      if (achievementsEl) achievementsEl.textContent = '0 / 0';
-      const achievementsBar = document.getElementById('stat-achievements-bar');
-      if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
-      const achievementsPct = document.getElementById('stat-achievements-pct');
-      if (achievementsPct) achievementsPct.textContent = '0% completion';
 
       // Update Level card (Steam API GetOwnedGames doesn't return level, keep at 0)
       const levelEl = document.getElementById('stat-level');
@@ -935,13 +992,21 @@
         hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
       }
 
-      // Achievements card
-      const achievementsEl = document.getElementById('stat-achievements');
-      if (achievementsEl) achievementsEl.textContent = '0 / 0';
-      const achievementsBar = document.getElementById('stat-achievements-bar');
-      if (achievementsBar) achievementsBar.className = 'h-full bg-gradient-to-r from-blue-500 to-cyan-400 w-0 shadow-[0_0_10px_rgba(37,99,235,0.6)]';
-      const achievementsPct = document.getElementById('stat-achievements-pct');
-      if (achievementsPct) achievementsPct.textContent = '0% completion';
+      // Playstyle card
+      const avgHours = totalHours / games.length;
+      const playstyleLabelEl = document.getElementById('stat-playstyle-label');
+      const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
+      let label = 'Collector';
+      let labelRu = 'Коллекционер';
+      if (avgHours > 20) {
+        label = 'Devoted';
+        labelRu = 'Верный';
+      } else if (avgHours > 5) {
+        label = 'Balanced';
+        labelRu = 'Сбалансированный';
+      }
+      if (playstyleLabelEl) playstyleLabelEl.textContent = `${label} (${labelRu})`;
+      if (playstyleAvgEl) playstyleAvgEl.textContent = `${Math.round(avgHours)}h/game`;
 
       // Level card
       const levelEl = document.getElementById('stat-level');
