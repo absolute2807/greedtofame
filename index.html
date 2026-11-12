@@ -880,6 +880,10 @@
       if (e.key === 'Escape') closeSteamModal();
     });
 
+    connectSteamBtn.addEventListener('click', () => {
+      openSteamModal();
+    });
+
     steamConnectBtn.addEventListener('click', async () => {
       const steamid = steamInput.value.trim();
       if (!/^\d{17}$/.test(steamid)) {
