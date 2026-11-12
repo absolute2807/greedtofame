@@ -253,6 +253,7 @@
               <span id="steam-btn-text">Connect Steam</span>
             </button>
             <p class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and achievements automatically.</p>
+            <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden flex items-center justify-center gap-2">Loading Steam games...</p>
           </div>
 
           <div class="mt-6 pt-6 border-t border-white/5 space-y-3">
@@ -758,6 +759,9 @@
 
       if (profileError || !profile || !profile.steam_id) return;
 
+      // Show loading indicator
+      if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
+
       try {
         const { data, error } = await supabase.functions.invoke('steam-api', {
           body: { steamid: profile.steam_id },
@@ -773,6 +777,9 @@
         }
       } catch (e) {
         console.error('Failed to auto-load Steam games:', e);
+      } finally {
+        // Hide loading indicator
+        if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
       }
     }
 
@@ -787,6 +794,7 @@
     const steamCancelBtn = document.getElementById('steam-cancel');
     const steamBtnText = document.getElementById('steam-btn-text');
     const connectSteamBtn = document.getElementById('connect-steam-btn');
+    const steamAutoLoadEl = document.getElementById('steam-auto-load');
 
     function openSteamModal() {
       steamInput.value = '';
