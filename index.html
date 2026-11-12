@@ -233,6 +233,7 @@
           <div class="mt-6 pt-6 border-t border-white/5">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect Platform</p>
             <a
+              href="https://tcdtdfgtpgdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback"
               id="connect-steam-btn"
               class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center block"
             >
@@ -776,12 +777,6 @@
     const steamAutoLoadEl = document.getElementById('steam-auto-load');
 
     const STEAM_AUTH_CALLBACK_URL = 'https://tcdtdfgtpgdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
-
-    connectSteamBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const currentUrl = window.location.origin + window.location.pathname;
-      window.location.href = `${STEAM_AUTH_CALLBACK_URL}?frontend_url=${encodeURIComponent(currentUrl)}`;
-    });
 
     // Handle Steam OpenID callback (returned from Steam authentication)
     const urlParams = new URLSearchParams(window.location.search);
