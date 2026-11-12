@@ -915,7 +915,10 @@
       const hoursEl = document.getElementById('stat-hours-played');
       if (hoursEl) hoursEl.textContent = totalHours + 'h';
       const hoursBar = document.getElementById('stat-hours-bar');
-      if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
+      if (hoursBar) {
+        const hoursPct = Math.min(totalHours / 1000, 1);
+        hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
+      }
 
       // Achievements card
       const achievementsEl = document.getElementById('stat-achievements');
