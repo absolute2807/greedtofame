@@ -117,6 +117,36 @@
       background-clip: text;
     }
 
+    /* Rank badge colors */
+    .rank-bronze {
+      border-color: #cd7f32;
+      color: #cd7f32;
+      box-shadow: 0 0 12px rgba(205, 127, 50, 0.45);
+    }
+
+    .rank-silver {
+      border-color: #c0c0c0;
+      color: #c0c0c0;
+      box-shadow: 0 0 12px rgba(192, 192, 192, 0.35);
+    }
+
+    .rank-gold {
+      border-color: #ffd700;
+      color: #ffd700;
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.55);
+    }
+
+    @keyframes diamondGlow {
+      0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+      33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); }
+      66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+      100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+    }
+
+    .rank-diamond {
+      animation: diamondGlow 2s ease-in-out infinite;
+    }
+
     .rank-badge {
       background: rgba(168, 85, 247, 0.15);
       border: 1px solid rgba(168, 85, 247, 0.35);
@@ -336,7 +366,7 @@
               <svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
-            <p id="stat-hours-played" class="text-4xl font-extrabold text-white mt-2 stat-number">0h</p>
+            <p id="hours-card" class="text-4xl font-extrabold stat-number">0h</p>
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
               <div id="stat-hours-bar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
             </div>
@@ -533,6 +563,20 @@
     authChangeAccountBtn.addEventListener('click', handleSignOut);
     authLogoutBtn.addEventListener('click', handleSignOut);
 
+    // Dropdown toggle on click
+    authBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAuthDropdown();
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('auth-btn-container');
+      if (container && !container.contains(e.target)) {
+        closeAuthDropdown();
+      }
+    });
+
     // Account Switcher modal controls
     accountSwitcherClose.addEventListener('click', () => {
       accountSwitcherModal.classList.add('hidden');
@@ -614,6 +658,58 @@
 
     // Load and render saved accounts on page load
     renderSavedAccounts();
+
+    // --- Community block event listeners ---
+    const communitySearch = document.getElementById('community-search');
+    const viewAllProfilesBtn = document.getElementById('view-all-profiles');
+
+    // Search profiles on Enter key
+    communitySearch.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        const searchTerm = communitySearch.value.trim();
+        if (searchTerm) {
+          try {
+            const { data, error } = await supabase
+              .from('profiles')
+              .select('username, id')
+              .ilike('username', `%${searchTerm}%`);
+
+            if (error) {
+              console.error('Search error:', error);
+              setAuthMessage('Search failed. Please try again.', true);
+            } else {
+              setAuthMessage(`Found ${data.length} result(s)`, false);
+              // TODO: Display results in a list below (UI placeholder)
+              console.log('Search results:', data);
+            }
+          } catch (err) {
+            console.error('Search error:', err);
+            setAuthMessage('Search failed. Please try again.', true);
+          }
+        }
+      }
+    });
+
+    // View All Profiles button
+    viewAllProfilesBtn.addEventListener('click', async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username, id');
+
+        if (error) {
+          console.error('Fetch error:', error);
+          setAuthMessage('Failed to fetch profiles.', true);
+        } else {
+          setAuthMessage(`Displaying ${data.length} profile(s)`, false);
+          // TODO: Show results in a modal or new section (UI placeholder)
+          console.log('All profiles:', data);
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setAuthMessage('Failed to fetch profiles.', true);
+      }
+    });
 
     function setAuthMessage(msg, isError = false) {
       authMessage.textContent = msg;
@@ -1016,12 +1112,110 @@
       return (Math.round((minutes || 0) / 60) || 0).toLocaleString() + 'h';
     }
 
+    // --- Steam button with manual ID input modal ---
+    const steamInput = document.getElementById('steamInput');
+    const steamError = document.getElementById('steam-error');
+    const steamConnect = document.getElementById('steam-connect');
+    const steamCancel = document.getElementById('steam-cancel');
+
+    // Open the Steam connect modal
+    function openSteamModal() {
+      steamInput.value = '';
+      steamError.textContent = '';
+      steamError.classList.add('hidden');
+      steamModal.classList.remove('hidden');
+      steamBackdrop.classList.remove('hidden');
+      steamInput.focus();
+    }
+
+    // Close the Steam connect modal
+    function closeSteamModal() {
+      steamModal.classList.add('hidden');
+      steamBackdrop.classList.add('hidden');
+      steamInput.value = '';
+      steamError.textContent = '';
+      steamError.classList.add('hidden');
+    }
+
+    // Show Steam connect modal
+    steamConnect.addEventListener('click', () => {
+      const steamid = steamInput.value.trim();
+      if (!/^\d{17}$/.test(steamid)) {
+        steamError.textContent = 'Please enter a valid 17-digit SteamID64 (digits only).';
+        steamError.classList.remove('hidden');
+        steamInput.focus();
+        return;
+      }
+
+      // Show connecting state
+      steamError.textContent = '';
+      steamError.classList.add('hidden');
+      steamConnect.disabled = true;
+      steamBtnText.textContent = 'Connecting...';
+
+      // Call the Steam API function with the entered Steam ID
+      supabase.functions.invoke('steam-api', {
+        body: { steamid },
+      })
+        .then(async ({ data, error }) => {
+          if (error) {
+            steamConnect.disabled = false;
+            steamBtnText.textContent = 'Connect Steam';
+            steamError.textContent = error;
+            steamError.classList.remove('hidden');
+            return;
+          }
+
+          if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
+            steamConnect.disabled = false;
+            steamBtnText.textContent = 'Connect Steam';
+            steamError.textContent = 'Unexpected response from Steam API.';
+            steamError.classList.remove('hidden');
+            return;
+          }
+
+          // Save steam_id to Supabase profiles table if logged in
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { error: upsertError } = await supabase.from('profiles').upsert({
+              id: user.id,
+              steam_id: String(steamid),
+            });
+            if (upsertError) {
+              console.error('Upsert error:', upsertError);
+            }
+          }
+
+          // Update UI with the Steam games data
+          updateSteamUI(data, steamid);
+          closeSteamModal();
+        })
+        .catch((err) => {
+          console.error('Steam API error:', err);
+          steamConnect.disabled = false;
+          steamBtnText.textContent = 'Connect Steam';
+          steamError.textContent = 'Failed to connect Steam account.';
+          steamError.classList.remove('hidden');
+        });
+    });
+
+    // Cancel Steam connect
+    steamCancel.addEventListener('click', closeSteamModal);
+
+    // Open Steam modal when clicking the connect button
+    connectSteamBtn.addEventListener('click', openSteamModal);
+      return (Math.round((minutes || 0) / 60) || 0).toLocaleString() + 'h';
+    }
+
     function renderSteamGames(data) {
       if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
         if (totalGamesEl) totalGamesEl.textContent = '0';
         if (totalHoursEl) totalHoursEl.textContent = '0h';
-        const hoursPlayedEl = document.getElementById('stat-hours-played');
-        if (hoursPlayedEl) hoursPlayedEl.textContent = '0h';
+        const hoursCard = document.getElementById('hours-card');
+        if (hoursCard) {
+          hoursCard.textContent = '0h';
+          hoursCard.className = 'text-4xl font-extrabold stat-number rank-bronze';
+        }
         const hoursBar = document.getElementById('stat-hours-bar');
         if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
         const playstyleLabelEl = document.getElementById('stat-playstyle-label');
@@ -1073,8 +1267,19 @@
       if (playstyleAvgEl) playstyleAvgEl.textContent = `${Math.round(avgHours)}h/game`;
 
       // Update Hours Played card
-      const hoursPlayedEl = document.getElementById('stat-hours-played');
-      if (hoursPlayedEl) hoursPlayedEl.textContent = totalHours + 'h';
+      const hoursCard = document.getElementById('hours-card');
+      if (hoursCard) {
+        hoursCard.textContent = totalHours + 'h';
+        const rankClasses = ['rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond'];
+        const rankClass = totalHours >= 5000
+          ? 'rank-diamond'
+          : totalHours >= 1000
+            ? 'rank-gold'
+            : totalHours >= 500
+              ? 'rank-silver'
+              : 'rank-bronze';
+        hoursCard.className = 'text-4xl font-extrabold stat-number ' + rankClass;
+      }
       const hoursBar = document.getElementById('stat-hours-bar');
       if (hoursBar) {
         const hoursPct = Math.min(totalHours / 1000, 1);
@@ -1143,8 +1348,19 @@
       }
 
       // Hours Played card
-      const hoursEl = document.getElementById('stat-hours-played');
-      if (hoursEl) hoursEl.textContent = totalHours + 'h';
+      const hoursCard = document.getElementById('hours-card');
+      if (hoursCard) {
+        hoursCard.textContent = totalHours + 'h';
+        const rankClasses = ['rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond'];
+        const rankClass = totalHours >= 5000
+          ? 'rank-diamond'
+          : totalHours >= 1000
+            ? 'rank-gold'
+            : totalHours >= 500
+              ? 'rank-silver'
+              : 'rank-bronze';
+        hoursCard.className = 'text-4xl font-extrabold stat-number ' + rankClass;
+      }
       const hoursBar = document.getElementById('stat-hours-bar');
       if (hoursBar) {
         const hoursPct = Math.min(totalHours / 1000, 1);
