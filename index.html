@@ -1153,45 +1153,29 @@
       steamConnect.disabled = true;
       steamBtnText.textContent = 'Connecting...';
 
-      // Call the Steam API function with the entered Steam ID
-      supabase.functions.invoke('steam-api', {
-        body: { steamid },
-      })
+      // Call the Steam auth callback function to get redirect URL
+      supabase.functions.invoke('steam-auth-callback')
         .then(async ({ data, error }) => {
           if (error) {
             steamConnect.disabled = false;
             steamBtnText.textContent = 'Connect Steam';
-            steamError.textContent = error;
+            steamError.textContent = error.message;
             steamError.classList.remove('hidden');
             return;
           }
 
-          if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
+          if (data && data.url) {
+            // Redirect to Steam authentication page
+            window.location.href = data.url;
+          } else {
             steamConnect.disabled = false;
             steamBtnText.textContent = 'Connect Steam';
-            steamError.textContent = 'Unexpected response from Steam API.';
+            steamError.textContent = 'No URL returned from auth function.';
             steamError.classList.remove('hidden');
-            return;
           }
-
-          // Save steam_id to Supabase profiles table if logged in
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { error: upsertError } = await supabase.from('profiles').upsert({
-              id: user.id,
-              steam_id: String(steamid),
-            });
-            if (upsertError) {
-              console.error('Upsert error:', upsertError);
-            }
-          }
-
-          // Update UI with the Steam games data
-          updateSteamUI(data, steamid);
-          closeSteamModal();
         })
         .catch((err) => {
-          console.error('Steam API error:', err);
+          console.error('Steam auth error:', err);
           steamConnect.disabled = false;
           steamBtnText.textContent = 'Connect Steam';
           steamError.textContent = 'Failed to connect Steam account.';
