@@ -490,7 +490,38 @@
 // --- Handle Steam OpenID callback from URL ---
 // Steam redirects back with openid.claimed_id or openid.identity in the URL
 ;(async () => {
-  const steamOpenIdParam = new URLSearchParams(window.location.search).get('openid.claimed_id') || 
+  const urlParams = new URLSearchParams(window.location.search);
+  const openidMode = urlParams.get('openid.mode');
+  
+  // If openid.mode=id_res, user just came back from Steam redirect
+  if (openidMode === 'id_res') {
+    const steamOpenIdParam = urlParams.get('openid.claimed_id') || 
+                            urlParams.get('openid.identity');
+    
+    if (steamOpenIdParam) {
+      // Extract SteamID64 from URL (last number in path)
+      const steamIdMatch = steamOpenIdParam.match(/\/(\d+)$/);
+      if (steamIdMatch) {
+        const steamId64 = steamIdMatch[1];
+        // Save SteamID64 to Supabase profiles table
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('profiles').upsert({
+            id: user.id,
+            steam_id: steamId64,
+          });
+        }
+        // Load the user's Steam games
+        autoLoadSteamGames();
+      }
+    }
+    
+    // CRUCIAL: Clear the URL parameters so page doesn't redirect again
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+
+// --- Auth state --- 
                          new URLSearchParams(window.location.search).get('openid.identity');
 if (steamOpenIdParam) {
   // Extract SteamID64 from URL (last number in path, e.g., https://steamcommunity.com/openid/id/76561198...)
@@ -1176,6 +1207,26 @@ if (steamOpenIdParam) {
       steamConnect.disabled = true;
       steamBtnText.textContent = 'Connecting...';
 
+      // Check if user already has a steam_id saved in the database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('steam_id')
+          .eq('id', user.id)
+          .single();
+        // If steam_id already exists, just load their games and close modal
+        if (profile && profile.steam_id) {
+          steamError.textContent = '';
+          steamError.classList.add('hidden');
+          steamConnect.disabled = false;
+          steamBtnText.textContent = 'Connect Steam';
+          autoLoadSteamGames();
+          closeSteamModal();
+          return;
+        }
+      }
+      
       // Call the Steam auth callback function to get redirect URL
       supabase.functions.invoke('steam-auth-callback')
         .then(async ({ data, error }) => {
