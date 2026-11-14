@@ -1262,7 +1262,7 @@ handleSteamLogin();
     }
 
     // Show Steam connect modal
-    const steamConnect = document.getElementById('connect-steam-btn');
+    steamConnect = document.getElementById('connect-steam-btn');
     steamConnect.addEventListener('click', async () => {
       const steamid = steamInput.value.trim();
       if (!/^\d{17}$/.test(steamid)) {
