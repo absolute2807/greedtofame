@@ -255,7 +255,7 @@
   <!-- Login/Signup Modal -->
   <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
-    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
+    <div id="auth-modal" class="hidden bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
       <div class="flex justify-between items-start mb-6">
         <h3 class="text-lg font-bold text-white">Sign in to GreedToFame</h3>
         <button id="btn-close-modal" class="text-gray-400 hover:text-white transition">&times;</button>
@@ -276,6 +276,32 @@
         <p id="auth-message" class="text-sm mt-4 text-center text-gray-300"></p>
       </div>
     </div>
+
+<!-- Login button fix script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('login-btn') || document.querySelector('button:contains("Login")');
+    
+    if (loginBtn) {
+        // Клонируем кнопку, чтобы убить все старые (сломанные) клики Cline
+        const newBtn = loginBtn.cloneNode(true);
+        loginBtn.parentNode.replaceChild(newBtn, loginBtn);
+        
+        newBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const modal = document.getElementById('auth-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                console.log("Модалка логина открыта!");
+            } else {
+                console.error("ОШИБКА: Не найден элемент с id='auth-modal'");
+            }
+        });
+    } else {
+        console.error("ОШИБКА: Не найдена кнопка Login");
+    }
+});
+</script>
   </div>
 
   <div class="max-w-7xl mx-auto px-6 py-10">
