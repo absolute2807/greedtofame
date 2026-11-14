@@ -38,6 +38,12 @@
     @keyframes diamondGlow { 0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } 33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); } 66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); } 100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } }
     .rank-diamond { animation: diamondGlow 2s ease-in-out infinite; }
     .rank-badge { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #d8b4fe; }
+
+    /* Rank Theme Colors applied to entire interface */
+    main.rank-bronze { --neon-purple: #cd7f32; --neon-blue: #a0522d; --neon-cyan: #cd7f32; }
+    main.rank-silver { --neon-purple: #c0c0c0; --neon-blue: #94a3b8; --neon-cyan: #e2e8f0; }
+    main.rank-gold { --neon-purple: #ffd700; --neon-blue: #f59e0b; --neon-cyan: #fbbf24; }
+    main.rank-diamond { --neon-purple: #ffffff; --neon-blue: #22d3ee; --neon-cyan: #a855f7; }
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #0a0a0f; }
     ::-webkit-scrollbar-thumb { background: #333340; border-radius: 4px; }
@@ -176,7 +182,7 @@
       </aside>
 
       <!-- Right Column: Main Content -->
-      <main class="lg:col-span-9 space-y-10">
+      <main id="main-dashboard" class="lg:col-span-9 space-y-10">
         <!-- Statistics -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
@@ -623,6 +629,21 @@
           hoursCardContainer.classList.add('rank-silver');
         } else {
           hoursCardContainer.classList.add('rank-bronze');
+        }
+      }
+
+      // Apply rank theme to entire interface
+      const mainDashboard = document.getElementById('main-dashboard');
+      if (mainDashboard) {
+        mainDashboard.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
+        if (totalHours >= 5000) {
+          mainDashboard.classList.add('rank-diamond');
+        } else if (totalHours >= 1000) {
+          mainDashboard.classList.add('rank-gold');
+        } else if (totalHours >= 500) {
+          mainDashboard.classList.add('rank-silver');
+        } else {
+          mainDashboard.classList.add('rank-bronze');
         }
       }
 
