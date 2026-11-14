@@ -624,6 +624,33 @@
           themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
+      // Playstyle logic
+      const totalGames = games.length;
+      const avgHours = totalHours / totalGames;
+
+      const playstyleLabelEl = document.getElementById('stat-playstyle-label');
+      const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
+
+      let label = 'Collector';
+      let labelRu = 'Коллекционер';
+
+      if (avgHours > 20) {
+        label = 'Devoted';
+        labelRu = 'Фанат';
+      } else if (avgHours >= 5) {
+        label = 'Balanced';
+        labelRu = 'Сбалансированный';
+      }
+
+      if (playstyleLabelEl) {
+        playstyleLabelEl.textContent = `${label} (${labelRu})`;
+        playstyleLabelEl.style.color = themeColor;
+      }
+      if (playstyleAvgEl) {
+        playstyleAvgEl.textContent = avgHours.toFixed(1) + 'h / game';
+        playstyleAvgEl.style.color = themeColor;
+      }
+
       // 1. Перекрашиваем ВСЕ кнопки с градиентом (включая Settings и Steam)
       const allBtns = document.querySelectorAll('.btn-gradient, .bg-purple-600');
       allBtns.forEach(btn => btn.style.background = themeGradient);
