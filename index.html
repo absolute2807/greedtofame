@@ -206,11 +206,11 @@
               <h3 class="text-xl font-bold text-white">Game Screenshots</h3>
               <p class="text-sm text-gray-400">Upload exactly 3 screenshots from your recent matches.</p>
             </div>
-            <span class="text-xs font-semibold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">3 / 3 slots</span>
+            <span id="slots-badge" class="text-xs font-semibold px-3 py-1 rounded-full border transition-colors duration-500">3 / 3 slots</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-1">
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-1">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-1">
                 <div class="flex flex-col items-center">
                   <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -222,7 +222,7 @@
               <input type="file" id="upload-1" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
             </label>
 
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-2">
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-2">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-2">
                 <div class="flex flex-col items-center">
                   <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -234,7 +234,7 @@
               <input type="file" id="upload-2" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
             </label>
 
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-3">
+            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-3">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-3">
                 <div class="flex flex-col items-center">
                   <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -659,7 +659,7 @@
           themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
-      // 1. Перекрашиваем ВСЕ кнопки с градиентом (включая Settings и Steam)
+      // 1. Перекрашиваем ВСЕ кнопки с градиентом
       const allBtns = document.querySelectorAll('.btn-gradient, .bg-purple-600');
       allBtns.forEach(btn => btn.style.background = themeGradient);
 
@@ -687,6 +687,24 @@
           statHoursBar.style.background = themeGradient;
           statHoursBar.style.boxShadow = `0 0 10px ${themeColor}`;
       }
+
+      // 6. Перекрашиваем текст Total hours
+      const totalHoursEl2 = document.getElementById('stat-total-hours');
+      if (totalHoursEl2) totalHoursEl2.style.color = themeColor;
+
+      // 7. Перекрашиваем бейдж "3/3 slots"
+      const slotsBadge = document.getElementById('slots-badge');
+      if (slotsBadge) {
+          slotsBadge.style.color = themeColor;
+          slotsBadge.style.borderColor = themeColor;
+          slotsBadge.style.backgroundColor = `${themeColor}20`; // 20 - прозрачность
+      }
+
+      // 8. Перекрашиваем рамки скриншотов
+      const gallerySlots = document.querySelectorAll('.gallery-placeholder');
+      gallerySlots.forEach(slot => {
+          slot.style.borderColor = themeColor;
+      });
 
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (gamesTbody) {
