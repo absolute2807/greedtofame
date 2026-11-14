@@ -1161,6 +1161,12 @@ handleSteamLogin();
 
       // Show loading indicator
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
+      
+    // Check if we have Steam data from saved localStorage or from Steam API callback
+    const savedSteam = localStorage.getItem('gt_steam_games');
+    if (savedSteam) {
+      renderSteamGames(JSON.parse(savedSteam));
+    }
 
       try {
         const { data, error } = await supabase.functions.invoke('steam-api', {
