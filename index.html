@@ -486,6 +486,38 @@
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
     supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- ПРОВЕРКА ВОЗВРАТА ОТ STEAM ---
+if (window.location.search.includes('openid.mode=id_res')) {
+    console.log("Вернулись от Steam! Разбираем URL...");
+    
+    // Достаем Steam ID из ссылки
+    const urlParams = new URLSearchParams(window.location.search);
+    const claimedId = urlParams.get('openid.claimed_id');
+    
+    if (claimedId) {
+        // Steam ID — это последние цифры после слеша
+        const steamId = claimedId.split('/').pop();
+        console.log("Твой Steam ID:", steamId);
+
+        // Сохраняем в Supabase (если пользователь залогинен)
+        (async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('profiles').upsert({ 
+                    id: user.id, 
+                    steam_id: steamId 
+                });
+                console.log("Steam ID сохранен в базу!");
+            }
+            
+            // Очищаем URL от длинных параметров, чтобы не было цикла
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Перезагружаем страницу, чтобы она уже подтянула игры из базы
+            window.location.reload(); 
+        })();
+    }
+}
 
 // --- Handle Steam OpenID callback from URL ---
 // Steam redirects back with openid.claimed_id or openid.identity in the URL
