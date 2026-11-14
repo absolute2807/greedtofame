@@ -61,6 +61,25 @@
     #auth-dropdown { background: #111117; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25); }
     #auth-dropdown button { width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; color: #9ca3af; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; }
     #auth-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
+        /* --- ПРИНУДИТЕЛЬНАЯ ПЕРЕКРАСКА ДЛЯ РАНГОВ --- */
+    
+    /* Серебро */
+    main.rank-silver .bg-purple-600 { background: linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%) !important; }
+    main.rank-silver .text-purple-400 { color: #c0c0c0 !important; }
+    main.rank-silver .stat-number { background: linear-gradient(to right, #e0e7ff, #c0c0c0) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+    main.rank-silver .neon-text { text-shadow: 0 0 10px rgba(192,192,192,0.5) !important; }
+
+    /* Золото */
+    main.rank-gold .bg-purple-600 { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important; }
+    main.rank-gold .text-purple-400 { color: #ffd700 !important; }
+    main.rank-gold .stat-number { background: linear-gradient(to right, #fef08a, #ffd700) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+    main.rank-gold .neon-text { text-shadow: 0 0 10px rgba(255,215,0,0.5) !important; }
+
+    /* Бронза */
+    main.rank-bronze .bg-purple-600 { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%) !important; }
+    main.rank-bronze .text-purple-400 { color: #cd7f32 !important; }
+    main.rank-bronze .stat-number { background: linear-gradient(to right, #fdba74, #cd7f32) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
+    main.rank-bronze .neon-text { text-shadow: 0 0 10px rgba(205,127,50,0.5) !important; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
