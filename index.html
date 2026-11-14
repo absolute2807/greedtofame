@@ -230,35 +230,13 @@
     </div>
   </div>
 
-  <!-- Account Switcher Modal -->
-  <div id="account-switcher-backdrop" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
-  <div id="account-switcher-modal" class="fixed inset-0 z-50 hidden bg-[#111117] overflow-y-auto">
-    <div class="flex flex-col items-center justify-center min-h-screen p-6">
-      <div class="w-full max-w-2xl bg-[#111117] rounded-2xl border border-white/10 shadow-2xl">
-        <div class="flex items-center justify-between p-6 border-b border-white/10">
-          <h3 class="text-lg font-bold text-white">Switch Account</h3>
-          <button id="account-switcher-close" class="text-gray-400 hover:text-white transition">&times;</button>
-        </div>
-        <div class="p-6 max-h-[70vh] overflow-y-auto">
-          <p class="text-sm text-gray-400 mb-4">Select an account below to switch.</p>
-          <div id="saved-accounts-list" class="space-y-2">
-            <!-- Saved accounts will be rendered here -->
-          </div>
-          <div class="mt-4 flex gap-3">
-            <button id="add-new-account" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Add New Account</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Login/Signup Modal -->
   <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
   <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
-    <div id="auth-modal" class="hidden bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
+    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
       <div class="flex justify-between items-start mb-6">
         <h3 class="text-lg font-bold text-white">Sign in to GreedToFame</h3>
-        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition">&times;</button>
+        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
       </div>
       <div class="space-y-4">
         <div>
@@ -269,60 +247,13 @@
           <label class="block text-sm text-gray-400 mb-1">Password</label>
           <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
         </div>
-        <div class="flex gap-3">
-          <button id="btn-signup" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign Up</button>
-          <button id="btn-signin" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-white/5 transition">Sign In</button>
+        <div class="flex gap-3 pt-2">
+          <button id="btn-signin" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign In</button>
+          <button id="btn-signup" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-white/5 transition">Sign Up</button>
         </div>
         <p id="auth-message" class="text-sm mt-4 text-center text-gray-300"></p>
       </div>
     </div>
-
-<!-- Login button fix script -->
-<script>
-  // Sign In button handler
-  const btnSignin = document.getElementById('btn-signin');
-  btnSignin.addEventListener('click', async () => {
-    const email = authEmail.value.trim();
-    const password = authPassword.value.trim();
-    if (!email || !password) {
-      authMessage.textContent = 'Please enter email and password.';
-      authMessage.classList.remove('hidden');
-      return;
-    }
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      authMessage.textContent = error.message;
-      authMessage.classList.remove('hidden');
-    } else {
-      // Sign in successful - reload page
-      window.location.reload();
-    }
-  });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.getElementById('auth-btn');
-    
-    if (loginBtn) {
-        // Клонируем кнопку, чтобы убить все старые (сломанные) клики Cline
-        const newBtn = loginBtn.cloneNode(true);
-        loginBtn.parentNode.replaceChild(newBtn, loginBtn);
-        
-        newBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const modal = document.getElementById('auth-modal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                console.log("Модалка логина открыта!");
-            } else {
-                console.error("ОШИБКА: Не найден элемент с id='auth-modal'");
-            }
-        });
-    } else {
-        console.error("ОШИБКА: Не найдена кнопка Login");
-    }
-});
-</script>
   </div>
 
   <div class="max-w-7xl mx-auto px-6 py-10">
@@ -365,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <a
               href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback"
               id="connect-steam-btn"
-              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center block"
+              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center block"
             >
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span id="steam-btn-text">Connect Steam</span>
@@ -523,116 +454,19 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 
   <script>
-    // --- localStorage keys ---
+    // 1. Инициализация Supabase
+    const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
+    // Создаем клиент (используем имя supabaseClient, чтобы не конфликтовать с глобальным объектом supabase)
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 2. Ключи LocalStorage
     const STORAGE_KEYS = {
       username: 'gt_username',
       screenshot: (index) => `gt_screenshot_${index}`,
     };
 
-    // --- Supabase client ---
-    const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // --- ПРОВЕРКА ВОЗВРАТА ОТ STEAM ---
-if (window.location.search.includes('openid.mode=id_res')) {
-    console.log("Вернулись от Steam! Разбираем URL...");
-    
-    // Достаем Steam ID из ссылки
-    const urlParams = new URLSearchParams(window.location.search);
-    const claimedId = urlParams.get('openid.claimed_id');
-    
-    if (claimedId) {
-        // Steam ID — это последние цифры после слеша
-        const steamId = claimedId.split('/').pop();
-        console.log("Твой Steam ID:", steamId);
-
-        // Сохраняем в Supabase (если пользователь залогинен)
-        (async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                await supabase.from('profiles').upsert({ 
-                    id: user.id, 
-                    steam_id: steamId 
-                });
-                console.log("Steam ID сохранен в базу!");
-            }
-            
-            // Очищаем URL от длинных параметров, чтобы не было цикла
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            // Перезагружаем страницу, чтобы она уже подтянула игры из базы
-            window.location.reload(); 
-        })();
-    }
-}
-
-// --- Handle Steam OpenID callback from URL ---
-// Steam redirects back with openid.claimed_id or openid.identity in the URL
-;(async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const openidMode = urlParams.get('openid.mode');
-  
-  // If openid.mode=id_res, user just came back from Steam redirect
-  if (openidMode === 'id_res') {
-    const steamOpenIdParam = urlParams.get('openid.claimed_id') || 
-                            urlParams.get('openid.identity');
-    
-    if (steamOpenIdParam) {
-      // Extract SteamID64 from URL (last number in path)
-      const steamIdMatch = steamOpenIdParam.match(/\/(\d+)$/);
-      if (steamIdMatch) {
-        const steamId64 = steamIdMatch[1];
-        // Save SteamID64 to Supabase profiles table
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from('profiles').upsert({
-            id: user.id,
-            steam_id: steamId64,
-          });
-        }
-        // Load the user's Steam games
-        autoLoadSteamGames();
-      }
-    }
-    
-    // CRUCIAL: Clear the URL parameters so page doesn't redirect again
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-})();
-
-// --- Auth state --- 
-const steamOpenIdParam = new URLSearchParams(window.location.search).get('openid.identity');
-
-// Оборачиваем в async-функцию, чтобы await работал
-async function handleSteamLogin() {
-    if (steamOpenIdParam) {
-        // Extract SteamID64 from URL
-        const steamIdMatch = steamOpenIdParam.match(/\/(\d+)$/);
-        if (steamIdMatch) {
-            const steamId64 = steamIdMatch[1];
-            
-            // Save SteamID64 to Supabase profiles table
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                await supabase.from('profiles').upsert({
-                    id: user.id,
-                    steam_id: steamId64,
-                });
-            }
-            
-            // Очищаем URL от параметров, чтобы не было цикла
-            window.history.replaceState({}, document.title, window.location.pathname);
-            
-            // Load the user's Steam games
-            autoLoadSteamGames();
-        }
-    }
-}
-
-// Вызываем функцию
-handleSteamLogin();
-
-// --- Auth state ---
+    // 3. DOM Элементы
     const authBtn = document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
     const authBackdrop = document.getElementById('auth-modal-backdrop');
@@ -642,387 +476,185 @@ handleSteamLogin();
     const btnSignup = document.getElementById('btn-signup');
     const btnCloseModal = document.getElementById('btn-close-modal');
     const authMessage = document.getElementById('auth-message');
-
     const authBtnText = document.getElementById('auth-btn-text');
     const authDropdown = document.getElementById('auth-dropdown');
-    const authChangeAccountBtn = document.getElementById('auth-change-account');
     const authLogoutBtn = document.getElementById('auth-logout');
-    const accountSwitcherBackdrop = document.getElementById('account-switcher-backdrop');
-    const accountSwitcherModal = document.getElementById('account-switcher-modal');
-    const accountSwitcherClose = document.getElementById('account-switcher-close');
-    const savedAccountsList = document.getElementById('saved-accounts-list');
-    const addNewAccountBtn = document.getElementById('add-new-account');
+    const authChangeAccountBtn = document.getElementById('auth-change-account');
 
-    function updateAuthButton(user) {
-      if (user) {
-        authBtnText.textContent = user.email || 'Account';
-      } else {
-        authBtnText.textContent = 'Login';
-        authDropdown.classList.add('hidden');
-      }
-    }
-
-    function toggleAuthDropdown() {
-      authDropdown.classList.toggle('hidden');
-    }
-
-    function closeAuthDropdown() {
-      authDropdown.classList.add('hidden');
-    }
-
-    async function handleSignOut() {
-      const currentSession = supabase.auth.getCurrentSession();
-      // Save current session to localStorage before signing out
-      if (currentSession) {
-        const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
-        const account = {
-          id: currentSession.user.id,
-          email: currentSession.user.email,
-          session: {
-            access_token: currentSession.access_token,
-            refresh_token: currentSession.refresh_token,
-            token_type: 'bearer',
-            expires_in: currentSession.expires_in,
-            user: {
-              id: currentSession.user.id,
-              email: currentSession.user.email,
-              app_metadata: currentSession.user.app_metadata,
-              user_metadata: currentSession.user.user_metadata,
-            },
-          },
-        };
-        savedAccounts.push(account);
-        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-      }
-
-      closeAuthDropdown();
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        setAuthMessage(error.message, true);
-      } else {
-        // Redirect to login page (show login modal)
-        openAuthModal();
-      }
-    }
-
-    authChangeAccountBtn.addEventListener('click', handleSignOut);
-    authLogoutBtn.addEventListener('click', handleSignOut);
-
-    // Dropdown toggle on click
-    authBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleAuthDropdown();
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('auth-btn-container');
-      if (container && !container.contains(e.target)) {
-        closeAuthDropdown();
-      }
-    });
-
-    // Account Switcher modal controls
-    accountSwitcherClose.addEventListener('click', () => {
-      accountSwitcherModal.classList.add('hidden');
-      accountSwitcherBackdrop.classList.add('hidden');
-    });
-
-    accountSwitcherBackdrop.addEventListener('click', () => {
-      accountSwitcherModal.classList.add('hidden');
-      accountSwitcherBackdrop.classList.add('hidden');
-    });
-
-    addNewAccountBtn.addEventListener('click', () => {
-      // Clear the saved accounts array so only the new account shows
-      localStorage.setItem('saved_accounts', JSON.stringify([]));
-      // Open the sign-in modal to add a new account
-      closeAuthDropdown();
-      openAuthModal();
-      // Close the account switcher
-      accountSwitcherModal.classList.add('hidden');
-      accountSwitcherBackdrop.classList.add('hidden');
-      // Focus on the email input in the sign-in modal
-      setTimeout(() => {
-        const authEmail = document.getElementById('auth-email');
-        if (authEmail) authEmail.focus();
-      }, 100);
-    });
-
-    // Render saved accounts in the switcher modal
-    function renderSavedAccounts() {
-      const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
-      if (savedAccounts.length === 0) {
-        savedAccountsList.innerHTML = '<p class="text-sm text-gray-500">No saved accounts found.</p>';
-        return;
-      }
-      savedAccountsList.innerHTML = savedAccounts.map((acc, index) => `
-        <div class="flex items-center justify-between px-3 py-3 rounded-lg hover:bg-white/5 transition group">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-300 font-semibold">
-              ${acc.email ? acc.email.charAt(0).toUpperCase() : 'U'}
-            </div>
-            <div>
-              <p class="text-sm font-medium text-white">${acc.email || 'Unknown'}</p>
-              <p class="text-xs text-gray-500">ID: ${acc.id ? acc.id.substring(0, 8) : 'Unknown'}</p>
-            </div>
-          </div>
-          <button class="text-xs text-purple-400 hover:text-white transition" data-email="${acc.email || ''}" data-id="${acc.id || ''}">Switch</button>
-        </div>
-      `).join('');
-
-    // Add click listeners to saved account Switch buttons
-    document.addEventListener('click', (e) => {
-      const switchBtn = e.target.closest('button[data-email]');
-      if (switchBtn) {
-        const email = switchBtn.dataset.email;
-        const id = switchBtn.dataset.id;
-        const savedAccounts = JSON.parse(localStorage.getItem('saved_accounts') || '[]');
-        const account = savedAccounts.find(a => a.email === email || a.id === id);
-        if (account && account.session) {
-          // Set the session to switch to this account
-          if (typeof supabase.auth.setSession === 'function') {
-            supabase.auth.setSession({
-              access_token: account.session.access_token,
-              refresh_token: account.session.refresh_token,
-            }).then(({ data, error }) => {
-              if (error) {
-                console.error('Error setting session:', error);
-              }
-            });
-          }
-          // Close the account switcher
-          accountSwitcherModal.classList.add('hidden');
-          accountSwitcherBackdrop.classList.add('hidden');
-          // Re-render the account list
-          renderSavedAccounts();
-        }
-      }
-    });
-    }
-
-    // Load and render saved accounts on page load
-    renderSavedAccounts();
-
-    // --- Community block event listeners ---
-    const communitySearch = document.getElementById('community-search');
-    const viewAllProfilesBtn = document.getElementById('view-all-profiles');
-
-    // Search profiles on Enter key
-    communitySearch.addEventListener('keydown', async (e) => {
-      if (e.key === 'Enter') {
-        const searchTerm = communitySearch.value.trim();
-        if (searchTerm) {
-          try {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('username, id')
-              .ilike('username', `%${searchTerm}%`);
-
-            if (error) {
-              console.error('Search error:', error);
-              setAuthMessage('Search failed. Please try again.', true);
-            } else {
-              setAuthMessage(`Found ${data.length} result(s)`, false);
-              // TODO: Display results in a list below (UI placeholder)
-              console.log('Search results:', data);
-            }
-          } catch (err) {
-            console.error('Search error:', err);
-            setAuthMessage('Search failed. Please try again.', true);
-          }
-        }
-      }
-    });
-
-    // View All Profiles button
-    viewAllProfilesBtn.addEventListener('click', async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('username, id');
-
-        if (error) {
-          console.error('Fetch error:', error);
-          setAuthMessage('Failed to fetch profiles.', true);
-        } else {
-          setAuthMessage(`Displaying ${data.length} profile(s)`, false);
-          // TODO: Show results in a modal or new section (UI placeholder)
-          console.log('All profiles:', data);
-        }
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setAuthMessage('Failed to fetch profiles.', true);
-      }
-    });
-
-    function setAuthMessage(msg, isError = false) {
-      authMessage.textContent = msg;
-      authMessage.className = `text-sm mt-4 text-center ${isError ? 'text-red-400' : 'text-green-400'}`;
-    }
-
+    // 4. Логика модального окна
     function openAuthModal() {
       authModal.classList.remove('hidden');
-      authBackdrop.classList.remove('hidden');
+      if (authBackdrop) authBackdrop.classList.remove('hidden');
       authEmail.focus();
       authMessage.textContent = '';
     }
 
     function closeAuthModal() {
       authModal.classList.add('hidden');
-      authBackdrop.classList.add('hidden');
+      if (authBackdrop) authBackdrop.classList.add('hidden');
       authMessage.textContent = '';
     }
 
-    // Listen to auth state changes — updates header button and closes modal on login/logout
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    // 5. Обработчики кнопок
+    authBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (authBtnText.textContent === 'Login') {
+        openAuthModal();
+      } else {
+        authDropdown.classList.toggle('hidden');
+      }
+    });
+
+    btnCloseModal.addEventListener('click', closeAuthModal);
+    if (authBackdrop) authBackdrop.addEventListener('click', closeAuthModal);
+
+    // Вход (Sign In)
+    btnSignin.addEventListener('click', async (e) => {
+      e.preventDefault(); // Предотвращаем перезагрузку формы, если она есть
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      
+      if (!email || !password) {
+        authMessage.textContent = 'Please enter email and password.';
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        return;
+      }
+      
+      btnSignin.disabled = true;
+      btnSignin.textContent = 'Signing in...';
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        authMessage.textContent = error.message;
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        btnSignin.disabled = false;
+        btnSignin.textContent = 'Sign In';
+      } else {
+        // Успешный вход — перезагружаем страницу
+        window.location.reload();
+      }
+    });
+
+    // Регистрация (Sign Up)
+    btnSignup.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      
+      if (!email || !password) {
+        authMessage.textContent = 'Please enter email and password.';
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        return;
+      }
+
+      btnSignup.disabled = true;
+      btnSignup.textContent = 'Creating...';
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      
+      if (error) {
+        authMessage.textContent = error.message;
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+      } else {
+        authMessage.textContent = 'Account created! Check your email for confirmation.';
+        authMessage.className = 'text-sm mt-4 text-center text-green-400';
+      }
+      
+      btnSignup.disabled = false;
+      btnSignup.textContent = 'Sign Up';
+    });
+
+    // Выход (Logout)
+    async function handleSignOut() {
+      authDropdown.classList.add('hidden');
+      await supabaseClient.auth.signOut();
+      window.location.reload();
+    }
+
+    if (authLogoutBtn) authLogoutBtn.addEventListener('click', handleSignOut);
+    if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
+
+    // Закрытие дропдауна при клике вне его
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('auth-btn-container');
+      if (container && !container.contains(e.target)) {
+        authDropdown.classList.add('hidden');
+      }
+    });
+
+    // 6. Обработка состояния авторизации (Auth State)
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
       const user = session?.user ?? null;
-      updateAuthButton(user);
-      if (session) {
+      
+      if (user) {
+        // Пользователь авторизован
+        authBtnText.textContent = user.email || 'Account';
         closeAuthModal();
-        // Fetch profile from Supabase
+        
         try {
-          const { data: profile, error } = await supabase
+          const { data: profile, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', user.id)
             .single();
+
           if (profile && !error) {
-            // Apply username from Supabase
-            if (profile.username) {
-              applyUsername(profile.username);
-              usernameInput.value = profile.username;
-            }
-
-            // Apply member since from user.created_at
-            if (user && user.created_at) {
-              const memberSinceEl = document.getElementById('stat-member-since');
-              if (memberSinceEl) {
-                const formatted = new Date(user.created_at).toLocaleString('en-US', {
-                  month: 'short',
-                  year: 'numeric',
-                });
-                memberSinceEl.textContent = formatted;
-              }
-            }
-
-            // Apply screenshots from Supabase
-            ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
+             if (profile.username) applyUsername(profile.username);
+             
+             // Загрузка скриншотов из базы
+             ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
               if (profile[col]) {
                 const slot = slots[index];
-                const previewEl = document.getElementById(slot.preview);
-                const overlayEl = document.getElementById(slot.overlay);
-                const removeEl = document.getElementById(slot.remove);
-                const labelEl = document.getElementById(slot.input).parentElement;
-                previewEl.src = profile[col];
-                previewEl.classList.remove('hidden');
-                overlayEl.classList.add('hidden');
-                removeEl.classList.remove('hidden');
-                labelEl.classList.add('has-image');
+                if(slot) {
+                    const previewEl = document.getElementById(slot.preview);
+                    const overlayEl = document.getElementById(slot.overlay);
+                    const removeEl = document.getElementById(slot.remove);
+                    if(previewEl && overlayEl && removeEl) {
+                        previewEl.src = profile[col];
+                        previewEl.classList.remove('hidden');
+                        overlayEl.classList.add('hidden');
+                        removeEl.classList.remove('hidden');
+                    }
+                }
               }
             });
           } else if (error && error.code === 'PGRST116') {
-            // No profile found — create one
-            await supabase.from('profiles').insert({ id: user.id, username: user.email || 'User' });
+             // Если профиля нет, создаем его
+             await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
           }
         } catch (err) {
           console.error('Error fetching profile:', err);
         }
-      }
-    });
 
-    // Header Login/Logout toggle
-    authBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const text = authBtnText.textContent;
-      if (text === 'Login') {
-        openAuthModal();
+        // Автозагрузка Steam игр
+        autoLoadSteamGames();
+
       } else {
-        toggleAuthDropdown();
+        // Пользователь не авторизован
+        authBtnText.textContent = 'Login';
+        authDropdown.classList.add('hidden');
+        applyUsername('Guest');
       }
     });
 
-    // Sign In
-    btnSignin.addEventListener('click', async () => {
-      const email = authEmail.value.trim();
-      const password = authPassword.value.trim();
-      if (!email || !password) {
-        setAuthMessage('Please enter email and password.', true);
-        return;
-      }
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setAuthMessage(error.message, true);
-      }
-    });
-
-    // Sign Up
-    btnSignup.addEventListener('click', async () => {
-      const email = authEmail.value.trim();
-      const password = authPassword.value.trim();
-      if (!email || !password) {
-        setAuthMessage('Please enter email and password.', true);
-        return;
-      }
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        setAuthMessage(error.message, true);
-      } else {
-        setAuthMessage('Account created! Please check your email to confirm.', false);
-      }
-    });
-
-    // Close modal
-    btnCloseModal.addEventListener('click', closeAuthModal);
-    authBackdrop.addEventListener('click', closeAuthModal);
-
-    // --- Username persistence ---
+    // 7. Вспомогательные функции (Username, Gallery)
     function applyUsername(name) {
       const welcomeEl = document.getElementById('welcome-username');
       const profileNameEl = document.getElementById('profile-username');
       const avatarEl = document.getElementById('profile-avatar');
-
       if (welcomeEl) welcomeEl.textContent = name;
       if (profileNameEl) profileNameEl.textContent = name;
-      if (avatarEl) {
-        avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
-      }
+      if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
     }
 
-    // --- Gallery upload handling — exactly 3 slots (JPG/PNG only) ---
     const slots = [
       { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
       { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
       { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
     ];
 
-    async function resetSlot(slot, index) {
-      const inputEl = document.getElementById(slot.input);
-      const previewEl = document.getElementById(slot.preview);
-      const overlayEl = document.getElementById(slot.overlay);
-      const removeEl = document.getElementById(slot.remove);
-      const labelEl = inputEl.parentElement;
-
-      previewEl.src = '';
-      previewEl.classList.add('hidden');
-      overlayEl.classList.remove('hidden');
-      removeEl.classList.add('hidden');
-      labelEl.classList.remove('has-image');
-      inputEl.value = '';
-
-      // Remove from localStorage
-      localStorage.removeItem(STORAGE_KEYS.screenshot(index));
-
-      // Clear from Supabase if logged in
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        await supabase.from('profiles').upsert({
-          id: session.user.id,
-          [`screenshot_${index + 1}`]: null,
-        });
-      }
-    }
-
+    // Логика галереи
     slots.forEach((slot, index) => {
       const inputEl = document.getElementById(slot.input);
       const previewEl = document.getElementById(slot.preview);
@@ -1030,12 +662,10 @@ handleSteamLogin();
       const removeEl = document.getElementById(slot.remove);
       const labelEl = inputEl.parentElement;
 
-      // Clicking the box (its <label>) opens the file picker — works when empty or to replace an image
       inputEl.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // Only JPG/PNG allowed (checked by extension and MIME type)
         const isJpgOrPng = /\.(jpe?g|png)$/i.test(file.name);
         const isImageType = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng || !isImageType) {
@@ -1057,12 +687,12 @@ handleSteamLogin();
           overlayEl.classList.add('hidden');
           removeEl.classList.remove('hidden');
           labelEl.classList.add('has-image');
-          // Persist Base64 image to localStorage
+          
           localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
-          // Save to Supabase if logged in
-          const { data: { session } } = await supabase.auth.getSession();
+          
+          const { data: { session } } = await supabaseClient.auth.getSession();
           if (session) {
-            await supabase.from('profiles').upsert({
+            await supabaseClient.from('profiles').upsert({
               id: session.user.id,
               [`screenshot_${index + 1}`]: dataUrl,
             });
@@ -1071,14 +701,29 @@ handleSteamLogin();
         reader.readAsDataURL(file);
       });
 
-      // Remove image and restore the empty placeholder
-      removeEl.addEventListener('click', (e) => {
-        e.stopPropagation(); // do not trigger the file picker
-        resetSlot(slot, index);
+      removeEl.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        previewEl.src = '';
+        previewEl.classList.add('hidden');
+        overlayEl.classList.remove('hidden');
+        removeEl.classList.add('hidden');
+        labelEl.classList.remove('has-image');
+        inputEl.value = '';
+
+        localStorage.removeItem(STORAGE_KEYS.screenshot(index));
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          await supabaseClient.from('profiles').upsert({
+            id: session.user.id,
+            [`screenshot_${index + 1}`]: null,
+          });
+        }
       });
     });
 
-    // --- Username modal (Edit Profile / Settings) ---
+    // Модалка изменения имени
     const modal = document.getElementById('username-modal');
     const backdrop = document.getElementById('username-modal-backdrop');
     const usernameInput = document.getElementById('username-input');
@@ -1106,285 +751,23 @@ handleSteamLogin();
       localStorage.setItem(STORAGE_KEYS.username, newName);
       applyUsername(newName);
       closeUsernameModal();
-      // Save to Supabase if logged in
-      const { data: { session } } = await supabase.auth.getSession();
+      
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
-        await supabase.from('profiles').upsert({ id: session.user.id, username: newName });
+        await supabaseClient.from('profiles').upsert({ id: session.user.id, username: newName });
       }
     });
 
-    usernameInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('username-save').click();
-      }
-      if (e.key === 'Escape') {
-        closeUsernameModal();
-      }
-    });
-
-    // --- Load persisted state on page load ---
-    function loadState() {
-      // Restore username
-      const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
-      if (savedUsername) {
-        applyUsername(savedUsername);
-        usernameInput.value = savedUsername;
-      }
-
-      // Restore saved screenshots
-      slots.forEach((slot, index) => {
-        const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
-        if (saved) {
-          const inputEl = document.getElementById(slot.input);
-          const previewEl = document.getElementById(slot.preview);
-          const overlayEl = document.getElementById(slot.overlay);
-          const removeEl = document.getElementById(slot.remove);
-          const labelEl = inputEl.parentElement;
-
-          previewEl.src = saved;
-          previewEl.classList.remove('hidden');
-          overlayEl.classList.add('hidden');
-          removeEl.classList.remove('hidden');
-          labelEl.classList.add('has-image');
-        }
-      });
-    }
-
-    loadState();
-
-    // Steam DOM elements (declared here so they're available before first use)
+    // 8. Steam логика
+    const steamAutoLoadEl = document.getElementById('steam-auto-load');
+    const steamBtnText = document.getElementById('steam-btn-text');
     const gamesTbody = document.getElementById('games-tbody');
     const totalGamesEl = document.getElementById('stat-total-games');
     const totalHoursEl = document.getElementById('stat-total-hours');
 
-    // Restore previously fetched Steam games (if any)
-    const savedSteam = localStorage.getItem('gt_steam_games');
-    if (savedSteam) {
-      try {
-        renderSteamGames(JSON.parse(savedSteam));
-      } catch (e) {
-        console.error('Failed to restore Steam games:', e);
-      }
-    }
-
-    // Auto-fetch Steam games if user has a saved steamid in their Supabase profile
-    async function autoLoadSteamGames() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('steam_id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError || !profile || !profile.steam_id) return;
-
-      // Show loading indicator
-      if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
-      
-    // Check if we have Steam data from saved localStorage or from Steam API callback
-    const savedSteam = localStorage.getItem('gt_steam_games');
-    if (savedSteam) {
-      renderSteamGames(JSON.parse(savedSteam));
-    }
-
-      try {
-        const { data, error } = await supabase.functions.invoke('steam-api', {
-          body: { steamid: profile.steam_id },
-        });
-
-        if (error) {
-          console.error('Steam API error:', error);
-          return;
-        }
-
-        if (data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
-          updateSteamUI(data, profile.steam_id);
-        }
-      } catch (e) {
-        console.error('Failed to auto-load Steam games:', e);
-      } finally {
-        // Hide loading indicator
-        if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
-      }
-    }
-
-    // --- Steam OpenID connect ---
-    const steamBtnText = document.getElementById('steam-btn-text');
-    const connectSteamBtn = document.getElementById('connect-steam-btn');
-    const steamAutoLoadEl = document.getElementById('steam-auto-load');
-
-    const STEAM_AUTH_CALLBACK_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
-
-    // Handle Steam OpenID callback (returned from Steam authentication)
-    const urlParams = new URLSearchParams(window.location.search);
-    const openidMode = urlParams.get('openid.mode');
-    if (openidMode === 'id_res') {
-      const claimedId = urlParams.get('openid.claimed_id');
-      const steamid = claimedId ? claimedId.split('/').pop() : null;
-      window.history.replaceState({}, document.title, window.location.pathname);
-      if (steamid) {
-        handleSteamCallback(steamid);
-      } else {
-        autoLoadSteamGames();
-      }
-    } else {
-      autoLoadSteamGames();
-    }
-
-    async function handleSteamCallback(steamid) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { error: upsertError } = await supabase.from('profiles').upsert({
-          id: user.id,
-          steam_id: String(steamid),
-        });
-        if (!upsertError) {
-          const { data, error } = await supabase.functions.invoke('steam-api', {
-            body: { steamid },
-          });
-          if (!error && data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
-            renderSteamGames(data);
-            return;
-          }
-        }
-      }
-      autoLoadSteamGames();
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text ?? '';
-      return div.innerHTML;
-    }
-
-    function formatSteamHours(minutes) {
-      return (Math.round((minutes || 0) / 60) || 0).toLocaleString() + 'h';
-    }
-
-    // --- Steam button with manual ID input modal ---
-    const steamInput = document.getElementById('steamInput');
-    const steamError = document.getElementById('steam-error');
-    let steamConnect = document.getElementById('steam-connect');
-    const steamCancel = document.getElementById('steam-cancel');
-
-    // Open the Steam connect modal
-    function openSteamModal() {
-      steamInput.value = '';
-      steamError.textContent = '';
-      steamError.classList.add('hidden');
-      steamModal.classList.remove('hidden');
-      steamBackdrop.classList.remove('hidden');
-      steamInput.focus();
-    }
-
-    // Close the Steam connect modal
-    function closeSteamModal() {
-      steamModal.classList.add('hidden');
-      steamBackdrop.classList.add('hidden');
-      steamInput.value = '';
-      steamError.textContent = '';
-      steamError.classList.add('hidden');
-    }
-
-    // Show Steam connect modal
-    steamConnect = document.getElementById('connect-steam-btn');
-    steamConnect.addEventListener('click', async () => {
-      const steamid = steamInput.value.trim();
-      if (!/^\d{17}$/.test(steamid)) {
-        steamError.textContent = 'Please enter a valid 17-digit SteamID64 (digits only).';
-        steamError.classList.remove('hidden');
-        steamInput.focus();
-        return;
-      }
-
-      // Show connecting state
-      steamError.textContent = '';
-      steamError.classList.add('hidden');
-      steamConnect.disabled = true;
-      steamBtnText.textContent = 'Connecting...';
-
-      // Check if user already has a steam_id saved in the database
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('steam_id')
-          .eq('id', user.id)
-          .single();
-        // If steam_id already exists, just load their games and close modal
-        if (profile && profile.steam_id) {
-          steamError.textContent = '';
-          steamError.classList.add('hidden');
-          steamConnect.disabled = false;
-          steamBtnText.textContent = 'Connect Steam';
-          autoLoadSteamGames();
-          closeSteamModal();
-          return;
-        }
-      }
-      
-      // Call the Steam auth callback function to get redirect URL
-      supabase.functions.invoke('steam-auth-callback')
-        .then(async ({ data, error }) => {
-          if (error) {
-            steamConnect.disabled = false;
-            steamBtnText.textContent = 'Connect Steam';
-            steamError.textContent = error.message;
-            steamError.classList.remove('hidden');
-            return;
-          }
-
-          if (data && data.url) {
-            // Redirect to Steam authentication page
-            window.location.href = data.url;
-          } else {
-            steamConnect.disabled = false;
-            steamBtnText.textContent = 'Connect Steam';
-            steamError.textContent = 'No URL returned from auth function.';
-            steamError.classList.remove('hidden');
-          }
-        })
-        .catch((err) => {
-          console.error('Steam auth error:', err);
-          steamConnect.disabled = false;
-          steamBtnText.textContent = 'Connect Steam';
-          steamError.textContent = 'Failed to connect Steam account.';
-          steamError.classList.remove('hidden');
-        });
-    });
-
-    // Cancel Steam connect
-    let cancelBtn = document.getElementById('btn-close-modal');
-    cancelBtn.addEventListener('click', closeSteamModal);
-
-    // Open Steam modal when clicking the connect button
-    connectSteamBtn.addEventListener('click', openSteamModal);
-
     function renderSteamGames(data) {
       if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
-        if (totalGamesEl) totalGamesEl.textContent = '0';
-        if (totalHoursEl) totalHoursEl.textContent = '0h';
-        const hoursCard = document.getElementById('hours-card');
-        if (hoursCard) {
-          hoursCard.textContent = '0h';
-          hoursCard.className = 'text-4xl font-extrabold stat-number rank-bronze';
-        }
-        const hoursBar = document.getElementById('stat-hours-bar');
-        if (hoursBar) hoursBar.className = 'h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]';
-        const playstyleLabelEl = document.getElementById('stat-playstyle-label');
-        if (playstyleLabelEl) playstyleLabelEl.textContent = '—';
-        const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
-        if (playstyleAvgEl) playstyleAvgEl.textContent = '—';
-        const levelEl = document.getElementById('stat-level');
-        if (levelEl) levelEl.textContent = '0';
-        const levelBar = document.getElementById('stat-level-bar');
-        if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
-        const levelXp = document.getElementById('stat-level-xp');
-        if (levelXp) levelXp.textContent = '0 XP to next level';
-        if (!gamesTbody) return;
-        gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
+        if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
       }
 
@@ -1393,304 +776,107 @@ handleSteamLogin();
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
 
-      // Update recent hours played (last 2 weeks)
-      const recentHoursEl = document.getElementById('stat-recent-hours');
-      if (recentHoursEl) {
-        const recentGames = data.recentGames?.response?.games || [];
-        const recentMinutes = recentGames.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
-        const recentHours = Math.round(recentMinutes / 60);
-        recentHoursEl.textContent = `+${recentHours}h this week`;
-      }
-
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
       if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
 
-      // Update Playstyle card
-      const avgHours = totalHours / games.length;
-      const playstyleLabelEl = document.getElementById('stat-playstyle-label');
-      const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
-      let label = 'Collector';
-      let labelRu = 'Коллекционер';
-      if (avgHours > 20) {
-        label = 'Devoted';
-        labelRu = 'Верный';
-      } else if (avgHours > 5) {
-        label = 'Balanced';
-        labelRu = 'Сбалансированный';
-      }
-      if (playstyleLabelEl) playstyleLabelEl.textContent = `${label} (${labelRu})`;
-      if (playstyleAvgEl) playstyleAvgEl.textContent = `${Math.round(avgHours)}h/game`;
-
-      // Update Hours Played card
       const hoursCard = document.getElementById('hours-card');
-      if (hoursCard) {
-        hoursCard.textContent = totalHours + 'h';
-        const rankClasses = ['rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond'];
-        const rankClass = totalHours >= 5000
-          ? 'rank-diamond'
-          : totalHours >= 1000
-            ? 'rank-gold'
-            : totalHours >= 500
-              ? 'rank-silver'
-              : 'rank-bronze';
-        hoursCard.className = 'text-4xl font-extrabold stat-number ' + rankClass;
-      }
-      const hoursBar = document.getElementById('stat-hours-bar');
-      if (hoursBar) {
-        const hoursPct = Math.min(totalHours / 1000, 1);
-        hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
-      }
-
-      // Update Level card (Steam API GetOwnedGames doesn't return level, keep at 0)
-      const levelEl = document.getElementById('stat-level');
-      if (levelEl) levelEl.textContent = '0';
-      const levelBar = document.getElementById('stat-level-bar');
-      if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
-      const levelXp = document.getElementById('stat-level-xp');
-      if (levelXp) levelXp.textContent = '0 XP to next level';
-
-      if (!gamesTbody) return;
-      gamesTbody.innerHTML = '';
-
-      if (games.length === 0) {
-        gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
-        return;
-      }
+      if (hoursCard) hoursCard.textContent = totalHours + 'h';
 
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-
-      for (const game of sorted) {
-        const iconUrl = game.img_icon_url
-          ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-          : null;
-        const hours = Math.round((game.playtime_forever || 0) / 60);
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-white/3 transition group';
-        tr.innerHTML = `
-          <td class="px-6 py-4">
-            <div class="flex items-center gap-3">
-              ${iconUrl
-                ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${escapeHtml(game.name)}" loading="lazy" />`
-                : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>`}
-              <div>
-                <p class="font-medium text-white">${escapeHtml(game.name)}</p>
-                <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
-              </div>
-            </div>
-          </td>
-          <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours.toLocaleString()}h</span></td>
-          <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
-          <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-          <td class="px-6 py-4 text-gray-400 text-sm">—</td>
-        `;
-        gamesTbody.appendChild(tr);
-      }
-    }
-
-    // Shared UI update logic for Steam data (used by both connect button and auto-load)
-    function updateSteamUI(data, steamid) {
-      const games = data.ownedGames.response.games;
-      const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-      const totalHours = Math.round(totalMinutes / 60);
-
-      // Update recent hours played (last 2 weeks)
-      const recentHoursEl = document.getElementById('stat-recent-hours');
-      if (recentHoursEl) {
-        const recentGames = data.recentGames?.response?.games || [];
-        const recentMinutes = recentGames.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
-        const recentHours = Math.round(recentMinutes / 60);
-        recentHoursEl.textContent = `+${recentHours}h this week`;
-      }
-
-      // Hours Played card
-      const hoursCard = document.getElementById('hours-card');
-      if (hoursCard) {
-        hoursCard.textContent = totalHours + 'h';
-        const rankClasses = ['rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond'];
-        const rankClass = totalHours >= 5000
-          ? 'rank-diamond'
-          : totalHours >= 1000
-            ? 'rank-gold'
-            : totalHours >= 500
-              ? 'rank-silver'
-              : 'rank-bronze';
-        hoursCard.className = 'text-4xl font-extrabold stat-number ' + rankClass;
-      }
-      const hoursBar = document.getElementById('stat-hours-bar');
-      if (hoursBar) {
-        const hoursPct = Math.min(totalHours / 1000, 1);
-        hoursBar.className = `h-full bg-gradient-to-r from-purple-500 to-blue-500 w-${Math.round(hoursPct * 100)}/100 shadow-[0_0_10px_rgba(168,85,247,0.6)]`;
-      }
-
-      // Playstyle card
-      const avgHours = totalHours / games.length;
-      const playstyleLabelEl = document.getElementById('stat-playstyle-label');
-      const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
-      let label = 'Collector';
-      let labelRu = 'Коллекционер';
-      if (avgHours > 20) {
-        label = 'Devoted';
-        labelRu = 'Верный';
-      } else if (avgHours > 5) {
-        label = 'Balanced';
-        labelRu = 'Сбалансированный';
-      }
-      if (playstyleLabelEl) playstyleLabelEl.textContent = `${label} (${labelRu})`;
-      if (playstyleAvgEl) playstyleAvgEl.textContent = `${Math.round(avgHours)}h/game`;
-
-      // Level card
-      const levelEl = document.getElementById('stat-level');
-      if (levelEl) levelEl.textContent = '0';
-      const levelBar = document.getElementById('stat-level-bar');
-      if (levelBar) levelBar.className = 'h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]';
-      const levelXp = document.getElementById('stat-level-xp');
-      if (levelXp) levelXp.textContent = '0 XP to next level';
-
-      // Profile card totals
-      if (totalGamesEl) totalGamesEl.textContent = data.ownedGames.response.game_count || games.length;
-      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
-
-      // Clear and populate games table
       if (gamesTbody) {
         gamesTbody.innerHTML = '';
-        if (games.length === 0) {
-          gamesTbody.innerHTML = '<tr id="steam-placeholder"><td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td></tr>';
-        } else {
-          const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-          for (const game of sorted) {
-            const iconUrl = game.img_icon_url
-              ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-              : null;
-            const hours = Math.round((game.playtime_forever || 0) / 60);
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-white/3 transition group';
-            tr.innerHTML = `
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                ${iconUrl
-                  ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${escapeHtml(game.name)}" loading="lazy" />`
-                  : `<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-white font-bold">${escapeHtml((game.name || 'Game').charAt(0).toUpperCase())}</div>`}
+        for (const game of sorted) {
+          const iconUrl = game.img_icon_url
+            ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+            : null;
+          const hours = Math.round((game.playtime_forever || 0) / 60);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-white/3 transition group';
+          tr.innerHTML = `
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${game.name}" />` : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${(game.name||'G').charAt(0).toUpperCase()}</div>`}
                 <div>
-                  <p class="font-medium text-white">${escapeHtml(game.name)}</p>
+                  <p class="font-medium text-white">${game.name}</p>
                   <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
                 </div>
-                </div>
-              </td>
-              <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
-              <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
-              <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-              <td class="px-6 py-4 text-gray-400 text-sm">—</td>
-            `;
-            gamesTbody.appendChild(tr);
-          }
+              </div>
+            </td>
+            <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
+            <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
+            <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
+            <td class="px-6 py-4 text-gray-400 text-sm">—</td>
+          `;
+          gamesTbody.appendChild(tr);
         }
       }
+    }
 
-      // Update username to Steam name if available in the response
-      const steamName = data.ownedGames.response?.personaname || data.ownedGames.response?.steam_name || data.ownedGames.response?.name;
-      if (steamName) {
-        const welcomeEl = document.getElementById('welcome-username');
-        const profileEl = document.getElementById('profile-username');
-        const avatarEl = document.getElementById('profile-avatar');
-        const inputEl = document.getElementById('username-input');
-        if (welcomeEl) welcomeEl.textContent = steamName;
-        if (profileEl) profileEl.textContent = steamName;
-        if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(steamName)}&background=random&size=512`;
-        if (inputEl) inputEl.value = steamName;
+    async function autoLoadSteamGames() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+
+      const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('steam_id')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !profile || !profile.steam_id) return;
+
+      if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
+      
+      // Проверяем кэш в localStorage
+      const savedSteam = localStorage.getItem('gt_steam_games');
+      if (savedSteam) {
+          try {
+            renderSteamGames(JSON.parse(savedSteam));
+          } catch(e) {}
       }
 
-      steamBtnText.textContent = 'Steam Connected';
-      localStorage.setItem('gt_steam_games', JSON.stringify(data));
-      localStorage.setItem('gt_steamid', steamid);
-    }
-// --- Принудительный вход ---
-document.addEventListener('click', async (e) => {
-    // Если нажали на кнопку "Sign In" внутри модалки
-    if (e.target && (e.target.id === 'btn-signin' || e.target.innerText === 'Sign In')) {
-        e.preventDefault();
-        
-        // Находим поля ввода (ищем по типу, чтобы не зависеть от ID)
-        const emailInput = document.querySelector('input[type="email"]');
-        const passwordInput = document.querySelector('input[type="password"]');
-        
-        if (!emailInput || !passwordInput) {
-            alert("Не найдены поля для ввода!");
-            return;
-        }
-
-        const email = emailInput.value;
-        const password = passwordInput.value;
-
-        if (!email || !password) {
-            alert("Введите почту и пароль!");
-            return;
-        }
-
-        // Входим через Supabase
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) {
-            alert("Ошибка: " + error.message);
-        } else {
-            alert("Успешный вход!");
-            window.location.reload(); // Перезагружаем, чтобы обновить профиль
-        }
-    }
-});
-// --- Логика для кнопок Логина ---
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Открытие модалки
-    const loginBtn = document.getElementById('login-btn'); // проверь ID в шапке
-    const authModal = document.getElementById('auth-modal'); // проверь ID модалки
-    
-    if (loginBtn && authModal) {
-        // Клонируем кнопку, чтобы убить старые сломанные клики
-        const newLoginBtn = loginBtn.cloneNode(true);
-        loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
-        
-        newLoginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            authModal.classList.remove('hidden');
-            console.log("Модалка логина открыта!");
+      try {
+        const { data, error } = await supabaseClient.functions.invoke('steam-api', {
+          body: { steamid: profile.steam_id },
         });
-    } else {
-        console.error("Не найдена кнопка Login или модалка!");
+
+        if (!error && data) {
+            renderSteamGames(data);
+            localStorage.setItem('gt_steam_games', JSON.stringify(data));
+        }
+      } catch (e) {
+        console.error('Failed to auto-load Steam games:', e);
+      } finally {
+        if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
+      }
     }
 
-    // 2. Закрытие модалки (крестик)
-    const closeBtn = document.getElementById('btn-close-modal');
-    if (closeBtn && authModal) {
-        closeBtn.addEventListener('click', () => {
-            authModal.classList.add('hidden');
-        });
-    }
+    // Инициализация страницы
+    (async function init() {
+        // Загружаем сохраненное имя
+        const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
+        if (savedUsername) {
+            applyUsername(savedUsername);
+            usernameInput.value = savedUsername;
+        }
 
-    // 3. Сама кнопка "Sign In"
-    const signinBtn = document.getElementById('btn-signin');
-    if (signinBtn) {
-        signinBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            
-            if (!email || !password) {
-                alert("Введите почту и пароль!");
-                return;
-            }
-            
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                alert("Ошибка: " + error.message);
-            } else {
-                alert("Успешный вход!");
-                window.location.reload(); // Перезагружаем, чтобы обновить профиль
+        // Загружаем сохраненные скриншоты
+        slots.forEach((slot, index) => {
+            const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
+            if (saved) {
+                const previewEl = document.getElementById(slot.preview);
+                const overlayEl = document.getElementById(slot.overlay);
+                const removeEl = document.getElementById(slot.remove);
+                const labelEl = document.getElementById(slot.input).parentElement;
+                if (previewEl && overlayEl && removeEl && labelEl) {
+                    previewEl.src = saved;
+                    previewEl.classList.remove('hidden');
+                    overlayEl.classList.add('hidden');
+                    removeEl.classList.remove('hidden');
+                    labelEl.classList.add('has-image');
+                }
             }
         });
-    }
-});
-
+    })();
   </script>
 </body>
 </html>
-
-
