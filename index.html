@@ -877,6 +877,480 @@
             }
         });
     })();
+    <script>
+    // ==========================================
+    // БЛОК №2: Чтение ответа от Steam (OpenID)
+    // ==========================================
+    // Этот блок должен выполняться до инициализации Supabase, 
+    // чтобы перехватить параметры из URL после редиректа.
+    (async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const openidMode = urlParams.get('openid.mode');
+
+      if (openidMode === 'id_res') {
+        const claimedId = urlParams.get('openid.claimed_id');
+        const steamid = claimedId ? claimedId.split('/').pop() : null;
+
+        // Очищаем URL от длинных параметров OpenID, чтобы не было цикла перезагрузок
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (steamid) {
+          console.log("Успешный вход через Steam. SteamID:", steamid);
+          // Сохраняем SteamID во временное хранилище, чтобы использовать после инициализации Supabase
+          localStorage.setItem('gt_pending_steamid', steamid);
+        }
+      }
+    })();
+
+    // ==========================================
+    // 1. Инициализация Supabase
+    // ==========================================
+    const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 2. Ключи LocalStorage
+    const STORAGE_KEYS = {
+      username: 'gt_username',
+      screenshot: (index) => `gt_screenshot_${index}`,
+    };
+
+    // 3. DOM Элементы
+    const authBtn = document.getElementById('auth-btn');
+    const authModal = document.getElementById('auth-modal');
+    const authBackdrop = document.getElementById('auth-modal-backdrop');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+    const btnSignin = document.getElementById('btn-signin');
+    const btnSignup = document.getElementById('btn-signup');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const authMessage = document.getElementById('auth-message');
+    const authBtnText = document.getElementById('auth-btn-text');
+    const authDropdown = document.getElementById('auth-dropdown');
+    const authLogoutBtn = document.getElementById('auth-logout');
+    const authChangeAccountBtn = document.getElementById('auth-change-account');
+
+    // 4. Логика модального окна
+    function openAuthModal() {
+      authModal.classList.remove('hidden');
+      if (authBackdrop) authBackdrop.classList.remove('hidden');
+      authEmail.focus();
+      authMessage.textContent = '';
+    }
+
+    function closeAuthModal() {
+      authModal.classList.add('hidden');
+      if (authBackdrop) authBackdrop.classList.add('hidden');
+      authMessage.textContent = '';
+    }
+
+    // 5. Обработчики кнопок
+    authBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (authBtnText.textContent === 'Login') {
+        openAuthModal();
+      } else {
+        authDropdown.classList.toggle('hidden');
+      }
+    });
+
+    btnCloseModal.addEventListener('click', closeAuthModal);
+    if (authBackdrop) authBackdrop.addEventListener('click', closeAuthModal);
+
+    // Вход (Sign In)
+    btnSignin.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      
+      if (!email || !password) {
+        authMessage.textContent = 'Please enter email and password.';
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        return;
+      }
+      
+      btnSignin.disabled = true;
+      btnSignin.textContent = 'Signing in...';
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        authMessage.textContent = error.message;
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        btnSignin.disabled = false;
+        btnSignin.textContent = 'Sign In';
+      } else {
+        window.location.reload();
+      }
+    });
+
+    // Регистрация (Sign Up)
+    btnSignup.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = authEmail.value.trim();
+      const password = authPassword.value.trim();
+      
+      if (!email || !password) {
+        authMessage.textContent = 'Please enter email and password.';
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+        return;
+      }
+
+      btnSignup.disabled = true;
+      btnSignup.textContent = 'Creating...';
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+      
+      if (error) {
+        authMessage.textContent = error.message;
+        authMessage.className = 'text-sm mt-4 text-center text-red-400';
+      } else {
+        authMessage.textContent = 'Account created! Check your email for confirmation.';
+        authMessage.className = 'text-sm mt-4 text-center text-green-400';
+      }
+      
+      btnSignup.disabled = false;
+      btnSignup.textContent = 'Sign Up';
+    });
+
+    // Выход (Logout)
+    async function handleSignOut() {
+      authDropdown.classList.add('hidden');
+      await supabaseClient.auth.signOut();
+      window.location.reload();
+    }
+
+    if (authLogoutBtn) authLogoutBtn.addEventListener('click', handleSignOut);
+    if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
+
+    // Закрытие дропдауна при клике вне его
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('auth-btn-container');
+      if (container && !container.contains(e.target)) {
+        authDropdown.classList.add('hidden');
+      }
+    });
+
+    // 6. Обработка состояния авторизации (Auth State)
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+      const user = session?.user ?? null;
+      
+      if (user) {
+        authBtnText.textContent = user.email || 'Account';
+        closeAuthModal();
+
+        // Проверяем, есть ли отложенный SteamID после редиректа
+        const pendingSteamId = localStorage.getItem('gt_pending_steamid');
+        if (pendingSteamId) {
+          await supabaseClient.from('profiles').upsert({
+            id: user.id,
+            steam_id: pendingSteamId
+          });
+          localStorage.removeItem('gt_pending_steamid');
+          console.log("Steam ID успешно привязан к профилю.");
+        }
+        
+        try {
+          const { data: profile, error } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+          if (profile && !error) {
+             if (profile.username) applyUsername(profile.username);
+             
+             ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
+              if (profile[col]) {
+                const slot = slots[index];
+                if(slot) {
+                    const previewEl = document.getElementById(slot.preview);
+                    const overlayEl = document.getElementById(slot.overlay);
+                    const removeEl = document.getElementById(slot.remove);
+                    if(previewEl && overlayEl && removeEl) {
+                        previewEl.src = profile[col];
+                        previewEl.classList.remove('hidden');
+                        overlayEl.classList.add('hidden');
+                        removeEl.classList.remove('hidden');
+                    }
+                }
+              }
+            });
+          } else if (error && error.code === 'PGRST116') {
+             await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
+          }
+        } catch (err) {
+          console.error('Error fetching profile:', err);
+        }
+
+        autoLoadSteamGames();
+
+      } else {
+        authBtnText.textContent = 'Login';
+        authDropdown.classList.add('hidden');
+        applyUsername('Guest');
+      }
+    });
+
+    // 7. Вспомогательные функции (Username, Gallery)
+    function applyUsername(name) {
+      const welcomeEl = document.getElementById('welcome-username');
+      const profileNameEl = document.getElementById('profile-username');
+      const avatarEl = document.getElementById('profile-avatar');
+      if (welcomeEl) welcomeEl.textContent = name;
+      if (profileNameEl) profileNameEl.textContent = name;
+      if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
+    }
+
+    const slots = [
+      { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
+      { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
+      { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
+    ];
+
+    slots.forEach((slot, index) => {
+      const inputEl = document.getElementById(slot.input);
+      const previewEl = document.getElementById(slot.preview);
+      const overlayEl = document.getElementById(slot.overlay);
+      const removeEl = document.getElementById(slot.remove);
+      const labelEl = inputEl.parentElement;
+
+      inputEl.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const isJpgOrPng = /\.(jpe?g|png)$/i.test(file.name);
+        const isImageType = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng || !isImageType) {
+          alert('Please select a JPG or PNG image only.');
+          inputEl.value = '';
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File too large (max 5MB).');
+          inputEl.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (evt) => {
+          const dataUrl = evt.target.result;
+          previewEl.src = dataUrl;
+          previewEl.classList.remove('hidden');
+          overlayEl.classList.add('hidden');
+          removeEl.classList.remove('hidden');
+          labelEl.classList.add('has-image');
+          
+          localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
+          
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session) {
+            await supabaseClient.from('profiles').upsert({
+              id: session.user.id,
+              [`screenshot_${index + 1}`]: dataUrl,
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+
+      removeEl.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        previewEl.src = '';
+        previewEl.classList.add('hidden');
+        overlayEl.classList.remove('hidden');
+        removeEl.classList.add('hidden');
+        labelEl.classList.remove('has-image');
+        inputEl.value = '';
+
+        localStorage.removeItem(STORAGE_KEYS.screenshot(index));
+
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+          await supabaseClient.from('profiles').upsert({
+            id: session.user.id,
+            [`screenshot_${index + 1}`]: null,
+          });
+        }
+      });
+    });
+
+    const modal = document.getElementById('username-modal');
+    const backdrop = document.getElementById('username-modal-backdrop');
+    const usernameInput = document.getElementById('username-input');
+
+    function openUsernameModal() {
+      usernameInput.value = document.getElementById('welcome-username').textContent;
+      modal.classList.remove('hidden');
+      backdrop.classList.remove('hidden');
+      usernameInput.focus();
+    }
+
+    function closeUsernameModal() {
+      modal.classList.add('hidden');
+      backdrop.classList.add('hidden');
+    }
+
+    document.getElementById('edit-profile').addEventListener('click', openUsernameModal);
+    document.getElementById('settings-btn').addEventListener('click', openUsernameModal);
+    backdrop.addEventListener('click', closeUsernameModal);
+    document.getElementById('username-cancel').addEventListener('click', closeUsernameModal);
+
+    document.getElementById('username-save').addEventListener('click', async () => {
+      const newName = usernameInput.value.trim();
+      if (!newName) return;
+      localStorage.setItem(STORAGE_KEYS.username, newName);
+      applyUsername(newName);
+      closeUsernameModal();
+      
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) {
+        await supabaseClient.from('profiles').upsert({ id: session.user.id, username: newName });
+      }
+    });
+
+    // ==========================================
+    // БЛОК №3: Исправленная проверка в renderSteamGames
+    // ==========================================
+    const steamAutoLoadEl = document.getElementById('steam-auto-load');
+    const steamBtnText = document.getElementById('steam-btn-text');
+    const gamesTbody = document.getElementById('games-tbody');
+    const totalGamesEl = document.getElementById('stat-total-games');
+    const totalHoursEl = document.getElementById('stat-total-hours');
+
+    function renderSteamGames(data) {
+      // ИСПРАВЛЕНИЕ: Проверяем структуру ответа.
+      // Ваша Edge-функция может возвращать как { ownedGames: { response: { games: [] } } },
+      // так и сразу массив игр или объект { response: { games: [] } }.
+      let games = [];
+      
+      if (data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
+        games = data.ownedGames.response.games;
+      } else if (data && data.response && data.response.games) {
+        // На случай, если функция возвращает { response: { games: [] } }
+        games = data.response.games;
+      } else if (Array.isArray(data)) {
+        // На случай, если функция возвращает сразу массив [ {name, playtime_forever}, ... ]
+        games = data;
+      } else if (data && data.games) {
+        // На случай, если функция возвращает { games: [] }
+        games = data.games;
+      }
+
+      if (games.length === 0) {
+        if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
+        if (totalGamesEl) totalGamesEl.textContent = '0';
+        if (totalHoursEl) totalHoursEl.textContent = '0h';
+        const hoursCard = document.getElementById('hours-card');
+        if (hoursCard) hoursCard.textContent = '0h';
+        return;
+      }
+
+      const totalGames = data?.ownedGames?.response?.game_count || games.length;
+      const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+      const totalHours = Math.round(totalMinutes / 60);
+
+      if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
+      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
+
+      const hoursCard = document.getElementById('hours-card');
+      if (hoursCard) hoursCard.textContent = totalHours + 'h';
+
+      const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+      if (gamesTbody) {
+        gamesTbody.innerHTML = '';
+        for (const game of sorted) {
+          const iconUrl = game.img_icon_url
+            ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+            : null;
+          const hours = Math.round((game.playtime_forever || 0) / 60);
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-white/3 transition group';
+          tr.innerHTML = `
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${game.name}" />` : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${(game.name||'G').charAt(0).toUpperCase()}</div>`}
+                <div>
+                  <p class="font-medium text-white">${game.name}</p>
+                  <p class="text-xs text-gray-500">Steam • App ${game.appid || 'N/A'}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
+            <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
+            <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
+            <td class="px-6 py-4 text-gray-400 text-sm">—</td>
+          `;
+          gamesTbody.appendChild(tr);
+        }
+      }
+    }
+
+    async function autoLoadSteamGames() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+
+      const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('steam_id')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !profile || !profile.steam_id) return;
+
+      if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
+      
+      const savedSteam = localStorage.getItem('gt_steam_games');
+      if (savedSteam) {
+          try {
+            renderSteamGames(JSON.parse(savedSteam));
+          } catch(e) {}
+      }
+
+      try {
+        const { data, error } = await supabaseClient.functions.invoke('steam-api', {
+          body: { steamid: profile.steam_id },
+        });
+
+        if (!error && data) {
+            renderSteamGames(data);
+            localStorage.setItem('gt_steam_games', JSON.stringify(data));
+        }
+      } catch (e) {
+        console.error('Failed to auto-load Steam games:', e);
+      } finally {
+        if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
+      }
+    }
+
+    // Инициализация страницы
+    (async function init() {
+        const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
+        if (savedUsername) {
+            applyUsername(savedUsername);
+            usernameInput.value = savedUsername;
+        }
+
+        slots.forEach((slot, index) => {
+            const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
+            if (saved) {
+                const previewEl = document.getElementById(slot.preview);
+                const overlayEl = document.getElementById(slot.overlay);
+                const removeEl = document.getElementById(slot.remove);
+                const labelEl = document.getElementById(slot.input).parentElement;
+                if (previewEl && overlayEl && removeEl && labelEl) {
+                    previewEl.src = saved;
+                    previewEl.classList.remove('hidden');
+                    overlayEl.classList.add('hidden');
+                    removeEl.classList.remove('hidden');
+                    labelEl.classList.add('has-image');
+                }
+            }
+        });
+    })();
   </script>
 </body>
+</html>
+    </body>
 </html>
