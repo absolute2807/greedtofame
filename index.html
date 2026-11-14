@@ -195,16 +195,17 @@
             <p id="stat-playstyle-avg" class="text-xs text-gray-400 mt-2 font-medium">—</p>
           </div>
 
+          <!-- TOP GAME CARD -->
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
               <svg class="w-24 h-24 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
             </div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Level</p>
-            <p id="stat-level" class="text-4xl font-extrabold text-white mt-2 stat-number">0</p>
-            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div id="stat-level-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]"></div>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Top Game</p>
+            <div class="flex items-center gap-3 mt-2">
+                <img id="top-game-icon" src="" class="w-12 h-12 rounded-lg hidden object-cover" alt="Top Game" />
+                <p id="top-game-name" class="text-2xl font-extrabold text-white truncate">—</p>
             </div>
-            <p id="stat-level-xp" class="text-xs text-gray-400 mt-2 font-medium">0 XP to next level</p>
+            <p id="top-game-hours" class="text-xs text-gray-400 mt-2 font-medium">—</p>
           </div>
         </section>
 
@@ -605,7 +606,8 @@
 
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
-            // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
+      
+      // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames;
           let playstyleLabel = '—';
@@ -627,6 +629,26 @@
 
           if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel;
           if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
+      }
+
+      // --- ЛОГИКА ДЛЯ ТОП-1 ИГРЫ ---
+      if (games && games.length > 0) {
+          const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+          const topGame = sortedGames[0];
+          
+          const topNameEl = document.getElementById('top-game-name');
+          const topHoursEl = document.getElementById('top-game-hours');
+          const topIconEl = document.getElementById('top-game-icon');
+
+          if (topNameEl) topNameEl.textContent = topGame.name;
+          if (topHoursEl) {
+              const topHours = Math.round((topGame.playtime_forever || 0) / 60);
+              topHoursEl.textContent = `${topHours}h played`;
+          }
+          if (topIconEl && topGame.img_icon_url) {
+              topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`;
+              topIconEl.classList.remove('hidden');
+          }
       }
      
       // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
