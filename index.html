@@ -279,6 +279,26 @@
 
 <!-- Login button fix script -->
 <script>
+  // Sign In button handler
+  btnSignin.addEventListener('click', async () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value.trim();
+    if (!email || !password) {
+      authMessage.textContent = 'Please enter email and password.';
+      authMessage.classList.remove('hidden');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      authMessage.textContent = error.message;
+      authMessage.classList.remove('hidden');
+    } else {
+      // Sign in successful - reload page
+      window.location.reload();
+    }
+  });
+</script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('auth-btn');
     
@@ -1224,7 +1244,7 @@ handleSteamLogin();
             body: { steamid },
           });
           if (!error && data && data.ownedGames && data.ownedGames.response && data.ownedGames.response.games) {
-            updateSteamUI(data, steamid);
+            renderSteamGames(data);
             return;
           }
         }
