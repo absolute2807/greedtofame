@@ -32,18 +32,28 @@
     .remove-btn:active { transform: scale(0.92); }
     input[type="file"] { display: none; }
     .stat-number { background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .rank-bronze { border-color: #cd7f32; color: #cd7f32; box-shadow: 0 0 12px rgba(205, 127, 50, 0.45); }
-    .rank-silver { border-color: #c0c0c0; color: #c0c0c0; box-shadow: 0 0 12px rgba(192, 192, 192, 0.35); }
-    .rank-gold { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 18px rgba(255, 215, 0, 0.55); }
+    
+    /* Rank Theme Colors */
+    .rank-bronze { --neon-purple: #cd7f32; --neon-blue: #a0522d; --neon-cyan: #cd7f32; }
+    .rank-silver { --neon-purple: #c0c0c0; --neon-blue: #94a3b8; --neon-cyan: #e2e8f0; }
+    .rank-gold { --neon-purple: #ffd700; --neon-blue: #f59e0b; --neon-cyan: #fbbf24; }
+    .rank-diamond { --neon-purple: #ffffff; --neon-blue: #22d3ee; --neon-cyan: #a855f7; animation: diamondGlow 2s ease-in-out infinite; }
+    
     @keyframes diamondGlow { 0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } 33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); } 66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); } 100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } }
-    .rank-diamond { animation: diamondGlow 2s ease-in-out infinite; }
-    .rank-badge { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #d8b4fe; }
+    
+    /* Force Tailwind elements to obey rank colors */
+    main.rank-silver .btn-gradient, main.rank-silver .bg-purple-600 { background: linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%) !important; box-shadow: 0 0 15px rgba(192,192,192,0.4) !important; }
+    main.rank-silver .neon-text, main.rank-silver .text-purple-400 { color: #c0c0c0 !important; text-shadow: 0 0 10px rgba(192,192,192,0.5) !important; }
+    
+    main.rank-gold .btn-gradient, main.rank-gold .bg-purple-600 { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important; box-shadow: 0 0 15px rgba(255,215,0,0.5) !important; }
+    main.rank-gold .neon-text, main.rank-gold .text-purple-400 { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255,215,0,0.5) !important; }
+    
+    main.rank-bronze .btn-gradient, main.rank-bronze .bg-purple-600 { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%) !important; box-shadow: 0 0 15px rgba(205,127,50,0.5) !important; }
+    main.rank-bronze .neon-text, main.rank-bronze .text-purple-400 { color: #cd7f32 !important; text-shadow: 0 0 10px rgba(205,127,50,0.5) !important; }
+    
+    main.rank-diamond .btn-gradient, main.rank-diamond .bg-purple-600 { background: linear-gradient(135deg, #ffffff 0%, #22d3ee 100%) !important; }
+    main.rank-diamond .neon-text, main.rank-diamond .text-purple-400 { color: #ffffff !important; }
 
-    /* Rank Theme Colors applied to entire interface */
-    main.rank-bronze { --neon-purple: #cd7f32; --neon-blue: #a0522d; --neon-cyan: #cd7f32; }
-    main.rank-silver { --neon-purple: #c0c0c0; --neon-blue: #94a3b8; --neon-cyan: #e2e8f0; }
-    main.rank-gold { --neon-purple: #ffd700; --neon-blue: #f59e0b; --neon-cyan: #fbbf24; }
-    main.rank-diamond { --neon-purple: #ffffff; --neon-blue: #22d3ee; --neon-cyan: #a855f7; }
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #0a0a0f; }
     ::-webkit-scrollbar-thumb { background: #333340; border-radius: 4px; }
@@ -51,30 +61,6 @@
     #auth-dropdown { background: #111117; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25); }
     #auth-dropdown button { width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; color: #9ca3af; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; }
     #auth-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
-        /* Принудительная перекраска интерфейса под ранги */
-    #main-dashboard.rank-silver .text-purple-400,
-    #main-dashboard.rank-silver .text-purple-500 { color: #c0c0c0 !important; }
-    
-    #main-dashboard.rank-silver .btn-gradient { 
-        background: linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%) !important; 
-        box-shadow: 0 0 20px rgba(192,192,192,0.4) !important;
-    }
-    
-    #main-dashboard.rank-silver .neon-text { 
-        text-shadow: 0 0 10px rgba(192,192,192,0.5), 0 0 20px rgba(192,192,192,0.3) !important; 
-    }
-
-    /* То же самое для золота */
-    #main-dashboard.rank-gold .text-purple-400,
-    #main-dashboard.rank-gold .text-purple-500 { color: #ffd700 !important; }
-    #main-dashboard.rank-gold .btn-gradient { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important; box-shadow: 0 0 20px rgba(255,215,0,0.5) !important; }
-    #main-dashboard.rank-gold .neon-text { text-shadow: 0 0 10px rgba(255,215,0,0.6), 0 0 20px rgba(255,215,0,0.4) !important; }
-
-    /* То же самое для бронзы */
-    #main-dashboard.rank-bronze .text-purple-400,
-    #main-dashboard.rank-bronze .text-purple-500 { color: #cd7f32 !important; }
-    #main-dashboard.rank-bronze .btn-gradient { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%) !important; box-shadow: 0 0 20px rgba(205,127,50,0.5) !important; }
-    #main-dashboard.rank-bronze .neon-text { text-shadow: 0 0 10px rgba(205,127,50,0.6), 0 0 20px rgba(205,127,50,0.4) !important; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -641,7 +627,7 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
 
-      // Apply rank theme to entire dashboard interface
+      // ПРИМЕНЯЕМ ЦВЕТ КО ВСЕМУ ИНТЕРФЕЙСУ
       const mainDashboard = document.getElementById('main-dashboard');
       if (mainDashboard) {
         mainDashboard.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
@@ -686,88 +672,67 @@
       }
     }
 
-        async function autoLoadSteamGames() {
-      // 1. Ждем, пока Supabase точно подтвердит, что мы авторизованы
+    async function autoLoadSteamGames() {
       const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-      if (authError || !user) {
-          console.log("Пользователь не авторизован, Steam не загружаем.");
-          return;
-      }
+      if (authError || !user) return;
 
-      // 2. Идем в базу и берем steam_id для этого пользователя
       const { data: profile, error: dbError } = await supabaseClient
         .from('profiles')
         .select('steam_id')
         .eq('id', user.id)
         .single();
 
-      // 3. Если в базе пусто (нет steam_id), просто выходим
-      if (dbError || !profile || !profile.steam_id) {
-          console.log("В базе нет Steam ID для этого пользователя.");
-          return;
+      if (dbError || !profile || !profile.steam_id) return;
+
+      // Меняем кнопку, если Steam уже привязан
+      const steamBtn = document.getElementById('connect-steam-btn');
+      const steamBtnText = document.getElementById('steam-btn-text');
+      if (steamBtn && steamBtnText) {
+          steamBtnText.textContent = 'Steam Connected';
+          steamBtn.removeAttribute('href');
+          steamBtn.classList.remove('btn-gradient');
+          steamBtn.classList.add('bg-green-600/20', 'border', 'border-green-500/50', 'cursor-default');
+          const svgIcon = steamBtn.querySelector('svg');
+          if (svgIcon) svgIcon.style.display = 'none';
       }
 
-      // Обновляем состояние кнопки Connect Steam, если Steam уже привязан
-      if (profile.steam_id) {
-        const steamBtn = document.getElementById('connect-steam-btn');
-        const steamBtnText = document.getElementById('steam-btn-text');
-        if (steamBtn && steamBtnText) {
-            steamBtnText.textContent = 'Steam Connected';
-            steamBtn.removeAttribute('href');
-            steamBtn.classList.remove('btn-gradient');
-            steamBtn.classList.add('bg-green-600/20', 'border', 'border-green-500/50', 'cursor-default');
-            const svgIcon = steamBtn.querySelector('svg');
-            if (svgIcon) svgIcon.style.display = 'none';
-        }
-      }
-
-      console.log("Найден Steam ID в базе:", profile.steam_id);
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
 
       try {
-        // 4. Стучимся в функцию Supabase
         const { data, error } = await supabaseClient.functions.invoke('steam-api', {
           body: { steamid: profile.steam_id },
         });
 
-        if (error) {
-            console.error("Ошибка функции steam-api:", error);
-        } else if (data) {
-            console.log("Данные из Steam пришли:", data);
-            renderSteamGames(data);
+        if (!error && data) {
+          renderSteamGames(data);
         }
       } catch (e) {
-        console.error('Критическая ошибка при загрузке Steam игр:', e);
+        console.error('Failed to auto-load Steam games:', e);
       } finally {
         if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
       }
     }
 
-    // 9. ЖЕСТКИЙ ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
+    // 9. ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
     (async function handleSteamReturn() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('openid.mode') === 'id_res') {
         const claimedId = urlParams.get('openid.claimed_id');
         if (claimedId) {
           const steamId = claimedId.split('/').pop();
-          console.log("Найден Steam ID:", steamId);
           
-          // Очищаем URL, чтобы не было циклов перезагрузки
           window.history.replaceState({}, document.title, window.location.pathname);
 
-          // Проверяем, авторизован ли пользователь
           const { data: { user } } = await supabaseClient.auth.getUser();
           if (user) {
-            // Сохраняем в базу
             const { error } = await supabaseClient.from('profiles').upsert({ 
               id: user.id, 
               steam_id: steamId,
-              username: user.email.split('@')[0] // Берем имя из почты (например, "ezadziorka")
+              username: user.email.split('@')[0]
             });
             
             if (!error) {
-              console.log("Steam ID успешно сохранен!");
-              window.location.reload(); // Перезагружаем, чтобы подтянуть игры
+              window.location.reload();
             } else {
               console.error("Ошибка сохранения в базу:", error);
             }
@@ -789,17 +754,17 @@
         slots.forEach((slot, index) => {
             const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
             if (saved) {
-                const previewEl = document.getElementById(slot.preview);
-                const overlayEl = document.getElementById(slot.overlay);
-                const removeEl = document.getElementById(slot.remove);
-                const labelEl = document.getElementById(slot.input).parentElement;
-                if (previewEl && overlayEl && removeEl && labelEl) {
-                    previewEl.src = saved;
-                    previewEl.classList.remove('hidden');
-                    overlayEl.classList.add('hidden');
-                    removeEl.classList.remove('hidden');
-                    labelEl.classList.add('has-image');
-                }
+              const previewEl = document.getElementById(slot.preview);
+              const overlayEl = document.getElementById(slot.overlay);
+              const removeEl = document.getElementById(slot.remove);
+              const labelEl = document.getElementById(slot.input).parentElement;
+              if (previewEl && overlayEl && removeEl && labelEl) {
+                  previewEl.src = saved;
+                  previewEl.classList.remove('hidden');
+                  overlayEl.classList.add('hidden');
+                  removeEl.classList.remove('hidden');
+                  labelEl.classList.add('has-image');
+              }
             }
         });
     })();
