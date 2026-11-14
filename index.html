@@ -605,6 +605,29 @@
 
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
+            // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
+      if (totalGames > 0) {
+          const avgHours = totalHours / totalGames;
+          let playstyleLabel = '—';
+          let playstyleDesc = '—';
+
+          if (avgHours > 20) {
+              playstyleLabel = 'Devoted';
+              playstyleDesc = 'Фанат своего дела';
+          } else if (avgHours >= 5) {
+              playstyleLabel = 'Balanced';
+              playstyleDesc = 'Сбалансированный игрок';
+          } else {
+              playstyleLabel = 'Collector';
+              playstyleDesc = 'Коллекционер игр';
+          }
+
+          const playstyleLabelEl = document.getElementById('stat-playstyle-label');
+          const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
+
+          if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel;
+          if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} ч/игра • ${playstyleDesc}`;
+      }
 
       // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
       let themeColor = '#a855f7'; // Фиолетовый
