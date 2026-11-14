@@ -613,22 +613,22 @@
 
           if (avgHours > 20) {
               playstyleLabel = 'Devoted';
-              playstyleDesc = 'Фанат своего дела';
+              playstyleDesc = 'Dedicated player';
           } else if (avgHours >= 5) {
               playstyleLabel = 'Balanced';
-              playstyleDesc = 'Сбалансированный игрок';
+              playstyleDesc = 'Balanced player';
           } else {
               playstyleLabel = 'Collector';
-              playstyleDesc = 'Коллекционер игр';
+              playstyleDesc = 'Game collector';
           }
 
           const playstyleLabelEl = document.getElementById('stat-playstyle-label');
           const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
 
           if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel;
-          if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} ч/игра • ${playstyleDesc}`;
+          if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
-
+     
       // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
       let themeColor = '#a855f7'; // Фиолетовый
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
