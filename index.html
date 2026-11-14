@@ -580,24 +580,36 @@ if (window.location.search.includes('openid.mode=id_res')) {
 })();
 
 // --- Auth state --- 
-                         new URLSearchParams(window.location.search).get('openid.identity');
-if (steamOpenIdParam) {
-  // Extract SteamID64 from URL (last number in path, e.g., https://steamcommunity.com/openid/id/76561198...)
-  const steamIdMatch = steamOpenIdParam.match(/\/(\d+)$/);
-  if (steamIdMatch) {
-    const steamId64 = steamIdMatch[1];
-    // Save SteamID64 to Supabase profiles table
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        steam_id: steamId64,
-      });
+const steamOpenIdParam = new URLSearchParams(window.location.search).get('openid.identity');
+
+// Оборачиваем в async-функцию, чтобы await работал
+async function handleSteamLogin() {
+    if (steamOpenIdParam) {
+        // Extract SteamID64 from URL
+        const steamIdMatch = steamOpenIdParam.match(/\/(\d+)$/);
+        if (steamIdMatch) {
+            const steamId64 = steamIdMatch[1];
+            
+            // Save SteamID64 to Supabase profiles table
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from('profiles').upsert({
+                    id: user.id,
+                    steam_id: steamId64,
+                });
+            }
+            
+            // Очищаем URL от параметров, чтобы не было цикла
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Load the user's Steam games
+            autoLoadSteamGames();
+        }
     }
-    // Load the user's Steam games
-    autoLoadSteamGames();
-  }
-})();
+}
+
+// Вызываем функцию
+handleSteamLogin();
 
 // --- Auth state ---
     const authBtn = document.getElementById('auth-btn');
