@@ -1602,7 +1602,41 @@ handleSteamLogin();
       localStorage.setItem('gt_steam_games', JSON.stringify(data));
       localStorage.setItem('gt_steamid', steamid);
     }
+// --- Принудительный вход ---
+document.addEventListener('click', async (e) => {
+    // Если нажали на кнопку "Sign In" внутри модалки
+    if (e.target && (e.target.id === 'btn-signin' || e.target.innerText === 'Sign In')) {
+        e.preventDefault();
+        
+        // Находим поля ввода (ищем по типу, чтобы не зависеть от ID)
+        const emailInput = document.querySelector('input[type="email"]');
+        const passwordInput = document.querySelector('input[type="password"]');
+        
+        if (!emailInput || !passwordInput) {
+            alert("Не найдены поля для ввода!");
+            return;
+        }
 
+        const email = emailInput.value;
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            alert("Введите почту и пароль!");
+            return;
+        }
+
+        // Входим через Supabase
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            alert("Ошибка: " + error.message);
+        } else {
+            alert("Успешный вход!");
+            window.location.reload(); // Перезагружаем, чтобы обновить профиль
+        }
+    }
+});
+    
   </script>
 </body>
 </html>
