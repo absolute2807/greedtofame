@@ -280,6 +280,7 @@
 <!-- Login button fix script -->
 <script>
   // Sign In button handler
+  const btnSignin = document.getElementById('btn-signin');
   btnSignin.addEventListener('click', async () => {
     const email = authEmail.value.trim();
     const password = authPassword.value.trim();
@@ -1636,7 +1637,58 @@ document.addEventListener('click', async (e) => {
         }
     }
 });
+// --- Логика для кнопок Логина ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Открытие модалки
+    const loginBtn = document.getElementById('login-btn'); // проверь ID в шапке
+    const authModal = document.getElementById('auth-modal'); // проверь ID модалки
     
+    if (loginBtn && authModal) {
+        // Клонируем кнопку, чтобы убить старые сломанные клики
+        const newLoginBtn = loginBtn.cloneNode(true);
+        loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+        
+        newLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.classList.remove('hidden');
+            console.log("Модалка логина открыта!");
+        });
+    } else {
+        console.error("Не найдена кнопка Login или модалка!");
+    }
+
+    // 2. Закрытие модалки (крестик)
+    const closeBtn = document.getElementById('btn-close-modal');
+    if (closeBtn && authModal) {
+        closeBtn.addEventListener('click', () => {
+            authModal.classList.add('hidden');
+        });
+    }
+
+    // 3. Сама кнопка "Sign In"
+    const signinBtn = document.getElementById('btn-signin');
+    if (signinBtn) {
+        signinBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            
+            if (!email || !password) {
+                alert("Введите почту и пароль!");
+                return;
+            }
+            
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert("Ошибка: " + error.message);
+            } else {
+                alert("Успешный вход!");
+                window.location.reload(); // Перезагружаем, чтобы обновить профиль
+            }
+        });
+    }
+});
+
   </script>
 </body>
 </html>
