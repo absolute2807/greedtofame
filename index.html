@@ -459,6 +459,36 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
     // Создаем клиент (используем имя supabaseClient, чтобы не конфликтовать с глобальным объектом supabase)
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM ---
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openid.mode') === 'id_res') {
+        console.log("Steam вернул нас! Обрабатываем...");
+        const claimedId = urlParams.get('openid.claimed_id');
+        if (claimedId) {
+            const steamId = claimedId.split('/').pop();
+            console.log("Найден Steam ID:", steamId);
+            
+            // Очищаем URL сразу, чтобы не было циклов
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // Сохраняем в базу
+            supabaseClient.auth.getUser().then(({ data: { user } }) => {
+                if (user) {
+                    supabaseClient.from('profiles').upsert({ 
+                        id: user.id, 
+                        steam_id: steamId 
+                    }).then(() => {
+                        console.log("ID сохранен в базу!");
+                        window.location.reload(); // Перезагружаем, чтобы сайт подтянул игры
+                    });
+                } else {
+                    alert("Сначала войдите в аккаунт на сайте!");
+                }
+            });
+        }
+    }
+})();
 
     // 2. Ключи LocalStorage
     const STORAGE_KEYS = {
