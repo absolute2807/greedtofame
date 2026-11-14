@@ -611,6 +611,20 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
 
+      // Apply rank class based on total hours
+      if (hoursCard) {
+        hoursCard.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
+        if (totalHours >= 5000) {
+          hoursCard.classList.add('rank-diamond');
+        } else if (totalHours >= 1000) {
+          hoursCard.classList.add('rank-gold');
+        } else if (totalHours >= 500) {
+          hoursCard.classList.add('rank-silver');
+        } else {
+          hoursCard.classList.add('rank-bronze');
+        }
+      }
+
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (gamesTbody) {
         gamesTbody.innerHTML = '';
