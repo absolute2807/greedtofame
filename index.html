@@ -23,7 +23,7 @@
     .btn-gradient { background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%); }
     .btn-gradient:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); }
     .btn-gradient:active { transform: translateY(1px); }
-    .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); }
+    .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); transition: border-color 0.5s ease, box-shadow 0.5s ease; }
     .gallery-placeholder { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px dashed rgba(168, 85, 247, 0.35); transition: all 0.25s ease; position: relative; overflow: hidden; }
     .gallery-placeholder:hover { border-color: var(--neon-purple); background: linear-gradient(135deg, #161e35 0%, #221335 100%); box-shadow: 0 0 25px rgba(168, 85, 247, 0.25); }
     .gallery-placeholder.has-image { border-style: solid; border-color: var(--neon-cyan); background: #0f172a; }
@@ -32,28 +32,7 @@
     .remove-btn:active { transform: scale(0.92); }
     input[type="file"] { display: none; }
     .stat-number { background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    
-    /* Rank Theme Colors */
-    .rank-bronze { --neon-purple: #cd7f32; --neon-blue: #a0522d; --neon-cyan: #cd7f32; }
-    .rank-silver { --neon-purple: #c0c0c0; --neon-blue: #94a3b8; --neon-cyan: #e2e8f0; }
-    .rank-gold { --neon-purple: #ffd700; --neon-blue: #f59e0b; --neon-cyan: #fbbf24; }
-    .rank-diamond { --neon-purple: #ffffff; --neon-blue: #22d3ee; --neon-cyan: #a855f7; animation: diamondGlow 2s ease-in-out infinite; }
-    
-    @keyframes diamondGlow { 0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } 33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); } 66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); } 100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } }
-    
-    /* Force Tailwind elements to obey rank colors */
-    main.rank-silver .btn-gradient, main.rank-silver .bg-purple-600 { background: linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%) !important; box-shadow: 0 0 15px rgba(192,192,192,0.4) !important; }
-    main.rank-silver .neon-text, main.rank-silver .text-purple-400 { color: #c0c0c0 !important; text-shadow: 0 0 10px rgba(192,192,192,0.5) !important; }
-    
-    main.rank-gold .btn-gradient, main.rank-gold .bg-purple-600 { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important; box-shadow: 0 0 15px rgba(255,215,0,0.5) !important; }
-    main.rank-gold .neon-text, main.rank-gold .text-purple-400 { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255,215,0,0.5) !important; }
-    
-    main.rank-bronze .btn-gradient, main.rank-bronze .bg-purple-600 { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%) !important; box-shadow: 0 0 15px rgba(205,127,50,0.5) !important; }
-    main.rank-bronze .neon-text, main.rank-bronze .text-purple-400 { color: #cd7f32 !important; text-shadow: 0 0 10px rgba(205,127,50,0.5) !important; }
-    
-    main.rank-diamond .btn-gradient, main.rank-diamond .bg-purple-600 { background: linear-gradient(135deg, #ffffff 0%, #22d3ee 100%) !important; }
-    main.rank-diamond .neon-text, main.rank-diamond .text-purple-400 { color: #ffffff !important; }
-
+    .rank-badge { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #d8b4fe; }
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #0a0a0f; }
     ::-webkit-scrollbar-thumb { background: #333340; border-radius: 4px; }
@@ -61,25 +40,6 @@
     #auth-dropdown { background: #111117; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25); }
     #auth-dropdown button { width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; color: #9ca3af; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; }
     #auth-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
-        /* --- ПРИНУДИТЕЛЬНАЯ ПЕРЕКРАСКА ДЛЯ РАНГОВ --- */
-    
-    /* Серебро */
-    main.rank-silver .bg-purple-600 { background: linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%) !important; }
-    main.rank-silver .text-purple-400 { color: #c0c0c0 !important; }
-    main.rank-silver .stat-number { background: linear-gradient(to right, #e0e7ff, #c0c0c0) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    main.rank-silver .neon-text { text-shadow: 0 0 10px rgba(192,192,192,0.5) !important; }
-
-    /* Золото */
-    main.rank-gold .bg-purple-600 { background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%) !important; }
-    main.rank-gold .text-purple-400 { color: #ffd700 !important; }
-    main.rank-gold .stat-number { background: linear-gradient(to right, #fef08a, #ffd700) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    main.rank-gold .neon-text { text-shadow: 0 0 10px rgba(255,215,0,0.5) !important; }
-
-    /* Бронза */
-    main.rank-bronze .bg-purple-600 { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%) !important; }
-    main.rank-bronze .text-purple-400 { color: #cd7f32 !important; }
-    main.rank-bronze .stat-number { background: linear-gradient(to right, #fdba74, #cd7f32) !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; }
-    main.rank-bronze .neon-text { text-shadow: 0 0 10px rgba(205,127,50,0.5) !important; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -646,19 +606,50 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
 
-      // ПРИМЕНЯЕМ ЦВЕТ КО ВСЕМУ ИНТЕРФЕЙСУ
-      const mainDashboard = document.getElementById('main-dashboard');
-      if (mainDashboard) {
-        mainDashboard.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
-        if (totalHours >= 5000) {
-          mainDashboard.classList.add('rank-diamond');
-        } else if (totalHours >= 1000) {
-          mainDashboard.classList.add('rank-gold');
-        } else if (totalHours >= 500) {
-          mainDashboard.classList.add('rank-silver');
-        } else {
-          mainDashboard.classList.add('rank-bronze');
-        }
+      // --- ЖЕСТКАЯ ПЕРЕКРАСКА ИНТЕРФЕЙСА ---
+      let themeColor = '#a855f7'; // Фиолетовый по умолчанию
+      let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
+
+      if (totalHours < 500) {
+          themeColor = '#cd7f32'; // Бронза
+          themeGradient = 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)';
+      } else if (totalHours < 1000) {
+          themeColor = '#c0c0c0'; // Серебро
+          themeGradient = 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)';
+      } else if (totalHours < 5000) {
+          themeColor = '#ffd700'; // Золото
+          themeGradient = 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)';
+      } else {
+          themeColor = '#22d3ee'; // Алмаз
+          themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
+      }
+
+      // 1. Перекрашиваем кнопку Settings
+      const settingsBtn = document.getElementById('settings-btn');
+      if (settingsBtn) settingsBtn.style.background = themeGradient;
+
+      // 2. Перекрашиваем никнейм "erop"
+      const welcomeText = document.getElementById('welcome-username');
+      if (welcomeText) {
+          welcomeText.style.color = themeColor;
+          welcomeText.style.textShadow = `0 0 10px ${themeColor}`;
+      }
+
+      // 3. Перекрашиваем цифру часов
+      if (hoursCard) {
+          hoursCard.style.background = `linear-gradient(to right, #ffffff, ${themeColor})`;
+          hoursCard.style.webkitBackgroundClip = 'text';
+          hoursCard.style.webkitTextFillColor = 'transparent';
+      }
+
+      // 4. Перекрашиваем карточку профиля (рамку)
+      const mainDash = document.getElementById('main-dashboard');
+      if (mainDash) {
+          const cards = mainDash.querySelectorAll('.glass-card');
+          cards.forEach(card => {
+              card.style.boxShadow = `0 0 15px ${themeColor}40`; // 40 — это прозрачность
+              card.style.borderColor = themeColor;
+          });
       }
 
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
@@ -703,7 +694,6 @@
 
       if (dbError || !profile || !profile.steam_id) return;
 
-      // Меняем кнопку, если Steam уже привязан
       const steamBtn = document.getElementById('connect-steam-btn');
       const steamBtnText = document.getElementById('steam-btn-text');
       if (steamBtn && steamBtnText) {
