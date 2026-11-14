@@ -175,11 +175,8 @@
         <!-- Statistics -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
-            <p id="hours-card" class="text-4xl font-extrabold stat-number">0h</p>
+            <p id="hours-card" class="text-4xl font-extrabold stat-number mt-2">0h</p>
             <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
               <div id="stat-hours-bar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
             </div>
@@ -187,19 +184,12 @@
           </div>
 
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Playstyle</p>
             <p id="stat-playstyle-label" class="text-4xl font-extrabold text-white mt-2 stat-number">—</p>
             <p id="stat-playstyle-avg" class="text-xs text-gray-400 mt-2 font-medium">—</p>
           </div>
 
-          <!-- TOP GAME CARD -->
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Top Game</p>
             <div class="flex items-center gap-3 mt-2">
                 <img id="top-game-icon" src="" class="w-12 h-12 rounded-lg hidden object-cover" alt="Top Game" />
