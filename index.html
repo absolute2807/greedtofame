@@ -111,6 +111,7 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex gap-2">
+        <button id="share-profile-btn" class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
@@ -122,8 +123,7 @@
         <div class="glass-card rounded-2xl p-6 neon-border">
           <div class="flex flex-col items-center">
             <div class="relative mb-4">
-              <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover" />
-              <!-- Фиолетовый круг удален -->
+              <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover transition-colors duration-500" />
             </div>
             <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
             <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
@@ -773,6 +773,12 @@
 
         if (!error && data) {
           renderSteamGames(data);
+          // Пытаемся получить аватарку из Steam (если она есть в ответе)
+          if (data.response && data.response.players && data.response.players.length > 0) {
+              const steamAvatar = data.response.players[0].avatarfull;
+              const profileAvatar = document.getElementById('profile-avatar');
+              if (profileAvatar) profileAvatar.src = steamAvatar;
+          }
         }
       } catch (e) {
         console.error('Failed to auto-load Steam games:', e);
@@ -836,6 +842,18 @@
             }
         });
     })();
+
+    // 10. Кнопка Share Profile
+    const shareBtn = document.getElementById('share-profile-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const originalText = shareBtn.textContent;
+          shareBtn.textContent = 'Copied!';
+          setTimeout(() => { shareBtn.textContent = originalText; }, 2000);
+        });
+      });
+    }
   </script>
 </body>
 </html>
