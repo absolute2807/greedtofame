@@ -611,17 +611,18 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = totalHours + 'h';
 
-      // Apply rank class based on total hours
-      if (hoursCard) {
-        hoursCard.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
+      // Apply rank class based on total hours (applied to parent card container)
+      const hoursCardContainer = document.getElementById('hours-card')?.closest('.glass-card');
+      if (hoursCardContainer) {
+        hoursCardContainer.classList.remove('rank-bronze', 'rank-silver', 'rank-gold', 'rank-diamond');
         if (totalHours >= 5000) {
-          hoursCard.classList.add('rank-diamond');
+          hoursCardContainer.classList.add('rank-diamond');
         } else if (totalHours >= 1000) {
-          hoursCard.classList.add('rank-gold');
+          hoursCardContainer.classList.add('rank-gold');
         } else if (totalHours >= 500) {
-          hoursCard.classList.add('rank-silver');
+          hoursCardContainer.classList.add('rank-silver');
         } else {
-          hoursCard.classList.add('rank-bronze');
+          hoursCardContainer.classList.add('rank-bronze');
         }
       }
 
