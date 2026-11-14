@@ -459,6 +459,36 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
     // Создаем клиент (используем имя supabaseClient, чтобы не конфликтовать с глобальным объектом supabase)
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- ТЕСТОВЫЙ ПЕРЕХВАТ STEAM ID ---
+window.addEventListener('load', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openidMode = urlParams.get('openid.mode');
+    
+    if (openidMode === 'id_res') {
+        const claimedId = urlParams.get('openid.claimed_id');
+        if (claimedId) {
+            const steamId = claimedId.split('/').pop();
+            console.log("!!! НАЙДЕН STEAM ID:", steamId);
+            
+            // Пробуем сохранить
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                const { error } = await supabaseClient.from('profiles').upsert({
+                    id: user.id,
+                    steam_id: steamId
+                });
+                
+                if (error) {
+                    console.error("ОШИБКА БАЗЫ:", error);
+                    alert("Ошибка базы: " + error.message);
+                } else {
+                    console.log("УСПЕХ! ID СОХРАНЕН");
+                    window.location.href = window.location.pathname; // Убираем параметры и перезагружаем
+                }
+            }
+        }
+    }
+});
     // --- ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM ---
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
