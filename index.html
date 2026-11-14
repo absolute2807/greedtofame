@@ -17,179 +17,34 @@
       --bg-dark: #0a0a0f;
       --card-bg: #111117;
     }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background-color: var(--bg-dark);
-      color: #e2e8f0;
-    }
-
-    .neon-text {
-      text-shadow: 0 0 10px rgba(168, 85, 247, 0.55),
-                   0 0 20px rgba(168, 85, 247, 0.3);
-    }
-
-    .neon-border {
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25),
-                  0 0 20px rgba(168, 85, 247, 0.15);
-    }
-
-    .btn-gradient {
-      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
-    }
-
-    .btn-gradient:hover {
-      filter: brightness(1.1);
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
-    }
-
-    .btn-gradient:active {
-      transform: translateY(1px);
-    }
-
-    .glass-card {
-      background: linear-gradient(145deg, #171722 0%, #111117 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-
-    .gallery-placeholder {
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-      border: 2px dashed rgba(168, 85, 247, 0.35);
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .gallery-placeholder:hover {
-      border-color: var(--neon-purple);
-      background: linear-gradient(135deg, #161e35 0%, #221335 100%);
-      box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
-    }
-
-    .gallery-placeholder.has-image {
-      border-style: solid;
-      border-color: var(--neon-cyan);
-      background: #0f172a;
-    }
-
-    .remove-btn {
-      width: 26px;
-      height: 26px;
-      min-width: 26px;
-      min-height: 26px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0, 0, 0, 0.7);
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
-    }
-
-    .remove-btn:hover {
-      background: rgba(168, 85, 247, 0.9);
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.9), 0 2px 8px rgba(168, 85, 247, 0.4);
-    }
-
-    .remove-btn:active {
-      transform: scale(0.92);
-    }
-
-    .remove-btn:focus-visible {
-      outline: 2px solid var(--neon-cyan);
-      outline-offset: 2px;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .stat-number {
-      background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Rank badge colors */
-    .rank-bronze {
-      border-color: #cd7f32;
-      color: #cd7f32;
-      box-shadow: 0 0 12px rgba(205, 127, 50, 0.45);
-    }
-
-    .rank-silver {
-      border-color: #c0c0c0;
-      color: #c0c0c0;
-      box-shadow: 0 0 12px rgba(192, 192, 192, 0.35);
-    }
-
-    .rank-gold {
-      border-color: #ffd700;
-      color: #ffd700;
-      box-shadow: 0 0 18px rgba(255, 215, 0, 0.55);
-    }
-
-    @keyframes diamondGlow {
-      0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-      33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); }
-      66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-      100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-    }
-
-    .rank-diamond {
-      animation: diamondGlow 2s ease-in-out infinite;
-    }
-
-    .rank-badge {
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(168, 85, 247, 0.35);
-      color: #d8b4fe;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0a0a0f;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #333340;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #4338ca;
-    }
-
-    /* Auth dropdown */
-    #auth-dropdown {
-      background: #111117;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
-    }
-    #auth-dropdown button {
-      width: 100%;
-      text-align: left;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: #9ca3af;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    #auth-dropdown button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #ffffff;
-    }
+    body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #e2e8f0; }
+    .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
+    .neon-border { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 0 20px rgba(168, 85, 247, 0.15); }
+    .btn-gradient { background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%); }
+    .btn-gradient:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); }
+    .btn-gradient:active { transform: translateY(1px); }
+    .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); }
+    .gallery-placeholder { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px dashed rgba(168, 85, 247, 0.35); transition: all 0.25s ease; position: relative; overflow: hidden; }
+    .gallery-placeholder:hover { border-color: var(--neon-purple); background: linear-gradient(135deg, #161e35 0%, #221335 100%); box-shadow: 0 0 25px rgba(168, 85, 247, 0.25); }
+    .gallery-placeholder.has-image { border-style: solid; border-color: var(--neon-cyan); background: #0f172a; }
+    .remove-btn { width: 26px; height: 26px; min-width: 26px; min-height: 26px; border-radius: 50%; border: none; background: rgba(0, 0, 0, 0.7); color: #ffffff; font-size: 18px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4); }
+    .remove-btn:hover { background: rgba(168, 85, 247, 0.9); box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.9), 0 2px 8px rgba(168, 85, 247, 0.4); }
+    .remove-btn:active { transform: scale(0.92); }
+    input[type="file"] { display: none; }
+    .stat-number { background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .rank-bronze { border-color: #cd7f32; color: #cd7f32; box-shadow: 0 0 12px rgba(205, 127, 50, 0.45); }
+    .rank-silver { border-color: #c0c0c0; color: #c0c0c0; box-shadow: 0 0 12px rgba(192, 192, 192, 0.35); }
+    .rank-gold { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 18px rgba(255, 215, 0, 0.55); }
+    @keyframes diamondGlow { 0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } 33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); } 66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); } 100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); } }
+    .rank-diamond { animation: diamondGlow 2s ease-in-out infinite; }
+    .rank-badge { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #d8b4fe; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
+    ::-webkit-scrollbar-thumb { background: #333340; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
+    #auth-dropdown { background: #111117; border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25); }
+    #auth-dropdown button { width: 100%; text-align: left; padding: 0.75rem 1rem; font-size: 0.875rem; color: #9ca3af; background: transparent; border: none; cursor: pointer; transition: all 0.15s ease; }
+    #auth-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -204,10 +59,7 @@
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
       <div id="auth-btn-container" class="relative">
-        <button
-          id="auth-btn"
-          class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2"
-        >
+        <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2">
           <span id="auth-btn-text">Login</span>
           <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
@@ -269,20 +121,13 @@
       </div>
     </div>
 
-    <!-- Grid: Sidebar (profile) + Main -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
       <!-- Left Column: Profile Card -->
       <aside class="lg:col-span-3 space-y-6">
         <div class="glass-card rounded-2xl p-6 neon-border">
           <div class="flex flex-col items-center">
             <div class="relative mb-4">
-              <img
-                id="profile-avatar"
-                src="https://ui-avatars.com/api/?name=Guest&background=random&size=512"
-                alt="Avatar"
-                class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover"
-              />
+              <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover" />
               <div class="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-[#0a0a0f]">
                 <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse absolute -bottom-1 -right-1 border-2 border-[#0a0a0f]"></span>
               </div>
@@ -293,11 +138,7 @@
 
           <div class="mt-6 pt-6 border-t border-white/5">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect Platform</p>
-            <a
-              href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback"
-              id="connect-steam-btn"
-              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center block"
-            >
+            <a href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback" id="connect-steam-btn" class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center block">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span id="steam-btn-text">Connect Steam</span>
             </a>
@@ -336,7 +177,6 @@
 
       <!-- Right Column: Main Content -->
       <main class="lg:col-span-9 space-y-10">
-
         <!-- Statistics -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
@@ -384,7 +224,6 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
-            <!-- Placeholder 1 -->
             <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-1">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-1">
                 <div class="flex flex-col items-center">
@@ -397,7 +236,6 @@
               <input type="file" id="upload-1" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
             </label>
 
-            <!-- Placeholder 2 -->
             <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-2">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-2">
                 <div class="flex flex-col items-center">
@@ -410,7 +248,6 @@
               <input type="file" id="upload-2" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
             </label>
 
-            <!-- Placeholder 3 -->
             <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-3">
               <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-3">
                 <div class="flex flex-col items-center">
@@ -448,7 +285,6 @@
             </table>
           </div>
         </section>
-
       </main>
     </div>
   </div>
@@ -457,68 +293,7 @@
     // 1. Инициализация Supabase
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
-    // Создаем клиент (используем имя supabaseClient, чтобы не конфликтовать с глобальным объектом supabase)
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // --- ТЕСТОВЫЙ ПЕРЕХВАТ STEAM ID ---
-window.addEventListener('load', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openidMode = urlParams.get('openid.mode');
-    
-    if (openidMode === 'id_res') {
-        const claimedId = urlParams.get('openid.claimed_id');
-        if (claimedId) {
-            const steamId = claimedId.split('/').pop();
-            console.log("!!! НАЙДЕН STEAM ID:", steamId);
-            
-            // Пробуем сохранить
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                const { error } = await supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    steam_id: steamId
-                });
-                
-                if (error) {
-                    console.error("ОШИБКА БАЗЫ:", error);
-                    alert("Ошибка базы: " + error.message);
-                } else {
-                    console.log("УСПЕХ! ID СОХРАНЕН");
-                    window.location.href = window.location.pathname; // Убираем параметры и перезагружаем
-                }
-            }
-        }
-    }
-});
-    // --- ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM ---
-(function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('openid.mode') === 'id_res') {
-        console.log("Steam вернул нас! Обрабатываем...");
-        const claimedId = urlParams.get('openid.claimed_id');
-        if (claimedId) {
-            const steamId = claimedId.split('/').pop();
-            console.log("Найден Steam ID:", steamId);
-            
-            // Очищаем URL сразу, чтобы не было циклов
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            // Сохраняем в базу
-            supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                if (user) {
-                    supabaseClient.from('profiles').upsert({ 
-                        id: user.id, 
-                        steam_id: steamId 
-                    }).then(() => {
-                        console.log("ID сохранен в базу!");
-                        window.location.reload(); // Перезагружаем, чтобы сайт подтянул игры
-                    });
-                } else {
-                    alert("Сначала войдите в аккаунт на сайте!");
-                }
-            });
-        }
-    }
-})();
 
     // 2. Ключи LocalStorage
     const STORAGE_KEYS = {
@@ -570,7 +345,7 @@ window.addEventListener('load', async () => {
 
     // Вход (Sign In)
     btnSignin.addEventListener('click', async (e) => {
-      e.preventDefault(); // Предотвращаем перезагрузку формы, если она есть
+      e.preventDefault();
       const email = authEmail.value.trim();
       const password = authPassword.value.trim();
       
@@ -591,7 +366,6 @@ window.addEventListener('load', async () => {
         btnSignin.disabled = false;
         btnSignin.textContent = 'Sign In';
       } else {
-        // Успешный вход — перезагружаем страницу
         window.location.reload();
       }
     });
@@ -648,7 +422,6 @@ window.addEventListener('load', async () => {
       const user = session?.user ?? null;
       
       if (user) {
-        // Пользователь авторизован
         authBtnText.textContent = user.email || 'Account';
         closeAuthModal();
         
@@ -662,7 +435,6 @@ window.addEventListener('load', async () => {
           if (profile && !error) {
              if (profile.username) applyUsername(profile.username);
              
-             // Загрузка скриншотов из базы
              ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
               if (profile[col]) {
                 const slot = slots[index];
@@ -680,18 +452,15 @@ window.addEventListener('load', async () => {
               }
             });
           } else if (error && error.code === 'PGRST116') {
-             // Если профиля нет, создаем его
              await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
           }
         } catch (err) {
           console.error('Error fetching profile:', err);
         }
 
-        // Автозагрузка Steam игр
         autoLoadSteamGames();
 
       } else {
-        // Пользователь не авторизован
         authBtnText.textContent = 'Login';
         authDropdown.classList.add('hidden');
         applyUsername('Guest');
@@ -826,13 +595,13 @@ window.addEventListener('load', async () => {
     const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
-      if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
+      if (!data || !data.response || !data.response.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
       }
 
-      const games = data.ownedGames.response.games;
-      const totalGames = data.ownedGames.response.game_count || games.length;
+      const games = data.response.games;
+      const totalGames = games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
 
@@ -885,14 +654,6 @@ window.addEventListener('load', async () => {
       if (error || !profile || !profile.steam_id) return;
 
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
-      
-      // Проверяем кэш в localStorage
-      const savedSteam = localStorage.getItem('gt_steam_games');
-      if (savedSteam) {
-          try {
-            renderSteamGames(JSON.parse(savedSteam));
-          } catch(e) {}
-      }
 
       try {
         const { data, error } = await supabaseClient.functions.invoke('steam-api', {
@@ -900,8 +661,7 @@ window.addEventListener('load', async () => {
         });
 
         if (!error && data) {
-            renderSteamGames(data);
-            localStorage.setItem('gt_steam_games', JSON.stringify(data));
+          renderSteamGames(data);
         }
       } catch (e) {
         console.error('Failed to auto-load Steam games:', e);
@@ -910,1105 +670,48 @@ window.addEventListener('load', async () => {
       }
     }
 
-    // Инициализация страницы
-    (async function init() {
-        // Загружаем сохраненное имя
-        const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
-        if (savedUsername) {
-            applyUsername(savedUsername);
-            usernameInput.value = savedUsername;
-        }
+    // 9. ЖЕСТКИЙ ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
+    (async function handleSteamReturn() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('openid.mode') === 'id_res') {
+        const claimedId = urlParams.get('openid.claimed_id');
+        if (claimedId) {
+          const steamId = claimedId.split('/').pop();
+          console.log("Найден Steam ID:", steamId);
+          
+          // Очищаем URL, чтобы не было циклов перезагрузки
+          window.history.replaceState({}, document.title, window.location.pathname);
 
-        // Загружаем сохраненные скриншоты
-        slots.forEach((slot, index) => {
-            const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
-            if (saved) {
-                const previewEl = document.getElementById(slot.preview);
-                const overlayEl = document.getElementById(slot.overlay);
-                const removeEl = document.getElementById(slot.remove);
-                const labelEl = document.getElementById(slot.input).parentElement;
-                if (previewEl && overlayEl && removeEl && labelEl) {
-                    previewEl.src = saved;
-                    previewEl.classList.remove('hidden');
-                    overlayEl.classList.add('hidden');
-                    removeEl.classList.remove('hidden');
-                    labelEl.classList.add('has-image');
-                }
-            }
-        });
-    })();
-        // ==========================================
-    // 9. Чтение ответа от Steam (OpenID)
-    // ==========================================
-    (async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const openidMode = urlParams.get('openid.mode');
-
-        if (openidMode === 'id_res') {
-            const claimedId = urlParams.get('openid.claimed_id');
-            const steamid = claimedId ? claimedId.split('/').pop() : null;
-
-            if (steamid) {
-                // Очищаем URL от длинных параметров, чтобы не было цикла
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (user) {
-                    // Сохраняем Steam ID в базу
-                    await supabaseClient.from('profiles').upsert({ 
-                        id: user.id, 
-                        steam_id: steamid 
-                    });
-                    // Перезагружаем страницу, чтобы она подтянула игры из базы
-                    window.location.reload();
-                } else {
-                    alert("Сначала войдите в аккаунт, чтобы привязать Steam!");
-                }
-            }
-        }
-    })();
-
-    // ==========================================
-    // 10. Функция обновления интерфейса (UI)
-    // ==========================================
-    function renderSteamGames(data) {
-        if (!data || !data.response || !data.response.games) {
-            if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
-            return;
-        }
-
-        const games = data.response.games;
-        const totalGames = games.length;
-        const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-        const totalHours = Math.round(totalMinutes / 60);
-
-        // Обновляем цифры в профиле
-        if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-        if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
-
-        const hoursCard = document.getElementById('hours-card');
-        if (hoursCard) hoursCard.textContent = totalHours + 'h';
-
-        // Сортируем игры по времени
-        const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-        
-        // Заполняем таблицу
-        if (gamesTbody) {
-            gamesTbody.innerHTML = '';
-            for (const game of sorted) {
-                const iconUrl = game.img_icon_url
-                    ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-                    : null;
-                const hours = Math.round((game.playtime_forever || 0) / 60);
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-white/3 transition group';
-                tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${game.name}" />` : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${(game.name||'G').charAt(0).toUpperCase()}</div>`}
-                            <div>
-                                <p class="font-medium text-white">${game.name}</p>
-                                <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
-                    <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
-                    <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-                    <td class="px-6 py-4 text-gray-400 text-sm">—</td>
-                `;
-                gamesTbody.appendChild(tr);
-            }
-        }
-    }
-
-    // ==========================================
-    // 11. Автозагрузка Steam при открытии сайта
-    // ==========================================
-    async function autoLoadSteamGames() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-
-        const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('steam_id')
-            .eq('id', user.id)
-            .single();
-
-        if (error || !profile || !profile.steam_id) return;
-
-        if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
-
-        try {
-            const { data, error } = await supabaseClient.functions.invoke('steam-api', {
-                body: { steamid: profile.steam_id },
+          // Проверяем, авторизован ли пользователь
+          const { data: { user } } = await supabaseClient.auth.getUser();
+          if (user) {
+            // Сохраняем в базу
+            const { error } = await supabaseClient.from('profiles').upsert({ 
+              id: user.id, 
+              steam_id: steamId 
             });
-
-            if (!error && data) {
-                renderSteamGames(data);
-            }
-        } catch (e) {
-            console.error('Failed to auto-load Steam games:', e);
-        } finally {
-            if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
-        }
-    }
-    // --- ЖЕСТКИЙ ПЕРЕХВАТ STEAM (Читаем URL сразу) ---
-const queryParams = new URLSearchParams(window.location.search);
-if (queryParams.get('openid.mode') === 'id_res') {
-    const claimedId = queryParams.get('openid.claimed_id');
-    if (claimedId) {
-        const steamId = claimedId.split('/').pop();
-        console.log("!!! УРА! НАЙДЕН STEAM ID:", steamId);
-        
-        // Сохраняем в LocalStorage на всякий случай
-        localStorage.setItem('saved_steam_id', steamId);
-        
-        // Пытаемся сохранить в базу
-        setTimeout(async () => {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                const { error } = await supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    steam_id: steamId
-                });
-                if (error) {
-                    console.error("ОШИБКА БАЗЫ:", error);
-                } else {
-                    console.log("УСПЕХ! ID СОХРАНЕН В БАЗУ");
-                    // Перезагружаем страницу без параметров
-                    window.location.href = window.location.pathname; 
-                }
+            
+            if (!error) {
+              console.log("Steam ID успешно сохранен!");
+              window.location.reload(); // Перезагружаем, чтобы подтянуть игры
             } else {
-                console.log("Пользователь не авторизован в Supabase!");
+              console.error("Ошибка сохранения в базу:", error);
             }
-        }, 500); // Задержка, чтобы Supabase успел прогрузиться
-    }
-}
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GreedToFame | Gaming Profile Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --neon-purple: #a855f7;
-      --neon-blue: #2563eb;
-      --neon-cyan: #22d3ee;
-      --bg-dark: #0a0a0f;
-      --card-bg: #111117;
-    }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background-color: var(--bg-dark);
-      color: #e2e8f0;
-    }
-
-    .neon-text {
-      text-shadow: 0 0 10px rgba(168, 85, 247, 0.55),
-                   0 0 20px rgba(168, 85, 247, 0.3);
-    }
-
-    .neon-border {
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25),
-                  0 0 20px rgba(168, 85, 247, 0.15);
-    }
-
-    .btn-gradient {
-      background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%);
-    }
-
-    .btn-gradient:hover {
-      filter: brightness(1.1);
-      box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
-    }
-
-    .btn-gradient:active {
-      transform: translateY(1px);
-    }
-
-    .glass-card {
-      background: linear-gradient(145deg, #171722 0%, #111117 100%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-    }
-
-    .gallery-placeholder {
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-      border: 2px dashed rgba(168, 85, 247, 0.35);
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .gallery-placeholder:hover {
-      border-color: var(--neon-purple);
-      background: linear-gradient(135deg, #161e35 0%, #221335 100%);
-      box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
-    }
-
-    .gallery-placeholder.has-image {
-      border-style: solid;
-      border-color: var(--neon-cyan);
-      background: #0f172a;
-    }
-
-    .remove-btn {
-      width: 26px;
-      height: 26px;
-      min-width: 26px;
-      min-height: 26px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(0, 0, 0, 0.7);
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4);
-    }
-
-    .remove-btn:hover {
-      background: rgba(168, 85, 247, 0.9);
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.9), 0 2px 8px rgba(168, 85, 247, 0.4);
-    }
-
-    .remove-btn:active {
-      transform: scale(0.92);
-    }
-
-    .remove-btn:focus-visible {
-      outline: 2px solid var(--neon-cyan);
-      outline-offset: 2px;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .stat-number {
-      background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Rank badge colors */
-    .rank-bronze {
-      border-color: #cd7f32;
-      color: #cd7f32;
-      box-shadow: 0 0 12px rgba(205, 127, 50, 0.45);
-    }
-
-    .rank-silver {
-      border-color: #c0c0c0;
-      color: #c0c0c0;
-      box-shadow: 0 0 12px rgba(192, 192, 192, 0.35);
-    }
-
-    .rank-gold {
-      border-color: #ffd700;
-      color: #ffd700;
-      box-shadow: 0 0 18px rgba(255, 215, 0, 0.55);
-    }
-
-    @keyframes diamondGlow {
-      0% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-      33% { border-color: #22d3ee; color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.45); }
-      66% { border-color: #a855f7; color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
-      100% { border-color: #ffffff; color: #ffffff; box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-    }
-
-    .rank-diamond {
-      animation: diamondGlow 2s ease-in-out infinite;
-    }
-
-    .rank-badge {
-      background: rgba(168, 85, 247, 0.15);
-      border: 1px solid rgba(168, 85, 247, 0.35);
-      color: #d8b4fe;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0a0a0f;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #333340;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #4338ca;
-    }
-
-    /* Auth dropdown */
-    #auth-dropdown {
-      background: #111117;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
-    }
-    #auth-dropdown button {
-      width: 100%;
-      text-align: left;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-      color: #9ca3af;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    #auth-dropdown button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #ffffff;
-    }
-  </style>
-</head>
-<body class="min-h-screen selection:bg-purple-500 selection:text-white">
-
-  <!-- Header -->
-  <header class="sticky top-0 z-30 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.6)]">
-          <span class="text-white font-extrabold tracking-tight">GT</span>
-        </div>
-        <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
-      </div>
-      <div id="auth-btn-container" class="relative">
-        <button
-          id="auth-btn"
-          class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2"
-        >
-          <span id="auth-btn-text">Login</span>
-          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-        <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
-          <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
-          <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Username Edit Modal -->
-  <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
-  <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
-    <h3 class="text-lg font-bold text-white mb-4">Edit Username</h3>
-    <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
-    <div class="flex gap-3">
-      <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
-      <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
-    </div>
-  </div>
-
-  <!-- Login/Signup Modal -->
-  <div id="auth-modal-backdrop" class="fixed inset-0 z-50 hidden"></div>
-  <div id="auth-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
-    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-[400px] z-[10000] text-white">
-      <div class="flex justify-between items-start mb-6">
-        <h3 class="text-lg font-bold text-white">Sign in to GreedToFame</h3>
-        <button id="btn-close-modal" class="text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm text-gray-400 mb-1">Email</label>
-          <input type="email" id="auth-email" placeholder="you@example.com" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
-        </div>
-        <div>
-          <label class="block text-sm text-gray-400 mb-1">Password</label>
-          <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-800 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500" />
-        </div>
-        <div class="flex gap-3 pt-2">
-          <button id="btn-signin" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Sign In</button>
-          <button id="btn-signup" class="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-white/5 transition">Sign Up</button>
-        </div>
-        <p id="auth-message" class="text-sm mt-4 text-center text-gray-300"></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="max-w-7xl mx-auto px-6 py-10">
-    <!-- Intro / Welcome -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-      <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span id="welcome-username" class="text-purple-400 neon-text">Guest</span></h2>
-        <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
-      </div>
-      <div class="flex gap-2">
-        <button id="edit-profile" class="px-4 py-2 text-sm font-medium text-gray-300 bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/5">Edit Profile</button>
-        <button id="settings-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
-      </div>
-    </div>
-
-    <!-- Grid: Sidebar (profile) + Main -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-      <!-- Left Column: Profile Card -->
-      <aside class="lg:col-span-3 space-y-6">
-        <div class="glass-card rounded-2xl p-6 neon-border">
-          <div class="flex flex-col items-center">
-            <div class="relative mb-4">
-              <img
-                id="profile-avatar"
-                src="https://ui-avatars.com/api/?name=Guest&background=random&size=512"
-                alt="Avatar"
-                class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover"
-              />
-              <div class="absolute bottom-0 right-0 w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg border-2 border-[#0a0a0f]">
-                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse absolute -bottom-1 -right-1 border-2 border-[#0a0a0f]"></span>
-              </div>
-            </div>
-            <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
-            <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
-          </div>
-
-          <div class="mt-6 pt-6 border-t border-white/5">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Connect Platform</p>
-            <a
-              href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback"
-              id="connect-steam-btn"
-              class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center block"
-            >
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span id="steam-btn-text">Connect Steam</span>
-            </a>
-            <p class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and achievements automatically.</p>
-            <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden flex items-center justify-center gap-2">Loading Steam games...</p>
-          </div>
-
-          <div class="mt-6 pt-6 border-t border-white/5 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Member since</span>
-              <span id="stat-member-since" class="text-sm font-semibold text-white">—</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Total games</span>
-              <span id="stat-total-games" class="text-sm font-semibold text-white">0</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Total hours</span>
-              <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">0h</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Community -->
-        <div class="glass-card rounded-2xl p-6 neon-border">
-          <h4 class="text-sm font-bold text-white mb-4">Community</h4>
-          <div class="space-y-3">
-            <div class="relative">
-              <input type="text" id="community-search" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
-              <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-            <button id="view-all-profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Right Column: Main Content -->
-      <main class="lg:col-span-9 space-y-10">
-
-        <!-- Statistics -->
-        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
-            <p id="hours-card" class="text-4xl font-extrabold stat-number">0h</p>
-            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div id="stat-hours-bar" class="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-0 shadow-[0_0_10px_rgba(168,85,247,0.6)]"></div>
-            </div>
-            <p id="stat-recent-hours" class="text-xs text-green-400 mt-2 font-medium">0hrs this week</p>
-          </div>
-
-          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Playstyle</p>
-            <p id="stat-playstyle-label" class="text-4xl font-extrabold text-white mt-2 stat-number">—</p>
-            <p id="stat-playstyle-avg" class="text-xs text-gray-400 mt-2 font-medium">—</p>
-          </div>
-
-          <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition">
-              <svg class="w-24 h-24 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
-            </div>
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Level</p>
-            <p id="stat-level" class="text-4xl font-extrabold text-white mt-2 stat-number">0</p>
-            <div class="mt-4 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div id="stat-level-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-0 shadow-[0_0_10px_rgba(34,211,238,0.6)]"></div>
-            </div>
-            <p id="stat-level-xp" class="text-xs text-gray-400 mt-2 font-medium">0 XP to next level</p>
-          </div>
-        </section>
-
-        <!-- Photo Gallery -->
-        <section class="glass-card rounded-2xl p-6 neon-border">
-          <div class="flex items-center justify-between mb-6">
-            <div>
-              <h3 class="text-xl font-bold text-white">Game Screenshots</h3>
-              <p class="text-sm text-gray-400">Upload exactly 3 screenshots from your recent matches.</p>
-            </div>
-            <span class="text-xs font-semibold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">3 / 3 slots</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
-            <!-- Placeholder 1 -->
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-1">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-1">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
-              </div>
-              <img id="preview-1" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-1" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-1" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
-
-            <!-- Placeholder 2 -->
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-2">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-2">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
-              </div>
-              <img id="preview-2" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-2" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-2" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
-
-            <!-- Placeholder 3 -->
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center" for="upload-3">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-3">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
-              </div>
-              <img id="preview-3" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-3" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-3" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
-          </div>
-          <p id="gallery-hint" class="mt-4 text-xs text-gray-500 text-center">Select up to 3 images (JPG/PNG, max 5MB each).</p>
-        </section>
-
-        <!-- Games List -->
-        <section class="glass-card rounded-2xl p-6 neon-border">
-          <h3 class="text-xl font-bold text-white mb-6">Your Games</h3>
-          <div class="overflow-hidden rounded-xl border border-white/5">
-            <table class="w-full text-left">
-              <thead>
-                <tr class="border-b border-white/5 bg-white/3">
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Game</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Playtime</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Wins</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Rank / Tier</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Last Played</th>
-                </tr>
-              </thead>
-              <tbody id="games-tbody" class="divide-y divide-white/5">
-                <tr id="steam-placeholder">
-                  <td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
-  <script>
-    // 1. Инициализация Supabase
-    const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_qzOnbq_MxgMQA0RfRGIwPQ_cNAMrR8p';
-    // Создаем клиент (используем имя supabaseClient, чтобы не конфликтовать с глобальным объектом supabase)
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    // --- ТЕСТОВЫЙ ПЕРЕХВАТ STEAM ID ---
-window.addEventListener('load', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const openidMode = urlParams.get('openid.mode');
-    
-    if (openidMode === 'id_res') {
-        const claimedId = urlParams.get('openid.claimed_id');
-        if (claimedId) {
-            const steamId = claimedId.split('/').pop();
-            console.log("!!! НАЙДЕН STEAM ID:", steamId);
-            
-            // Пробуем сохранить
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) {
-                const { error } = await supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    steam_id: steamId
-                });
-                
-                if (error) {
-                    console.error("ОШИБКА БАЗЫ:", error);
-                    alert("Ошибка базы: " + error.message);
-                } else {
-                    console.log("УСПЕХ! ID СОХРАНЕН");
-                    window.location.href = window.location.pathname; // Убираем параметры и перезагружаем
-                }
-            }
-        }
-    }
-});
-    // --- ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM ---
-(function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('openid.mode') === 'id_res') {
-        console.log("Steam вернул нас! Обрабатываем...");
-        const claimedId = urlParams.get('openid.claimed_id');
-        if (claimedId) {
-            const steamId = claimedId.split('/').pop();
-            console.log("Найден Steam ID:", steamId);
-            
-            // Очищаем URL сразу, чтобы не было циклов
-            window.history.replaceState({}, document.title, window.location.pathname);
-
-            // Сохраняем в базу
-            supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                if (user) {
-                    supabaseClient.from('profiles').upsert({ 
-                        id: user.id, 
-                        steam_id: steamId 
-                    }).then(() => {
-                        console.log("ID сохранен в базу!");
-                        window.location.reload(); // Перезагружаем, чтобы сайт подтянул игры
-                    });
-                } else {
-                    alert("Сначала войдите в аккаунт на сайте!");
-                }
-            });
-        }
-    }
-})();
-
-    // 2. Ключи LocalStorage
-    const STORAGE_KEYS = {
-      username: 'gt_username',
-      screenshot: (index) => `gt_screenshot_${index}`,
-    };
-
-    // 3. DOM Элементы
-    const authBtn = document.getElementById('auth-btn');
-    const authModal = document.getElementById('auth-modal');
-    const authBackdrop = document.getElementById('auth-modal-backdrop');
-    const authEmail = document.getElementById('auth-email');
-    const authPassword = document.getElementById('auth-password');
-    const btnSignin = document.getElementById('btn-signin');
-    const btnSignup = document.getElementById('btn-signup');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-    const authMessage = document.getElementById('auth-message');
-    const authBtnText = document.getElementById('auth-btn-text');
-    const authDropdown = document.getElementById('auth-dropdown');
-    const authLogoutBtn = document.getElementById('auth-logout');
-    const authChangeAccountBtn = document.getElementById('auth-change-account');
-
-    // 4. Логика модального окна
-    function openAuthModal() {
-      authModal.classList.remove('hidden');
-      if (authBackdrop) authBackdrop.classList.remove('hidden');
-      authEmail.focus();
-      authMessage.textContent = '';
-    }
-
-    function closeAuthModal() {
-      authModal.classList.add('hidden');
-      if (authBackdrop) authBackdrop.classList.add('hidden');
-      authMessage.textContent = '';
-    }
-
-    // 5. Обработчики кнопок
-    authBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (authBtnText.textContent === 'Login') {
-        openAuthModal();
-      } else {
-        authDropdown.classList.toggle('hidden');
-      }
-    });
-
-    btnCloseModal.addEventListener('click', closeAuthModal);
-    if (authBackdrop) authBackdrop.addEventListener('click', closeAuthModal);
-
-    // Вход (Sign In)
-    btnSignin.addEventListener('click', async (e) => {
-      e.preventDefault(); // Предотвращаем перезагрузку формы, если она есть
-      const email = authEmail.value.trim();
-      const password = authPassword.value.trim();
-      
-      if (!email || !password) {
-        authMessage.textContent = 'Please enter email and password.';
-        authMessage.className = 'text-sm mt-4 text-center text-red-400';
-        return;
-      }
-      
-      btnSignin.disabled = true;
-      btnSignin.textContent = 'Signing in...';
-
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      
-      if (error) {
-        authMessage.textContent = error.message;
-        authMessage.className = 'text-sm mt-4 text-center text-red-400';
-        btnSignin.disabled = false;
-        btnSignin.textContent = 'Sign In';
-      } else {
-        // Успешный вход — перезагружаем страницу
-        window.location.reload();
-      }
-    });
-
-    // Регистрация (Sign Up)
-    btnSignup.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const email = authEmail.value.trim();
-      const password = authPassword.value.trim();
-      
-      if (!email || !password) {
-        authMessage.textContent = 'Please enter email and password.';
-        authMessage.className = 'text-sm mt-4 text-center text-red-400';
-        return;
-      }
-
-      btnSignup.disabled = true;
-      btnSignup.textContent = 'Creating...';
-
-      const { error } = await supabaseClient.auth.signUp({ email, password });
-      
-      if (error) {
-        authMessage.textContent = error.message;
-        authMessage.className = 'text-sm mt-4 text-center text-red-400';
-      } else {
-        authMessage.textContent = 'Account created! Check your email for confirmation.';
-        authMessage.className = 'text-sm mt-4 text-center text-green-400';
-      }
-      
-      btnSignup.disabled = false;
-      btnSignup.textContent = 'Sign Up';
-    });
-
-    // Выход (Logout)
-    async function handleSignOut() {
-      authDropdown.classList.add('hidden');
-      await supabaseClient.auth.signOut();
-      window.location.reload();
-    }
-
-    if (authLogoutBtn) authLogoutBtn.addEventListener('click', handleSignOut);
-    if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
-
-    // Закрытие дропдауна при клике вне его
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('auth-btn-container');
-      if (container && !container.contains(e.target)) {
-        authDropdown.classList.add('hidden');
-      }
-    });
-
-    // 6. Обработка состояния авторизации (Auth State)
-    supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      const user = session?.user ?? null;
-      
-      if (user) {
-        // Пользователь авторизован
-        authBtnText.textContent = user.email || 'Account';
-        closeAuthModal();
-        
-        try {
-          const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-
-          if (profile && !error) {
-             if (profile.username) applyUsername(profile.username);
-             
-             // Загрузка скриншотов из базы
-             ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
-              if (profile[col]) {
-                const slot = slots[index];
-                if(slot) {
-                    const previewEl = document.getElementById(slot.preview);
-                    const overlayEl = document.getElementById(slot.overlay);
-                    const removeEl = document.getElementById(slot.remove);
-                    if(previewEl && overlayEl && removeEl) {
-                        previewEl.src = profile[col];
-                        previewEl.classList.remove('hidden');
-                        overlayEl.classList.add('hidden');
-                        removeEl.classList.remove('hidden');
-                    }
-                }
-              }
-            });
-          } else if (error && error.code === 'PGRST116') {
-             // Если профиля нет, создаем его
-             await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
+          } else {
+            alert("Сначала войдите в аккаунт на сайте, чтобы привязать Steam.");
           }
-        } catch (err) {
-          console.error('Error fetching profile:', err);
-        }
-
-        // Автозагрузка Steam игр
-        autoLoadSteamGames();
-
-      } else {
-        // Пользователь не авторизован
-        authBtnText.textContent = 'Login';
-        authDropdown.classList.add('hidden');
-        applyUsername('Guest');
-      }
-    });
-
-    // 7. Вспомогательные функции (Username, Gallery)
-    function applyUsername(name) {
-      const welcomeEl = document.getElementById('welcome-username');
-      const profileNameEl = document.getElementById('profile-username');
-      const avatarEl = document.getElementById('profile-avatar');
-      if (welcomeEl) welcomeEl.textContent = name;
-      if (profileNameEl) profileNameEl.textContent = name;
-      if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
-    }
-
-    const slots = [
-      { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
-      { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
-      { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
-    ];
-
-    // Логика галереи
-    slots.forEach((slot, index) => {
-      const inputEl = document.getElementById(slot.input);
-      const previewEl = document.getElementById(slot.preview);
-      const overlayEl = document.getElementById(slot.overlay);
-      const removeEl = document.getElementById(slot.remove);
-      const labelEl = inputEl.parentElement;
-
-      inputEl.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const isJpgOrPng = /\.(jpe?g|png)$/i.test(file.name);
-        const isImageType = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng || !isImageType) {
-          alert('Please select a JPG or PNG image only.');
-          inputEl.value = '';
-          return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          alert('File too large (max 5MB).');
-          inputEl.value = '';
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-          const dataUrl = evt.target.result;
-          previewEl.src = dataUrl;
-          previewEl.classList.remove('hidden');
-          overlayEl.classList.add('hidden');
-          removeEl.classList.remove('hidden');
-          labelEl.classList.add('has-image');
-          
-          localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
-          
-          const { data: { session } } = await supabaseClient.auth.getSession();
-          if (session) {
-            await supabaseClient.from('profiles').upsert({
-              id: session.user.id,
-              [`screenshot_${index + 1}`]: dataUrl,
-            });
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-
-      removeEl.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        previewEl.src = '';
-        previewEl.classList.add('hidden');
-        overlayEl.classList.remove('hidden');
-        removeEl.classList.add('hidden');
-        labelEl.classList.remove('has-image');
-        inputEl.value = '';
-
-        localStorage.removeItem(STORAGE_KEYS.screenshot(index));
-
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-          await supabaseClient.from('profiles').upsert({
-            id: session.user.id,
-            [`screenshot_${index + 1}`]: null,
-          });
-        }
-      });
-    });
-
-    // Модалка изменения имени
-    const modal = document.getElementById('username-modal');
-    const backdrop = document.getElementById('username-modal-backdrop');
-    const usernameInput = document.getElementById('username-input');
-
-    function openUsernameModal() {
-      usernameInput.value = document.getElementById('welcome-username').textContent;
-      modal.classList.remove('hidden');
-      backdrop.classList.remove('hidden');
-      usernameInput.focus();
-    }
-
-    function closeUsernameModal() {
-      modal.classList.add('hidden');
-      backdrop.classList.add('hidden');
-    }
-
-    document.getElementById('edit-profile').addEventListener('click', openUsernameModal);
-    document.getElementById('settings-btn').addEventListener('click', openUsernameModal);
-    backdrop.addEventListener('click', closeUsernameModal);
-    document.getElementById('username-cancel').addEventListener('click', closeUsernameModal);
-
-    document.getElementById('username-save').addEventListener('click', async () => {
-      const newName = usernameInput.value.trim();
-      if (!newName) return;
-      localStorage.setItem(STORAGE_KEYS.username, newName);
-      applyUsername(newName);
-      closeUsernameModal();
-      
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        await supabaseClient.from('profiles').upsert({ id: session.user.id, username: newName });
-      }
-    });
-
-    // 8. Steam логика
-    const steamAutoLoadEl = document.getElementById('steam-auto-load');
-    const steamBtnText = document.getElementById('steam-btn-text');
-    const gamesTbody = document.getElementById('games-tbody');
-    const totalGamesEl = document.getElementById('stat-total-games');
-    const totalHoursEl = document.getElementById('stat-total-hours');
-
-    function renderSteamGames(data) {
-      if (!data || !data.ownedGames || !data.ownedGames.response || !data.ownedGames.response.games) {
-        if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
-        return;
-      }
-
-      const games = data.ownedGames.response.games;
-      const totalGames = data.ownedGames.response.game_count || games.length;
-      const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-      const totalHours = Math.round(totalMinutes / 60);
-
-      if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
-
-      const hoursCard = document.getElementById('hours-card');
-      if (hoursCard) hoursCard.textContent = totalHours + 'h';
-
-      const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-      if (gamesTbody) {
-        gamesTbody.innerHTML = '';
-        for (const game of sorted) {
-          const iconUrl = game.img_icon_url
-            ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-            : null;
-          const hours = Math.round((game.playtime_forever || 0) / 60);
-          const tr = document.createElement('tr');
-          tr.className = 'hover:bg-white/3 transition group';
-          tr.innerHTML = `
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${game.name}" />` : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${(game.name||'G').charAt(0).toUpperCase()}</div>`}
-                <div>
-                  <p class="font-medium text-white">${game.name}</p>
-                  <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
-            <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
-            <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-            <td class="px-6 py-4 text-gray-400 text-sm">—</td>
-          `;
-          gamesTbody.appendChild(tr);
         }
       }
-    }
-
-    async function autoLoadSteamGames() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) return;
-
-      const { data: profile, error } = await supabaseClient
-        .from('profiles')
-        .select('steam_id')
-        .eq('id', user.id)
-        .single();
-
-      if (error || !profile || !profile.steam_id) return;
-
-      if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
-      
-      // Проверяем кэш в localStorage
-      const savedSteam = localStorage.getItem('gt_steam_games');
-      if (savedSteam) {
-          try {
-            renderSteamGames(JSON.parse(savedSteam));
-          } catch(e) {}
-      }
-
-      try {
-        const { data, error } = await supabaseClient.functions.invoke('steam-api', {
-          body: { steamid: profile.steam_id },
-        });
-
-        if (!error && data) {
-            renderSteamGames(data);
-            localStorage.setItem('gt_steam_games', JSON.stringify(data));
-        }
-      } catch (e) {
-        console.error('Failed to auto-load Steam games:', e);
-      } finally {
-        if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
-      }
-    }
+    })();
 
     // Инициализация страницы
     (async function init() {
-        // Загружаем сохраненное имя
         const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
         if (savedUsername) {
             applyUsername(savedUsername);
             usernameInput.value = savedUsername;
         }
 
-        // Загружаем сохраненные скриншоты
         slots.forEach((slot, index) => {
             const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
             if (saved) {
@@ -2026,122 +729,6 @@ window.addEventListener('load', async () => {
             }
         });
     })();
-        // ==========================================
-    // 9. Чтение ответа от Steam (OpenID)
-    // ==========================================
-    (async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const openidMode = urlParams.get('openid.mode');
-
-        if (openidMode === 'id_res') {
-            const claimedId = urlParams.get('openid.claimed_id');
-            const steamid = claimedId ? claimedId.split('/').pop() : null;
-
-            if (steamid) {
-                // Очищаем URL от длинных параметров, чтобы не было цикла
-                window.history.replaceState({}, document.title, window.location.pathname);
-
-                const { data: { user } } = await supabaseClient.auth.getUser();
-                if (user) {
-                    // Сохраняем Steam ID в базу
-                    await supabaseClient.from('profiles').upsert({ 
-                        id: user.id, 
-                        steam_id: steamid 
-                    });
-                    // Перезагружаем страницу, чтобы она подтянула игры из базы
-                    window.location.reload();
-                } else {
-                    alert("Сначала войдите в аккаунт, чтобы привязать Steam!");
-                }
-            }
-        }
-    })();
-
-    // ==========================================
-    // 10. Функция обновления интерфейса (UI)
-    // ==========================================
-    function renderSteamGames(data) {
-        if (!data || !data.response || !data.response.games) {
-            if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
-            return;
-        }
-
-        const games = data.response.games;
-        const totalGames = games.length;
-        const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-        const totalHours = Math.round(totalMinutes / 60);
-
-        // Обновляем цифры в профиле
-        if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-        if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
-
-        const hoursCard = document.getElementById('hours-card');
-        if (hoursCard) hoursCard.textContent = totalHours + 'h';
-
-        // Сортируем игры по времени
-        const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-        
-        // Заполняем таблицу
-        if (gamesTbody) {
-            gamesTbody.innerHTML = '';
-            for (const game of sorted) {
-                const iconUrl = game.img_icon_url
-                    ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-                    : null;
-                const hours = Math.round((game.playtime_forever || 0) / 60);
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-white/3 transition group';
-                tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            ${iconUrl ? `<img src="${iconUrl}" class="w-10 h-10 rounded-lg object-cover" alt="${game.name}" />` : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${(game.name||'G').charAt(0).toUpperCase()}</div>`}
-                            <div>
-                                <p class="font-medium text-white">${game.name}</p>
-                                <p class="text-xs text-gray-500">Steam • App ${game.appid}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
-                    <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
-                    <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-                    <td class="px-6 py-4 text-gray-400 text-sm">—</td>
-                `;
-                gamesTbody.appendChild(tr);
-            }
-        }
-    }
-
-    // ==========================================
-    // 11. Автозагрузка Steam при открытии сайта
-    // ==========================================
-    async function autoLoadSteamGames() {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-
-        const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('steam_id')
-            .eq('id', user.id)
-            .single();
-
-        if (error || !profile || !profile.steam_id) return;
-
-        if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
-
-        try {
-            const { data, error } = await supabaseClient.functions.invoke('steam-api', {
-                body: { steamid: profile.steam_id },
-            });
-
-            if (!error && data) {
-                renderSteamGames(data);
-            }
-        } catch (e) {
-            console.error('Failed to auto-load Steam games:', e);
-        } finally {
-            if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
-        }
-    }
   </script>
 </body>
 </html>
