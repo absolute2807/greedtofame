@@ -1262,7 +1262,7 @@ handleSteamLogin();
     }
 
     // Show Steam connect modal
-    steamConnect.addEventListener('click', () => {
+    steamConnect.addEventListener('click', async () => {
       const steamid = steamInput.value.trim();
       if (!/^\d{17}$/.test(steamid)) {
         steamError.textContent = 'Please enter a valid 17-digit SteamID64 (digits only).';
