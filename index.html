@@ -662,6 +662,20 @@
           return;
       }
 
+      // Обновляем состояние кнопки Connect Steam, если Steam уже привязан
+      if (profile.steam_id) {
+        const steamBtn = document.getElementById('connect-steam-btn');
+        const steamBtnText = document.getElementById('steam-btn-text');
+        if (steamBtn && steamBtnText) {
+            steamBtnText.textContent = 'Steam Connected';
+            steamBtn.removeAttribute('href');
+            steamBtn.classList.remove('btn-gradient');
+            steamBtn.classList.add('bg-green-600/20', 'border', 'border-green-500/50', 'cursor-default');
+            const svgIcon = steamBtn.querySelector('svg');
+            if (svgIcon) svgIcon.style.display = 'none';
+        }
+      }
+
       console.log("Найден Steam ID в базе:", profile.steam_id);
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
 
