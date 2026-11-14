@@ -280,7 +280,7 @@
 <!-- Login button fix script -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const loginBtn = document.getElementById('login-btn');
+    const loginBtn = document.getElementById('auth-btn');
     
     if (loginBtn) {
         // Клонируем кнопку, чтобы убить все старые (сломанные) клики Cline
@@ -1262,6 +1262,7 @@ handleSteamLogin();
     }
 
     // Show Steam connect modal
+    const steamConnect = document.getElementById('connect-steam-btn');
     steamConnect.addEventListener('click', async () => {
       const steamid = steamInput.value.trim();
       if (!/^\d{17}$/.test(steamid)) {
