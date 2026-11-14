@@ -689,6 +689,7 @@
             const { error } = await supabaseClient.from('profiles').upsert({ 
               id: user.id, 
               steam_id: steamId 
+              username: user.email.split('@')[0] // Берем имя из почты (например, "ezadziorka")
             });
             
             if (!error) {
