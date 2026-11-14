@@ -641,30 +641,44 @@
       }
     }
 
-    async function autoLoadSteamGames() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (!user) return;
+        async function autoLoadSteamGames() {
+      // 1. Ждем, пока Supabase точно подтвердит, что мы авторизованы
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+      if (authError || !user) {
+          console.log("Пользователь не авторизован, Steam не загружаем.");
+          return;
+      }
 
-      const { data: profile, error } = await supabaseClient
+      // 2. Идем в базу и берем steam_id для этого пользователя
+      const { data: profile, error: dbError } = await supabaseClient
         .from('profiles')
         .select('steam_id')
         .eq('id', user.id)
         .single();
 
-      if (error || !profile || !profile.steam_id) return;
+      // 3. Если в базе пусто (нет steam_id), просто выходим
+      if (dbError || !profile || !profile.steam_id) {
+          console.log("В базе нет Steam ID для этого пользователя.");
+          return;
+      }
 
+      console.log("Найден Steam ID в базе:", profile.steam_id);
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
 
       try {
+        // 4. Стучимся в функцию Supabase
         const { data, error } = await supabaseClient.functions.invoke('steam-api', {
           body: { steamid: profile.steam_id },
         });
 
-        if (!error && data) {
-          renderSteamGames(data);
+        if (error) {
+            console.error("Ошибка функции steam-api:", error);
+        } else if (data) {
+            console.log("Данные из Steam пришли:", data);
+            renderSteamGames(data);
         }
       } catch (e) {
-        console.error('Failed to auto-load Steam games:', e);
+        console.error('Критическая ошибка при загрузке Steam игр:', e);
       } finally {
         if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden');
       }
