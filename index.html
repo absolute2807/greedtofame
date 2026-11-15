@@ -593,7 +593,6 @@
       backdrop.classList.add('hidden');
     }
 
-    // Обе кнопки открывают эту модалку
     document.getElementById('edit-profile').addEventListener('click', openSettingsModal);
     document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
     backdrop.addEventListener('click', closeSettingsModal);
@@ -607,12 +606,13 @@
     const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
-      if (!data || !data.response || !data.response.games) {
+      // НОВАЯ СТРУКТУРА: data.games и data.player
+      if (!data || !data.games || !data.games.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
       }
 
-      const games = data.response.games;
+      const games = data.games.games;
       const totalGames = games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
@@ -630,6 +630,15 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = formatTime(totalHours);
       
+      // --- ДАТА РЕГИСТРАЦИИ В STEAM ---
+      if (data.player && data.player.timecreated) {
+          const createdDate = new Date(data.player.timecreated * 1000);
+          const formattedDate = createdDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+          const memberSinceEl = document.getElementById('stat-member-since');
+          if (memberSinceEl) memberSinceEl.textContent = formattedDate;
+      }
+
+      // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames;
           let playstyleLabel = '—';
@@ -653,6 +662,7 @@
           if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
 
+      // --- ЛОГИКА ДЛЯ ТОП-1 ИГРЫ ---
       if (games && games.length > 0) {
           const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
           const topGame = sortedGames[0];
@@ -672,6 +682,7 @@
           }
       }
      
+      // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
       let themeColor = '#a855f7';
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
 
