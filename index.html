@@ -20,6 +20,28 @@
     }
     body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #e2e8f0; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
     
+    /* --- КАСТОМНЫЙ КУРСОР --- */
+    body { cursor: none; }
+    a, button, input, .cursor-pointer { cursor: none; }
+    
+    .custom-cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 20px; height: 20px;
+      background: rgba(168, 85, 247, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+    }
+    .custom-cursor.hover {
+      width: 40px; height: 40px;
+      background: rgba(168, 85, 247, 0.2);
+      border: 2px solid var(--neon-purple);
+    }
+
     /* --- СВЕТЛАЯ ТЕМА --- */
     body.light-theme { background-color: #f3f4f6; color: #1f2937; }
     body.light-theme .glass-card { background: #ffffff; border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
@@ -33,6 +55,7 @@
     body.light-theme #auth-dropdown button:hover { background: rgba(0,0,0,0.05); color: #000000; }
     body.light-theme .header-bg { background-color: rgba(243, 244, 246, 0.8) !important; }
     body.light-theme .podium-frame { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+    body.light-theme .custom-cursor { background: rgba(168, 85, 247, 0.8); }
 
     .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
     .neon-border { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 0 20px rgba(168, 85, 247, 0.15); }
@@ -71,6 +94,11 @@
       body.light-theme .mobile-table td:first-child { border-color: rgba(0,0,0,0.1); }
       .mobile-table td:first-child::before { display: none; }
       .mobile-table td:first-child { justify-content: flex-start; text-align: left; }
+      
+      /* Отключаем кастомный курсор на мобилках */
+      body { cursor: auto; }
+      a, button, input { cursor: auto; }
+      .custom-cursor { display: none; }
     }
 
     /* --- СТИЛИ ДЛЯ ПОДИУМА --- */
@@ -146,6 +174,9 @@
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
+
+  <!-- Кастомный курсор -->
+  <div class="custom-cursor" id="custom-cursor"></div>
 
   <!-- Header -->
   <header class="sticky top-0 z-30 border-b border-white/5 header-bg bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
@@ -441,6 +472,20 @@
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
 
+    // --- КАСТОМНЫЙ КУРСОР ---
+    const cursor = document.getElementById('custom-cursor');
+    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame');
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+    });
+
+    hoverElements.forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+    });
+
     // --- МАГНИТНЫЕ КНОПКИ ---
     const magneticBtns = document.querySelectorAll('.magnetic-btn');
     magneticBtns.forEach(btn => {
@@ -455,6 +500,21 @@
             btn.style.transform = 'translate(0px, 0px)';
         });
     });
+
+    // --- ЖИВОЙ СЧЕТЧИК ЧАСОВ ---
+    function animateValue(obj, start, end, duration, suffix = 'h') {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const current = Math.floor(progress * (end - start) + start);
+            obj.innerHTML = current + suffix;
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
 
     // --- ТЕМА ---
     let currentTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'dark';
@@ -777,10 +837,20 @@
       };
 
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-      if (totalHoursEl) totalHoursEl.textContent = formatTime(totalHours);
+      
+      // Анимация для часов в карточке
+      if (totalHoursEl) {
+          totalHoursEl.classList.remove('stat-number'); // Убираем градиент на время анимации
+          animateValue(totalHoursEl, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h');
+          setTimeout(() => totalHoursEl.classList.add('stat-number'), 1500);
+      }
 
       const hoursCard = document.getElementById('hours-card');
-      if (hoursCard) hoursCard.textContent = formatTime(totalHours);
+      if (hoursCard) {
+          hoursCard.classList.remove('stat-number');
+          animateValue(hoursCard, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h');
+          setTimeout(() => hoursCard.classList.add('stat-number'), 1500);
+      }
       
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames;
@@ -866,12 +936,6 @@
 
       const textElements = document.querySelectorAll('.text-purple-400');
       textElements.forEach(el => el.style.color = themeColor);
-
-      if (hoursCard) {
-          hoursCard.style.background = currentTheme === 'light' ? themeColor : `linear-gradient(to right, #ffffff, ${themeColor})`;
-          hoursCard.style.webkitBackgroundClip = 'text';
-          hoursCard.style.webkitTextFillColor = 'transparent';
-      }
 
       const allCards = document.querySelectorAll('.glass-card');
       allCards.forEach(card => {
