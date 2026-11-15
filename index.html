@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="favicon.png" type="image/png" />
   <title>GreedToFame | Gaming Profile Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -31,6 +32,7 @@
     body.light-theme #auth-dropdown button { color: #4b5563; }
     body.light-theme #auth-dropdown button:hover { background: rgba(0,0,0,0.05); color: #000000; }
     body.light-theme .header-bg { background-color: rgba(243, 244, 246, 0.8) !important; }
+    body.light-theme .podium-frame { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
 
     .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
     .neon-border { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 0 20px rgba(168, 85, 247, 0.15); }
@@ -69,76 +71,78 @@
       body.light-theme .mobile-table td:first-child { border-color: rgba(0,0,0,0.1); }
       .mobile-table td:first-child::before { display: none; }
       .mobile-table td:first-child { justify-content: flex-start; text-align: left; }
-      
-      /* Мобильный подиум */
-      .podium-container { flex-direction: column; gap: 1rem; }
-      .podium-item { width: 100% !important; height: 200px !important; }
     }
 
-    /* --- СТИЛИ ДЛЯ ПОДИУМА --- */
-    .podium-container {
+    /* --- СТИЛИ ДЛЯ ПОДИУМА (НОВЫЙ ВАРИАНТ) --- */
+    .podium-wrapper {
       display: flex;
       align-items: flex-end;
       justify-content: center;
       gap: 1.5rem;
       margin-top: 2rem;
+      padding-bottom: 2rem;
     }
-    .podium-item {
-      position: relative;
-      border-radius: 1rem;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.03);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
+    .podium-column {
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      align-items: center;
+      width: 30%;
     }
-    
-    /* Серебро (Слева) */
-    .podium-silver { width: 30%; height: 240px; border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192, 192, 192, 0.2); }
-    .podium-silver:hover { transform: translateY(-10px); box-shadow: 0 0 30px rgba(192, 192, 192, 0.4); }
-    
-    /* Золото (Центр) */
-    .podium-gold { width: 40%; height: 320px; border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); z-index: 10; }
-    .podium-gold:hover { transform: translateY(-10px); box-shadow: 0 0 40px rgba(255, 215, 0, 0.5); }
-    
-    /* Бронза (Справа) */
-    .podium-bronze { width: 30%; height: 200px; border-color: #cd7f32; box-shadow: 0 0 20px rgba(205, 127, 50, 0.2); }
-    .podium-bronze:hover { transform: translateY(-10px); box-shadow: 0 0 30px rgba(205, 127, 50, 0.4); }
+    .podium-column.gold-col { width: 40%; transform: translateY(-20px); } /* Золото чуть выше */
 
-    .podium-img {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
+    .podium-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+      justify-content: center;
+    }
+    .podium-header img {
+      width: 32px;
+      height: 32px;
+      border-radius: 0.5rem;
       object-fit: cover;
-      opacity: 0.6;
-      z-index: 1;
+      display: none; /* Скрыто, пока нет картинки */
     }
-    .podium-info {
-      position: relative;
-      z-index: 2;
-      padding: 1rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-      text-align: center;
-    }
-    .podium-rank {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 800;
-      margin-bottom: 0.25rem;
-    }
-    .podium-name {
-      font-size: 1rem;
+    .podium-header .name {
       font-weight: 700;
-      color: white;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 150px;
     }
-    .podium-hours {
-      font-size: 0.75rem;
-      color: #9ca3af;
+
+    .podium-frame {
+      width: 100%;
+      height: 200px;
+      border-radius: 1rem;
+      border: 2px solid;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.2);
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+    .podium-frame:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* Цвета для рамок */
+    .frame-silver { border-color: #c0c0c0; box-shadow: 0 0 15px rgba(192, 192, 192, 0.2); }
+    .frame-gold { border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 215, 0, 0.3); height: 250px; }
+    .frame-bronze { border-color: #cd7f32; box-shadow: 0 0 15px rgba(205, 127, 50, 0.2); height: 180px; }
+
+    @media (max-width: 768px) {
+      .podium-wrapper { flex-direction: column; align-items: center; gap: 2rem; }
+      .podium-column, .podium-column.gold-col { width: 100%; transform: none; }
+      .podium-frame { height: 150px !important; }
     }
   </style>
 </head>
@@ -174,7 +178,6 @@
       <button class="settings-close text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
     </div>
     
-    <!-- Time Format Toggle -->
     <div>
       <label class="block text-sm font-semibold text-gray-400 mb-3">Time Format</label>
       <div class="flex gap-2">
@@ -183,7 +186,6 @@
       </div>
     </div>
 
-    <!-- Theme Toggle -->
     <div class="mt-6">
       <label class="block text-sm font-semibold text-gray-400 mb-3">Appearance</label>
       <div class="flex gap-2">
@@ -327,7 +329,7 @@
           </div>
         </section>
 
-        <!-- Top 3 Games Podium -->
+        <!-- Hall of Fame (Podium) -->
         <section class="glass-card rounded-2xl p-6 neon-border animate-fade-in-up delay-3">
           <div class="flex items-center justify-between mb-2">
             <div>
@@ -336,36 +338,41 @@
             </div>
           </div>
 
-          <div class="podium-container">
+          <div class="podium-wrapper">
+            
             <!-- Silver (Left) -->
-            <div class="podium-item podium-silver">
-              <img id="podium-img-2" src="" class="podium-img" alt="2nd Place" />
-              <div class="podium-info">
-                <p class="podium-rank text-gray-300">2nd Place</p>
-                <p id="podium-name-2" class="podium-name">—</p>
-                <p id="podium-hours-2" class="podium-hours">—</p>
+            <div class="podium-column">
+              <div class="podium-header">
+                <img id="podium-img-2" src="" alt="2nd Game" />
+                <span id="podium-name-2" class="name text-gray-300">—</span>
+              </div>
+              <div class="podium-frame frame-silver">
+                <span>Placeholder for 2nd Place</span>
               </div>
             </div>
 
             <!-- Gold (Center) -->
-            <div class="podium-item podium-gold">
-              <img id="podium-img-1" src="" class="podium-img" alt="1st Place" />
-              <div class="podium-info">
-                <p class="podium-rank text-yellow-400">1st Place</p>
-                <p id="podium-name-1" class="podium-name text-lg">—</p>
-                <p id="podium-hours-1" class="podium-hours">—</p>
+            <div class="podium-column gold-col">
+              <div class="podium-header border-yellow-500/50">
+                <img id="podium-img-1" src="" alt="1st Game" />
+                <span id="podium-name-1" class="name text-yellow-400 text-lg">—</span>
+              </div>
+              <div class="podium-frame frame-gold">
+                <span>Placeholder for 1st Place</span>
               </div>
             </div>
 
             <!-- Bronze (Right) -->
-            <div class="podium-item podium-bronze">
-              <img id="podium-img-3" src="" class="podium-img" alt="3rd Place" />
-              <div class="podium-info">
-                <p class="podium-rank text-orange-400">3rd Place</p>
-                <p id="podium-name-3" class="podium-name">—</p>
-                <p id="podium-hours-3" class="podium-hours">—</p>
+            <div class="podium-column">
+              <div class="podium-header">
+                <img id="podium-img-3" src="" alt="3rd Game" />
+                <span id="podium-name-3" class="name text-orange-400">—</span>
+              </div>
+              <div class="podium-frame frame-bronze">
+                <span>Placeholder for 3rd Place</span>
               </div>
             </div>
+
           </div>
         </section>
 
@@ -439,18 +446,14 @@
 
     // --- МАГНИТНЫЕ КНОПКИ ---
     const magneticBtns = document.querySelectorAll('.magnetic-btn');
-    
     magneticBtns.forEach(btn => {
         btn.addEventListener('mousemove', (e) => {
             const rect = btn.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
-            
             const strength = 0.3; 
-            
             btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
         });
-        
         btn.addEventListener('mouseleave', () => {
             btn.style.transform = 'translate(0px, 0px)';
         });
@@ -649,7 +652,6 @@
     if (authLogoutBtn) authLogoutBtn.addEventListener('click', handleSignOut);
     if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
 
-    // Закрытие дропдауна при клике вне его
     document.addEventListener('click', (e) => {
       const container = document.getElementById('auth-btn-container');
       if (container && !container.contains(e.target)) {
@@ -700,10 +702,9 @@
       if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
     }
 
-    // Модалки (Настройки и Никнейм)
+    // Модалки
     const settingsModal = document.getElementById('settings-modal');
     const settingsBackdrop = document.getElementById('settings-modal-backdrop');
-    
     const usernameModal = document.getElementById('username-modal');
     const usernameBackdrop = document.getElementById('username-modal-backdrop');
     const usernameInput = document.getElementById('username-input');
@@ -732,17 +733,14 @@
       usernameBackdrop.classList.add('hidden');
     }
 
-    // Обработчики для Настроек
     document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
     settingsBackdrop.addEventListener('click', closeSettingsModal);
     document.querySelectorAll('.settings-close').forEach(btn => btn.addEventListener('click', closeSettingsModal));
 
-    // Обработчики для Никнейма
     document.getElementById('edit-profile').addEventListener('click', openUsernameModal);
     usernameBackdrop.addEventListener('click', closeUsernameModal);
     document.querySelectorAll('.username-close').forEach(btn => btn.addEventListener('click', closeUsernameModal));
 
-    // Сохранение Никнейма
     document.getElementById('username-save').addEventListener('click', async () => {
       const newName = usernameInput.value.trim();
       if (!newName) return;
@@ -836,21 +834,15 @@
           const rank = i + 1;
           const imgEl = document.getElementById(`podium-img-${rank}`);
           const nameEl = document.getElementById(`podium-name-${rank}`);
-          const hoursEl = document.getElementById(`podium-hours-${rank}`);
 
           if (game) {
               if (nameEl) nameEl.textContent = game.name;
-              if (hoursEl) {
-                  const h = Math.round((game.playtime_forever || 0) / 60);
-                  hoursEl.textContent = `${formatTime(h)} played`;
-              }
               if (imgEl && game.img_icon_url) {
                   imgEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
                   imgEl.style.display = 'block';
               }
           } else {
               if (nameEl) nameEl.textContent = '—';
-              if (hoursEl) hoursEl.textContent = '—';
               if (imgEl) imgEl.style.display = 'none';
           }
       }
