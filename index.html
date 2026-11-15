@@ -69,9 +69,21 @@
   <!-- Username Edit Modal -->
   <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
   <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
-    <h3 class="text-lg font-bold text-white mb-4">Edit Username</h3>
+    <h3 class="text-lg font-bold text-white mb-4">Settings</h3>
+    
+    <label class="block text-sm text-gray-400 mb-1">Username</label>
     <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
-    <div class="flex gap-3">
+    
+    <!-- Time Format Toggle -->
+    <div class="mb-4">
+      <label class="block text-sm text-gray-400 mb-2">Time Format</label>
+      <div class="flex gap-2">
+        <button id="format-hours" class="flex-1 py-2 text-sm font-medium rounded-lg border transition">Hours</button>
+        <button id="format-days" class="flex-1 py-2 text-sm font-medium rounded-lg border transition">Days</button>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
       <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
       <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
     </div>
@@ -283,6 +295,7 @@
     const STORAGE_KEYS = {
       username: 'gt_username',
       screenshot: (index) => `gt_screenshot_${index}`,
+      timeFormat: 'gt_time_format'
     };
 
     // 3. DOM Элементы
@@ -299,6 +312,37 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
+
+    // --- ЛОГИКА СМЕНЫ ФОРМАТА ВРЕМЕНИ ---
+    let currentFormat = localStorage.getItem(STORAGE_KEYS.timeFormat) || 'hours';
+
+    function updateTimeFormatUI() {
+        const btnHours = document.getElementById('format-hours');
+        const btnDays = document.getElementById('format-days');
+        if (!btnHours || !btnDays) return;
+
+        if (currentFormat === 'hours') {
+            btnHours.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-purple-600 border-purple-500 text-white';
+            btnDays.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-white/5 border-white/10 text-gray-400';
+        } else {
+            btnDays.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-purple-600 border-purple-500 text-white';
+            btnHours.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-white/5 border-white/10 text-gray-400';
+        }
+    }
+
+    document.getElementById('format-hours')?.addEventListener('click', () => {
+        currentFormat = 'hours';
+        localStorage.setItem(STORAGE_KEYS.timeFormat, currentFormat);
+        updateTimeFormatUI();
+        if (window.lastSteamData) renderSteamGames(window.lastSteamData);
+    });
+
+    document.getElementById('format-days')?.addEventListener('click', () => {
+        currentFormat = 'days';
+        localStorage.setItem(STORAGE_KEYS.timeFormat, currentFormat);
+        updateTimeFormatUI();
+        if (window.lastSteamData) renderSteamGames(window.lastSteamData);
+    });
 
     // 4. Логика модального окна
     function openAuthModal() {
@@ -543,6 +587,7 @@
 
     function openUsernameModal() {
       usernameInput.value = document.getElementById('welcome-username').textContent;
+      updateTimeFormatUI();
       modal.classList.remove('hidden');
       backdrop.classList.remove('hidden');
       usernameInput.focus();
@@ -579,7 +624,6 @@
     const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
-      // ВОЗВРАЩАЕМ СТАРУЮ СТРУКТУРУ (data.response)
       if (!data || !data.response || !data.response.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
@@ -589,12 +633,20 @@
       const totalGames = games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
+      
+      // Функция форматирования времени
+      const formatTime = (hours) => {
+          if (currentFormat === 'days') {
+              return Math.round(hours / 24) + 'd';
+          }
+          return hours + 'h';
+      };
 
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-      if (totalHoursEl) totalHoursEl.textContent = totalHours + 'h';
+      if (totalHoursEl) totalHoursEl.textContent = formatTime(totalHours);
 
       const hoursCard = document.getElementById('hours-card');
-      if (hoursCard) hoursCard.textContent = totalHours + 'h';
+      if (hoursCard) hoursCard.textContent = formatTime(totalHours);
       
       // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
       if (totalGames > 0) {
@@ -632,7 +684,7 @@
           if (topNameEl) topNameEl.textContent = topGame.name;
           if (topHoursEl) {
               const topHours = Math.round((topGame.playtime_forever || 0) / 60);
-              topHoursEl.textContent = `${topHours}h played`;
+              topHoursEl.textContent = `${formatTime(topHours)} played`;
           }
           if (topIconEl && topGame.img_icon_url) {
               topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`;
@@ -641,20 +693,20 @@
       }
      
       // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
-      let themeColor = '#a855f7'; // Фиолетовый
+      let themeColor = '#a855f7';
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
 
       if (totalHours < 500) {
-          themeColor = '#cd7f32'; // Бронза
+          themeColor = '#cd7f32';
           themeGradient = 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)';
       } else if (totalHours < 1000) {
-          themeColor = '#c0c0c0'; // Серебро
+          themeColor = '#c0c0c0';
           themeGradient = 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)';
       } else if (totalHours < 5000) {
-          themeColor = '#ffd700'; // Золото
+          themeColor = '#ffd700';
           themeGradient = 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)';
       } else {
-          themeColor = '#22d3ee'; // Алмаз
+          themeColor = '#22d3ee';
           themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
@@ -696,7 +748,7 @@
       if (slotsBadge) {
           slotsBadge.style.color = themeColor;
           slotsBadge.style.borderColor = themeColor;
-          slotsBadge.style.backgroundColor = `${themeColor}20`; // 20 - прозрачность
+          slotsBadge.style.backgroundColor = `${themeColor}20`;
       }
 
       // 8. Перекрашиваем рамки скриншотов
@@ -711,6 +763,9 @@
           avatarEl.style.borderColor = themeColor;
           avatarEl.style.boxShadow = `0 0 20px ${themeColor}`;
       }
+
+      // Сохраняем данные для перерисовки при смене формата
+      window.lastSteamData = data;
 
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (gamesTbody) {
@@ -732,7 +787,7 @@
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4"><span class="text-white font-mono text-sm">${hours}h</span></td>
+            <td class="px-6 py-4"><span class="text-white font-mono text-sm">${formatTime(hours)}</span></td>
             <td class="px-6 py-4"><span class="text-white font-mono text-sm">—</span></td>
             <td class="px-6 py-4"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
             <td class="px-6 py-4 text-gray-400 text-sm">—</td>
@@ -836,6 +891,8 @@
               }
             }
         });
+        
+        updateTimeFormatUI();
     })();
 
     // 10. Кнопка Share Profile
