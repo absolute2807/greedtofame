@@ -184,9 +184,9 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button id="share-profile-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
-        <button id="edit-profile" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
-        <button id="settings-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
+        <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
+        <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
+        <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
     </div>
 
@@ -388,6 +388,26 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
+
+    // --- МАГНИТНЫЕ КНОПКИ ---
+    const magneticBtns = document.querySelectorAll('.magnetic-btn');
+    
+    magneticBtns.forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            // Сила притяжения (чем меньше делитель, тем сильнее эффект)
+            const strength = 0.3; 
+            
+            btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translate(0px, 0px)';
+        });
+    });
 
     // --- ТЕМА ---
     let currentTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'dark';
