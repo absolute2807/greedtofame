@@ -66,26 +66,21 @@
     </div>
   </header>
 
-  <!-- Username Edit Modal -->
+  <!-- Username Edit Modal (Settings) -->
   <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
-  <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#111117] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
-    <h3 class="text-lg font-bold text-white mb-4">Settings</h3>
-    
-    <label class="block text-sm text-gray-400 mb-1">Username</label>
-    <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+  <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#0a0a0f] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-lg font-bold text-white">Settings</h3>
+      <button id="username-cancel" class="text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
+    </div>
     
     <!-- Time Format Toggle -->
-    <div class="mb-4">
-      <label class="block text-sm text-gray-400 mb-2">Time Format</label>
+    <div>
+      <label class="block text-sm font-semibold text-gray-400 mb-3">Time Format</label>
       <div class="flex gap-2">
-        <button id="format-hours" class="flex-1 py-2 text-sm font-medium rounded-lg border transition">Hours</button>
-        <button id="format-days" class="flex-1 py-2 text-sm font-medium rounded-lg border transition">Days</button>
+        <button id="format-hours" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Hours</button>
+        <button id="format-days" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Days</button>
       </div>
-    </div>
-
-    <div class="flex gap-3 mt-6">
-      <button id="username-save" class="flex-1 btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">Save</button>
-      <button id="username-cancel" class="px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
     </div>
   </div>
 
@@ -321,12 +316,15 @@
         const btnDays = document.getElementById('format-days');
         if (!btnHours || !btnDays) return;
 
+        const activeClasses = ['bg-transparent', 'border-purple-500', 'text-white'];
+        const inactiveClasses = ['bg-transparent', 'border-white/20', 'text-gray-400'];
+
         if (currentFormat === 'hours') {
-            btnHours.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-purple-600 border-purple-500 text-white';
-            btnDays.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-white/5 border-white/10 text-gray-400';
+            btnHours.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${activeClasses.join(' ')}`;
+            btnDays.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${inactiveClasses.join(' ')}`;
         } else {
-            btnDays.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-purple-600 border-purple-500 text-white';
-            btnHours.className = 'flex-1 py-2 text-sm font-medium rounded-lg border transition bg-white/5 border-white/10 text-gray-400';
+            btnDays.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${activeClasses.join(' ')}`;
+            btnHours.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${inactiveClasses.join(' ')}`;
         }
     }
 
@@ -580,41 +578,26 @@
       });
     });
 
-    // Модалка изменения имени
+    // Модалка настроек
     const modal = document.getElementById('username-modal');
     const backdrop = document.getElementById('username-modal-backdrop');
-    const usernameInput = document.getElementById('username-input');
 
-    function openUsernameModal() {
-      usernameInput.value = document.getElementById('welcome-username').textContent;
+    function openSettingsModal() {
       updateTimeFormatUI();
       modal.classList.remove('hidden');
       backdrop.classList.remove('hidden');
-      usernameInput.focus();
     }
 
-    function closeUsernameModal() {
+    function closeSettingsModal() {
       modal.classList.add('hidden');
       backdrop.classList.add('hidden');
     }
 
-    document.getElementById('edit-profile').addEventListener('click', openUsernameModal);
-    document.getElementById('settings-btn').addEventListener('click', openUsernameModal);
-    backdrop.addEventListener('click', closeUsernameModal);
-    document.getElementById('username-cancel').addEventListener('click', closeUsernameModal);
-
-    document.getElementById('username-save').addEventListener('click', async () => {
-      const newName = usernameInput.value.trim();
-      if (!newName) return;
-      localStorage.setItem(STORAGE_KEYS.username, newName);
-      applyUsername(newName);
-      closeUsernameModal();
-      
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        await supabaseClient.from('profiles').upsert({ id: session.user.id, username: newName });
-      }
-    });
+    // Обе кнопки открывают эту модалку
+    document.getElementById('edit-profile').addEventListener('click', openSettingsModal);
+    document.getElementById('settings-btn').addEventListener('click', openSettingsModal);
+    backdrop.addEventListener('click', closeSettingsModal);
+    document.getElementById('username-cancel').addEventListener('click', closeSettingsModal);
 
     // 8. Steam логика
     const steamAutoLoadEl = document.getElementById('steam-auto-load');
@@ -634,7 +617,6 @@
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
       
-      // Функция форматирования времени
       const formatTime = (hours) => {
           if (currentFormat === 'days') {
               return Math.round(hours / 24) + 'd';
@@ -648,7 +630,6 @@
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) hoursCard.textContent = formatTime(totalHours);
       
-      // --- ЛОГИКА ДЛЯ БЛОКА PLAYSTYLE ---
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames;
           let playstyleLabel = '—';
@@ -672,7 +653,6 @@
           if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
 
-      // --- ЛОГИКА ДЛЯ ТОП-1 ИГРЫ ---
       if (games && games.length > 0) {
           const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
           const topGame = sortedGames[0];
@@ -692,7 +672,6 @@
           }
       }
      
-      // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
       let themeColor = '#a855f7';
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
 
@@ -710,40 +689,33 @@
           themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
-      // 1. Перекрашиваем ВСЕ кнопки с градиентом
       const allBtns = document.querySelectorAll('.btn-gradient, .bg-purple-600');
       allBtns.forEach(btn => btn.style.background = themeGradient);
 
-      // 2. Перекрашиваем никнейм и другие фиолетовые тексты
       const textElements = document.querySelectorAll('.text-purple-400');
       textElements.forEach(el => el.style.color = themeColor);
 
-      // 3. Перекрашиваем цифру часов
       if (hoursCard) {
           hoursCard.style.background = `linear-gradient(to right, #ffffff, ${themeColor})`;
           hoursCard.style.webkitBackgroundClip = 'text';
           hoursCard.style.webkitTextFillColor = 'transparent';
       }
 
-      // 4. Перекрашиваем рамки и свечения у всех карточек
       const allCards = document.querySelectorAll('.glass-card');
       allCards.forEach(card => {
           card.style.boxShadow = `0 0 15px ${themeColor}40`; 
           card.style.borderColor = themeColor;
       });
 
-      // 5. Перекрашиваем полоску загрузки часов
       const statHoursBar = document.getElementById('stat-hours-bar');
       if (statHoursBar) {
           statHoursBar.style.background = themeGradient;
           statHoursBar.style.boxShadow = `0 0 10px ${themeColor}`;
       }
 
-      // 6. Перекрашиваем текст Total hours
       const totalHoursEl2 = document.getElementById('stat-total-hours');
       if (totalHoursEl2) totalHoursEl2.style.color = themeColor;
 
-      // 7. Перекрашиваем бейдж "3/3 slots"
       const slotsBadge = document.getElementById('slots-badge');
       if (slotsBadge) {
           slotsBadge.style.color = themeColor;
@@ -751,20 +723,17 @@
           slotsBadge.style.backgroundColor = `${themeColor}20`;
       }
 
-      // 8. Перекрашиваем рамки скриншотов
       const gallerySlots = document.querySelectorAll('.gallery-placeholder');
       gallerySlots.forEach(slot => {
           slot.style.borderColor = themeColor;
       });
 
-      // 9. Перекрашиваем рамку и свечение аватарки
       const avatarEl = document.getElementById('profile-avatar');
       if (avatarEl) {
           avatarEl.style.borderColor = themeColor;
           avatarEl.style.boxShadow = `0 0 20px ${themeColor}`;
       }
 
-      // Сохраняем данные для перерисовки при смене формата
       window.lastSteamData = data;
 
       const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
@@ -872,7 +841,6 @@
         const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
         if (savedUsername) {
             applyUsername(savedUsername);
-            usernameInput.value = savedUsername;
         }
 
         slots.forEach((slot, index) => {
