@@ -20,18 +20,9 @@
     body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #e2e8f0; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
     
     /* --- СВЕТЛАЯ ТЕМА --- */
-    body.light-theme {
-      background-color: #f3f4f6;
-      color: #1f2937;
-    }
-    body.light-theme .glass-card {
-      background: #ffffff;
-      border-color: rgba(0, 0, 0, 0.08);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-    body.light-theme .glass-card:hover {
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
+    body.light-theme { background-color: #f3f4f6; color: #1f2937; }
+    body.light-theme .glass-card { background: #ffffff; border-color: rgba(0, 0, 0, 0.08); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+    body.light-theme .glass-card:hover { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
     body.light-theme .text-white, body.light-theme .text-gray-300 { color: #111827 !important; }
     body.light-theme .text-gray-400, body.light-theme .text-gray-500 { color: #4b5563 !important; }
     body.light-theme .border-white\/5, body.light-theme .border-white\/10 { border-color: rgba(0, 0, 0, 0.1) !important; }
@@ -42,6 +33,7 @@
     body.light-theme .gallery-placeholder { background: #e5e7eb; border-color: rgba(0,0,0,0.2); }
     body.light-theme .gallery-placeholder:hover { background: #d1d5db; }
     body.light-theme #username-modal, body.light-theme #settings-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); }
+    body.light-theme .header-bg { background-color: rgba(243, 244, 246, 0.8) !important; }
 
     .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
     .neon-border { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 0 20px rgba(168, 85, 247, 0.15); }
@@ -49,7 +41,6 @@
     .btn-gradient:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); }
     .btn-gradient:active { transform: translateY(1px); }
     .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); transition: all 0.3s ease; }
-    
     .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.4); }
 
     .gallery-placeholder { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px dashed rgba(168, 85, 247, 0.35); transition: all 0.25s ease; position: relative; overflow: hidden; }
@@ -74,10 +65,7 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .animate-fade-in-up {
-      animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      opacity: 0;
-    }
+    .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
@@ -87,9 +75,11 @@
     @media (max-width: 768px) {
       .mobile-table thead { display: none; }
       .mobile-table tr { display: block; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; background: rgba(255,255,255,0.02); padding: 1rem; }
+      body.light-theme .mobile-table tr { border-color: rgba(0,0,0,0.1); background: rgba(0,0,0,0.02); }
       .mobile-table td { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border: none; text-align: right; }
       .mobile-table td::before { content: attr(data-label); font-weight: 600; color: #9ca3af; font-size: 0.875rem; text-align: left; margin-right: 1rem; }
       .mobile-table td:first-child { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 0.5rem; }
+      body.light-theme .mobile-table td:first-child { border-color: rgba(0,0,0,0.1); }
       .mobile-table td:first-child::before { display: none; }
       .mobile-table td:first-child { justify-content: flex-start; text-align: left; }
     }
@@ -98,7 +88,7 @@
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
+  <header class="sticky top-0 z-30 border-b border-white/5 header-bg bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.6)]">
@@ -332,8 +322,21 @@
 
         <!-- Games List -->
         <section class="glass-card rounded-2xl p-6 neon-border animate-fade-in-up delay-4">
-          <h3 class="text-xl font-bold text-white mb-6">Your Games</h3>
-          <div class="overflow-hidden rounded-xl border border-white/5">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-white">Your Games</h3>
+            <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
+              <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+            </button>
+          </div>
+          
+          <div id="library-hidden-placeholder" class="hidden py-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            <p class="text-gray-400 text-lg">Library is hidden for privacy.</p>
+            <p class="text-gray-500 text-sm mt-1">Click the eye icon to reveal.</p>
+          </div>
+
+          <div id="table-container" class="overflow-hidden rounded-xl border border-white/5">
             <table class="w-full text-left mobile-table">
               <thead>
                 <tr class="border-b border-white/5 bg-white/3">
@@ -367,7 +370,8 @@
       username: 'gt_username',
       screenshot: (index) => `gt_screenshot_${index}`,
       timeFormat: 'gt_time_format',
-      theme: 'gt_theme'
+      theme: 'gt_theme',
+      libraryHidden: 'gt_library_hidden'
     };
 
     // 3. DOM Элементы
@@ -391,8 +395,6 @@
     function applyTheme() {
         const btnDark = document.getElementById('theme-dark');
         const btnLight = document.getElementById('theme-light');
-        
-        // Сброс классов
         if (!btnDark || !btnLight) return;
         
         const activeClasses = ['bg-transparent', 'border-purple-500', 'text-white'];
@@ -455,6 +457,36 @@
         localStorage.setItem(STORAGE_KEYS.timeFormat, currentFormat);
         updateTimeFormatUI();
         if (window.lastSteamData) renderSteamGames(window.lastSteamData);
+    });
+
+    // --- СКРЫТЬ/ПОКАЗАТЬ БИБЛИОТЕКУ ---
+    let isLibraryHidden = localStorage.getItem(STORAGE_KEYS.libraryHidden) === 'true';
+
+    function updateLibraryVisibility() {
+        const tableContainer = document.getElementById('table-container');
+        const hiddenPlaceholder = document.getElementById('library-hidden-placeholder');
+        const iconOpen = document.getElementById('icon-eye-open');
+        const iconClosed = document.getElementById('icon-eye-closed');
+        
+        if (!tableContainer || !hiddenPlaceholder) return;
+        
+        if (isLibraryHidden) {
+            tableContainer.classList.add('hidden');
+            hiddenPlaceholder.classList.remove('hidden');
+            iconOpen.classList.add('hidden');
+            iconClosed.classList.remove('hidden');
+        } else {
+            tableContainer.classList.remove('hidden');
+            hiddenPlaceholder.classList.add('hidden');
+            iconOpen.classList.remove('hidden');
+            iconClosed.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('toggle-library')?.addEventListener('click', () => {
+        isLibraryHidden = !isLibraryHidden;
+        localStorage.setItem(STORAGE_KEYS.libraryHidden, isLibraryHidden);
+        updateLibraryVisibility();
     });
 
     // 4. Логика модального окна авторизации
@@ -822,21 +854,20 @@
           }
       }
      
-      // --- ЦВЕТА В ЗАВИСИМОСТИ ОТ ТЕМЫ ---
       let themeColor = '#a855f7';
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
 
       if (totalHours < 500) {
-          themeColor = currentTheme === 'light' ? '#92400e' : '#cd7f32'; // Темная бронза для светлой темы
+          themeColor = currentTheme === 'light' ? '#92400e' : '#cd7f32';
           themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #92400e 0%, #78350f 100%)' : 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)';
       } else if (totalHours < 1000) {
-          themeColor = currentTheme === 'light' ? '#4b5563' : '#c0c0c0'; // Темное серебро для светлой темы
+          themeColor = currentTheme === 'light' ? '#4b5563' : '#c0c0c0';
           themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #4b5563 0%, #1f2937 100%)' : 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)';
       } else if (totalHours < 5000) {
-          themeColor = currentTheme === 'light' ? '#b45309' : '#ffd700'; // Темное золото
+          themeColor = currentTheme === 'light' ? '#b45309' : '#ffd700';
           themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #b45309 0%, #78350f 100%)' : 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)';
       } else {
-          themeColor = currentTheme === 'light' ? '#0891b2' : '#22d3ee'; // Темный алмаз
+          themeColor = currentTheme === 'light' ? '#0891b2' : '#22d3ee';
           themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #0891b2 0%, #164e63 100%)' : 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
@@ -1013,6 +1044,7 @@
         
         updateTimeFormatUI();
         applyTheme();
+        updateLibraryVisibility();
     })();
 
     // 10. Кнопка Share Profile
