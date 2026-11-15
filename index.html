@@ -579,13 +579,14 @@
     const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
-      if (!data || !data.response || !data.response.games) {
+      // Новая структура: data.games и data.player
+      if (!data || !data.games || !data.games.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
         return;
       }
 
-      const games = data.response.games;
-      const totalGames = games.length;
+      const games = data.games.games;
+      const totalGames = data.games.game_count || games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
 
@@ -637,6 +638,12 @@
               topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`;
               topIconEl.classList.remove('hidden');
           }
+      }
+
+      // --- АВАТАРКА ИЗ STEAM ---
+      if (data.player && data.player.avatarfull) {
+          const profileAvatar = document.getElementById('profile-avatar');
+          if (profileAvatar) profileAvatar.src = data.player.avatarfull;
       }
      
       // --- МАГИЯ ПЕРЕКРАСКИ ИНТЕРФЕЙСА ---
@@ -773,12 +780,6 @@
 
         if (!error && data) {
           renderSteamGames(data);
-          // Пытаемся получить аватарку из Steam (если она есть в ответе)
-          if (data.response && data.response.players && data.response.players.length > 0) {
-              const steamAvatar = data.response.players[0].avatarfull;
-              const profileAvatar = document.getElementById('profile-avatar');
-              if (profileAvatar) profileAvatar.src = steamAvatar;
-          }
         }
       } catch (e) {
         console.error('Failed to auto-load Steam games:', e);
