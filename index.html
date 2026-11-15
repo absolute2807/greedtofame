@@ -17,15 +17,39 @@
       --bg-dark: #0a0a0f;
       --card-bg: #111117;
     }
-    body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #e2e8f0; overflow-x: hidden; }
+    body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #e2e8f0; overflow-x: hidden; transition: background-color 0.3s ease, color 0.3s ease; }
+    
+    /* --- СВЕТЛАЯ ТЕМА --- */
+    body.light-theme {
+      background-color: #f3f4f6;
+      color: #1f2937;
+    }
+    body.light-theme .glass-card {
+      background: #ffffff;
+      border-color: rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    body.light-theme .glass-card:hover {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    body.light-theme .text-white, body.light-theme .text-gray-300 { color: #111827 !important; }
+    body.light-theme .text-gray-400, body.light-theme .text-gray-500 { color: #4b5563 !important; }
+    body.light-theme .border-white\/5, body.light-theme .border-white\/10 { border-color: rgba(0, 0, 0, 0.1) !important; }
+    body.light-theme .bg-white\/5 { background-color: rgba(0, 0, 0, 0.03) !important; }
+    body.light-theme #auth-dropdown { background: #ffffff; border-color: rgba(0,0,0,0.1); }
+    body.light-theme #auth-dropdown button { color: #4b5563; }
+    body.light-theme #auth-dropdown button:hover { background: rgba(0,0,0,0.05); color: #000000; }
+    body.light-theme .gallery-placeholder { background: #e5e7eb; border-color: rgba(0,0,0,0.2); }
+    body.light-theme .gallery-placeholder:hover { background: #d1d5db; }
+    body.light-theme #username-modal, body.light-theme #settings-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); }
+
     .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
     .neon-border { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 0 20px rgba(168, 85, 247, 0.15); }
     .btn-gradient { background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%); }
     .btn-gradient:hover { filter: brightness(1.1); box-shadow: 0 0 20px rgba(168, 85, 247, 0.45); }
     .btn-gradient:active { transform: translateY(1px); }
-    .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); transition: border-color 0.5s ease, box-shadow 0.5s ease, transform 0.3s ease; }
+    .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); transition: all 0.3s ease; }
     
-    /* Hover effect for cards */
     .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.4); }
 
     .gallery-placeholder { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px dashed rgba(168, 85, 247, 0.35); transition: all 0.25s ease; position: relative; overflow: hidden; }
@@ -74,7 +98,7 @@
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
   <!-- Header -->
-  <header class="sticky top-0 z-30 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md">
+  <header class="sticky top-0 z-30 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.6)]">
@@ -111,6 +135,15 @@
         <button id="format-days" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Days</button>
       </div>
     </div>
+
+    <!-- Theme Toggle -->
+    <div class="mt-6">
+      <label class="block text-sm font-semibold text-gray-400 mb-3">Appearance</label>
+      <div class="flex gap-2">
+        <button id="theme-dark" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Dark</button>
+        <button id="theme-light" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Light</button>
+      </div>
+    </div>
   </div>
 
   <!-- Edit Username Modal -->
@@ -122,7 +155,6 @@
     </div>
     <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
     <div class="flex gap-3">
-      <!-- Кнопка Save теперь черная с обводкой -->
       <button id="username-save" class="flex-1 py-3 text-sm font-bold rounded-lg border transition bg-transparent border-white/20 text-white hover:bg-white/5">Save</button>
       <button class="username-close flex-1 px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
     </div>
@@ -162,7 +194,6 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <!-- Добавлен класс btn-gradient всем трем кнопкам -->
         <button id="share-profile-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
@@ -335,7 +366,8 @@
     const STORAGE_KEYS = {
       username: 'gt_username',
       screenshot: (index) => `gt_screenshot_${index}`,
-      timeFormat: 'gt_time_format'
+      timeFormat: 'gt_time_format',
+      theme: 'gt_theme'
     };
 
     // 3. DOM Элементы
@@ -352,6 +384,44 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
+
+    // --- ТЕМА ---
+    let currentTheme = localStorage.getItem(STORAGE_KEYS.theme) || 'dark';
+
+    function applyTheme() {
+        const btnDark = document.getElementById('theme-dark');
+        const btnLight = document.getElementById('theme-light');
+        
+        // Сброс классов
+        if (!btnDark || !btnLight) return;
+        
+        const activeClasses = ['bg-transparent', 'border-purple-500', 'text-white'];
+        const inactiveClasses = ['bg-transparent', 'border-white/20', 'text-gray-400'];
+
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-theme');
+            btnLight.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${activeClasses.join(' ')}`;
+            btnDark.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${inactiveClasses.join(' ')}`;
+        } else {
+            document.body.classList.remove('light-theme');
+            btnDark.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${activeClasses.join(' ')}`;
+            btnLight.className = `flex-1 py-3 text-sm font-bold rounded-lg border transition ${inactiveClasses.join(' ')}`;
+        }
+    }
+
+    document.getElementById('theme-dark')?.addEventListener('click', () => {
+        currentTheme = 'dark';
+        localStorage.setItem(STORAGE_KEYS.theme, currentTheme);
+        applyTheme();
+        if (window.lastSteamData) renderSteamGames(window.lastSteamData);
+    });
+
+    document.getElementById('theme-light')?.addEventListener('click', () => {
+        currentTheme = 'light';
+        localStorage.setItem(STORAGE_KEYS.theme, currentTheme);
+        applyTheme();
+        if (window.lastSteamData) renderSteamGames(window.lastSteamData);
+    });
 
     // --- ЛОГИКА СМЕНЫ ФОРМАТА ВРЕМЕНИ ---
     let currentFormat = localStorage.getItem(STORAGE_KEYS.timeFormat) || 'hours';
@@ -633,6 +703,7 @@
 
     function openSettingsModal() {
       updateTimeFormatUI();
+      applyTheme();
       settingsModal.classList.remove('hidden');
       settingsBackdrop.classList.remove('hidden');
     }
@@ -751,21 +822,22 @@
           }
       }
      
+      // --- ЦВЕТА В ЗАВИСИМОСТИ ОТ ТЕМЫ ---
       let themeColor = '#a855f7';
       let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
 
       if (totalHours < 500) {
-          themeColor = '#cd7f32';
-          themeGradient = 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)';
+          themeColor = currentTheme === 'light' ? '#92400e' : '#cd7f32'; // Темная бронза для светлой темы
+          themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #92400e 0%, #78350f 100%)' : 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)';
       } else if (totalHours < 1000) {
-          themeColor = '#c0c0c0';
-          themeGradient = 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)';
+          themeColor = currentTheme === 'light' ? '#4b5563' : '#c0c0c0'; // Темное серебро для светлой темы
+          themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #4b5563 0%, #1f2937 100%)' : 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)';
       } else if (totalHours < 5000) {
-          themeColor = '#ffd700';
-          themeGradient = 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)';
+          themeColor = currentTheme === 'light' ? '#b45309' : '#ffd700'; // Темное золото
+          themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #b45309 0%, #78350f 100%)' : 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)';
       } else {
-          themeColor = '#22d3ee';
-          themeGradient = 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
+          themeColor = currentTheme === 'light' ? '#0891b2' : '#22d3ee'; // Темный алмаз
+          themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #0891b2 0%, #164e63 100%)' : 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)';
       }
 
       const allBtns = document.querySelectorAll('.btn-gradient, .bg-purple-600');
@@ -775,21 +847,21 @@
       textElements.forEach(el => el.style.color = themeColor);
 
       if (hoursCard) {
-          hoursCard.style.background = `linear-gradient(to right, #ffffff, ${themeColor})`;
+          hoursCard.style.background = currentTheme === 'light' ? themeColor : `linear-gradient(to right, #ffffff, ${themeColor})`;
           hoursCard.style.webkitBackgroundClip = 'text';
           hoursCard.style.webkitTextFillColor = 'transparent';
       }
 
       const allCards = document.querySelectorAll('.glass-card');
       allCards.forEach(card => {
-          card.style.boxShadow = `0 0 15px ${themeColor}40`; 
-          card.style.borderColor = themeColor;
+          card.style.boxShadow = currentTheme === 'light' ? '0 4px 6px rgba(0,0,0,0.05)' : `0 0 15px ${themeColor}40`; 
+          card.style.borderColor = currentTheme === 'light' ? 'rgba(0,0,0,0.1)' : themeColor;
       });
 
       const statHoursBar = document.getElementById('stat-hours-bar');
       if (statHoursBar) {
           statHoursBar.style.background = themeGradient;
-          statHoursBar.style.boxShadow = `0 0 10px ${themeColor}`;
+          statHoursBar.style.boxShadow = currentTheme === 'light' ? 'none' : `0 0 10px ${themeColor}`;
       }
 
       const totalHoursEl2 = document.getElementById('stat-total-hours');
@@ -799,18 +871,18 @@
       if (slotsBadge) {
           slotsBadge.style.color = themeColor;
           slotsBadge.style.borderColor = themeColor;
-          slotsBadge.style.backgroundColor = `${themeColor}20`;
+          slotsBadge.style.backgroundColor = currentTheme === 'light' ? 'transparent' : `${themeColor}20`;
       }
 
       const gallerySlots = document.querySelectorAll('.gallery-placeholder');
       gallerySlots.forEach(slot => {
-          slot.style.borderColor = themeColor;
+          slot.style.borderColor = currentTheme === 'light' ? 'rgba(0,0,0,0.2)' : themeColor;
       });
 
       const avatarEl = document.getElementById('profile-avatar');
       if (avatarEl) {
           avatarEl.style.borderColor = themeColor;
-          avatarEl.style.boxShadow = `0 0 20px ${themeColor}`;
+          avatarEl.style.boxShadow = currentTheme === 'light' ? 'none' : `0 0 20px ${themeColor}`;
       }
 
       window.lastSteamData = data;
@@ -940,6 +1012,7 @@
         });
         
         updateTimeFormatUI();
+        applyTheme();
     })();
 
     // 10. Кнопка Share Profile
