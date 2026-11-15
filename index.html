@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/png" href="favicon.png" />
   <title>GreedToFame | Gaming Profile Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -31,9 +30,6 @@
     body.light-theme #auth-dropdown { background: #ffffff; border-color: rgba(0,0,0,0.1); }
     body.light-theme #auth-dropdown button { color: #4b5563; }
     body.light-theme #auth-dropdown button:hover { background: rgba(0,0,0,0.05); color: #000000; }
-    body.light-theme .gallery-placeholder { background: #e5e7eb; border-color: rgba(0,0,0,0.2); }
-    body.light-theme .gallery-placeholder:hover { background: #d1d5db; }
-    body.light-theme #username-modal, body.light-theme #settings-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); }
     body.light-theme .header-bg { background-color: rgba(243, 244, 246, 0.8) !important; }
 
     .neon-text { text-shadow: 0 0 10px rgba(168, 85, 247, 0.55), 0 0 20px rgba(168, 85, 247, 0.3); }
@@ -44,13 +40,6 @@
     .glass-card { background: linear-gradient(145deg, #171722 0%, #111117 100%); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); transition: all 0.3s ease; }
     .glass-card:hover { transform: translateY(-4px); box-shadow: 0 10px 30px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.4); }
 
-    .gallery-placeholder { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border: 2px dashed rgba(168, 85, 247, 0.35); transition: all 0.25s ease; position: relative; overflow: hidden; }
-    .gallery-placeholder:hover { border-color: var(--neon-purple); background: linear-gradient(135deg, #161e35 0%, #221335 100%); box-shadow: 0 0 25px rgba(168, 85, 247, 0.25); }
-    .gallery-placeholder.has-image { border-style: solid; border-color: var(--neon-cyan); background: #0f172a; }
-    .remove-btn { width: 26px; height: 26px; min-width: 26px; min-height: 26px; border-radius: 50%; border: none; background: rgba(0, 0, 0, 0.7); color: #ffffff; font-size: 18px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.4); }
-    .remove-btn:hover { background: rgba(168, 85, 247, 0.9); box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.9), 0 2px 8px rgba(168, 85, 247, 0.4); }
-    .remove-btn:active { transform: scale(0.92); }
-    input[type="file"] { display: none; }
     .stat-number { background: linear-gradient(to right, #e0e7ff, #818cf8, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .rank-badge { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #d8b4fe; }
     ::-webkit-scrollbar { width: 8px; }
@@ -62,10 +51,7 @@
     #auth-dropdown button:hover { background: rgba(255, 255, 255, 0.05); color: #ffffff; }
 
     /* --- АНИМАЦИИ ПОЯВЛЕНИЯ --- */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
@@ -83,6 +69,76 @@
       body.light-theme .mobile-table td:first-child { border-color: rgba(0,0,0,0.1); }
       .mobile-table td:first-child::before { display: none; }
       .mobile-table td:first-child { justify-content: flex-start; text-align: left; }
+      
+      /* Мобильный подиум */
+      .podium-container { flex-direction: column; gap: 1rem; }
+      .podium-item { width: 100% !important; height: 200px !important; }
+    }
+
+    /* --- СТИЛИ ДЛЯ ПОДИУМА --- */
+    .podium-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .podium-item {
+      position: relative;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.03);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    /* Серебро (Слева) */
+    .podium-silver { width: 30%; height: 240px; border-color: #c0c0c0; box-shadow: 0 0 20px rgba(192, 192, 192, 0.2); }
+    .podium-silver:hover { transform: translateY(-10px); box-shadow: 0 0 30px rgba(192, 192, 192, 0.4); }
+    
+    /* Золото (Центр) */
+    .podium-gold { width: 40%; height: 320px; border-color: #ffd700; box-shadow: 0 0 30px rgba(255, 215, 0, 0.3); z-index: 10; }
+    .podium-gold:hover { transform: translateY(-10px); box-shadow: 0 0 40px rgba(255, 215, 0, 0.5); }
+    
+    /* Бронза (Справа) */
+    .podium-bronze { width: 30%; height: 200px; border-color: #cd7f32; box-shadow: 0 0 20px rgba(205, 127, 50, 0.2); }
+    .podium-bronze:hover { transform: translateY(-10px); box-shadow: 0 0 30px rgba(205, 127, 50, 0.4); }
+
+    .podium-img {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.6;
+      z-index: 1;
+    }
+    .podium-info {
+      position: relative;
+      z-index: 2;
+      padding: 1rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+      text-align: center;
+    }
+    .podium-rank {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+    .podium-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .podium-hours {
+      font-size: 0.75rem;
+      color: #9ca3af;
     }
   </style>
 </head>
@@ -271,54 +327,46 @@
           </div>
         </section>
 
-        <!-- Photo Gallery -->
+        <!-- Top 3 Games Podium -->
         <section class="glass-card rounded-2xl p-6 neon-border animate-fade-in-up delay-3">
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-2">
             <div>
-              <h3 class="text-xl font-bold text-white">Game Screenshots</h3>
-              <p class="text-sm text-gray-400">Upload exactly 3 screenshots from your recent matches.</p>
+              <h3 class="text-xl font-bold text-white">Hall of Fame</h3>
+              <p class="text-sm text-gray-400">Your top 3 most played games.</p>
             </div>
-            <span id="slots-badge" class="text-xs font-semibold px-3 py-1 rounded-full border transition-colors duration-500">3 / 3 slots</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="gallery-grid">
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-1">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-1">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
+          <div class="podium-container">
+            <!-- Silver (Left) -->
+            <div class="podium-item podium-silver">
+              <img id="podium-img-2" src="" class="podium-img" alt="2nd Place" />
+              <div class="podium-info">
+                <p class="podium-rank text-gray-300">2nd Place</p>
+                <p id="podium-name-2" class="podium-name">—</p>
+                <p id="podium-hours-2" class="podium-hours">—</p>
               </div>
-              <img id="preview-1" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-1" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-1" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
+            </div>
 
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-2">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-2">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
+            <!-- Gold (Center) -->
+            <div class="podium-item podium-gold">
+              <img id="podium-img-1" src="" class="podium-img" alt="1st Place" />
+              <div class="podium-info">
+                <p class="podium-rank text-yellow-400">1st Place</p>
+                <p id="podium-name-1" class="podium-name text-lg">—</p>
+                <p id="podium-hours-1" class="podium-hours">—</p>
               </div>
-              <img id="preview-2" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-2" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-2" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
+            </div>
 
-            <label class="gallery-placeholder aspect-video rounded-xl cursor-pointer relative group flex items-center justify-center transition-colors duration-500" for="upload-3">
-              <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/40 backdrop-blur-sm" id="overlay-3">
-                <div class="flex flex-col items-center">
-                  <svg class="w-8 h-8 text-white mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span class="text-sm font-medium text-white">Add screenshot</span>
-                </div>
+            <!-- Bronze (Right) -->
+            <div class="podium-item podium-bronze">
+              <img id="podium-img-3" src="" class="podium-img" alt="3rd Place" />
+              <div class="podium-info">
+                <p class="podium-rank text-orange-400">3rd Place</p>
+                <p id="podium-name-3" class="podium-name">—</p>
+                <p id="podium-hours-3" class="podium-hours">—</p>
               </div>
-              <img id="preview-3" class="hidden w-full h-full object-cover rounded-xl" alt="Screenshot" />
-              <button type="button" class="remove-btn top-2 right-2 z-10 hidden" id="remove-3" aria-label="Remove screenshot">&times;</button>
-              <input type="file" id="upload-3" accept="image/jpeg, image/png, .jpg, .jpeg, .png" />
-            </label>
+            </div>
           </div>
-          <p id="gallery-hint" class="mt-4 text-xs text-gray-500 text-center">Select up to 3 images (JPG/PNG, max 5MB each).</p>
         </section>
 
         <!-- Games List -->
@@ -369,7 +417,6 @@
     // 2. Ключи LocalStorage
     const STORAGE_KEYS = {
       username: 'gt_username',
-      screenshot: (index) => `gt_screenshot_${index}`,
       timeFormat: 'gt_time_format',
       theme: 'gt_theme',
       libraryHidden: 'gt_library_hidden'
@@ -399,7 +446,6 @@
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
             
-            // Сила притяжения (чем меньше делитель, тем сильнее эффект)
             const strength = 0.3; 
             
             btn.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
@@ -628,23 +674,6 @@
 
           if (profile && !error) {
              if (profile.username) applyUsername(profile.username);
-             
-             ['screenshot_1', 'screenshot_2', 'screenshot_3'].forEach((col, index) => {
-              if (profile[col]) {
-                const slot = slots[index];
-                if(slot) {
-                    const previewEl = document.getElementById(slot.preview);
-                    const overlayEl = document.getElementById(slot.overlay);
-                    const removeEl = document.getElementById(slot.remove);
-                    if(previewEl && overlayEl && removeEl) {
-                        previewEl.src = profile[col];
-                        previewEl.classList.remove('hidden');
-                        overlayEl.classList.add('hidden');
-                        removeEl.classList.remove('hidden');
-                    }
-                }
-              }
-            });
           } else if (error && error.code === 'PGRST116') {
              await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
           }
@@ -661,7 +690,7 @@
       }
     });
 
-    // 7. Вспомогательные функции (Username, Gallery)
+    // 7. Вспомогательные функции
     function applyUsername(name) {
       const welcomeEl = document.getElementById('welcome-username');
       const profileNameEl = document.getElementById('profile-username');
@@ -670,81 +699,6 @@
       if (profileNameEl) profileNameEl.textContent = name;
       if (avatarEl) avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
     }
-
-    const slots = [
-      { input: 'upload-1', preview: 'preview-1', overlay: 'overlay-1', remove: 'remove-1' },
-      { input: 'upload-2', preview: 'preview-2', overlay: 'overlay-2', remove: 'remove-2' },
-      { input: 'upload-3', preview: 'preview-3', overlay: 'overlay-3', remove: 'remove-3' },
-    ];
-
-    // Логика галереи
-    slots.forEach((slot, index) => {
-      const inputEl = document.getElementById(slot.input);
-      const previewEl = document.getElementById(slot.preview);
-      const overlayEl = document.getElementById(slot.overlay);
-      const removeEl = document.getElementById(slot.remove);
-      const labelEl = inputEl.parentElement;
-
-      inputEl.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const isJpgOrPng = /\.(jpe?g|png)$/i.test(file.name);
-        const isImageType = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng || !isImageType) {
-          alert('Please select a JPG or PNG image only.');
-          inputEl.value = '';
-          return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          alert('File too large (max 5MB).');
-          inputEl.value = '';
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (evt) => {
-          const dataUrl = evt.target.result;
-          previewEl.src = dataUrl;
-          previewEl.classList.remove('hidden');
-          overlayEl.classList.add('hidden');
-          removeEl.classList.remove('hidden');
-          labelEl.classList.add('has-image');
-          
-          localStorage.setItem(STORAGE_KEYS.screenshot(index), dataUrl);
-          
-          const { data: { session } } = await supabaseClient.auth.getSession();
-          if (session) {
-            await supabaseClient.from('profiles').upsert({
-              id: session.user.id,
-              [`screenshot_${index + 1}`]: dataUrl,
-            });
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-
-      removeEl.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        previewEl.src = '';
-        previewEl.classList.add('hidden');
-        overlayEl.classList.remove('hidden');
-        removeEl.classList.add('hidden');
-        labelEl.classList.remove('has-image');
-        inputEl.value = '';
-
-        localStorage.removeItem(STORAGE_KEYS.screenshot(index));
-
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        if (session) {
-          await supabaseClient.from('profiles').upsert({
-            id: session.user.id,
-            [`screenshot_${index + 1}`]: null,
-          });
-        }
-      });
-    });
 
     // Модалки (Настройки и Никнейм)
     const settingsModal = document.getElementById('settings-modal');
@@ -856,10 +810,11 @@
           if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
 
-      if (games && games.length > 0) {
-          const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+      // Топ-1 игра в карточке
+      const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+      
+      if (sortedGames.length > 0) {
           const topGame = sortedGames[0];
-          
           const topNameEl = document.getElementById('top-game-name');
           const topHoursEl = document.getElementById('top-game-hours');
           const topIconEl = document.getElementById('top-game-icon');
@@ -872,6 +827,31 @@
           if (topIconEl && topGame.img_icon_url) {
               topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`;
               topIconEl.classList.remove('hidden');
+          }
+      }
+
+      // --- ЛОГИКА ДЛЯ ПОДИУМА (ТОП-3) ---
+      for (let i = 0; i < 3; i++) {
+          const game = sortedGames[i];
+          const rank = i + 1;
+          const imgEl = document.getElementById(`podium-img-${rank}`);
+          const nameEl = document.getElementById(`podium-name-${rank}`);
+          const hoursEl = document.getElementById(`podium-hours-${rank}`);
+
+          if (game) {
+              if (nameEl) nameEl.textContent = game.name;
+              if (hoursEl) {
+                  const h = Math.round((game.playtime_forever || 0) / 60);
+                  hoursEl.textContent = `${formatTime(h)} played`;
+              }
+              if (imgEl && game.img_icon_url) {
+                  imgEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
+                  imgEl.style.display = 'block';
+              }
+          } else {
+              if (nameEl) nameEl.textContent = '—';
+              if (hoursEl) hoursEl.textContent = '—';
+              if (imgEl) imgEl.style.display = 'none';
           }
       }
      
@@ -919,18 +899,6 @@
       const totalHoursEl2 = document.getElementById('stat-total-hours');
       if (totalHoursEl2) totalHoursEl2.style.color = themeColor;
 
-      const slotsBadge = document.getElementById('slots-badge');
-      if (slotsBadge) {
-          slotsBadge.style.color = themeColor;
-          slotsBadge.style.borderColor = themeColor;
-          slotsBadge.style.backgroundColor = currentTheme === 'light' ? 'transparent' : `${themeColor}20`;
-      }
-
-      const gallerySlots = document.querySelectorAll('.gallery-placeholder');
-      gallerySlots.forEach(slot => {
-          slot.style.borderColor = currentTheme === 'light' ? 'rgba(0,0,0,0.2)' : themeColor;
-      });
-
       const avatarEl = document.getElementById('profile-avatar');
       if (avatarEl) {
           avatarEl.style.borderColor = themeColor;
@@ -939,10 +907,9 @@
 
       window.lastSteamData = data;
 
-      const sorted = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (gamesTbody) {
         gamesTbody.innerHTML = '';
-        for (const game of sorted) {
+        for (const game of sortedGames) {
           const iconUrl = game.img_icon_url
             ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
             : null;
@@ -1045,23 +1012,6 @@
         if (savedUsername) {
             applyUsername(savedUsername);
         }
-
-        slots.forEach((slot, index) => {
-            const saved = localStorage.getItem(STORAGE_KEYS.screenshot(index));
-            if (saved) {
-              const previewEl = document.getElementById(slot.preview);
-              const overlayEl = document.getElementById(slot.overlay);
-              const removeEl = document.getElementById(slot.remove);
-              const labelEl = document.getElementById(slot.input).parentElement;
-              if (previewEl && overlayEl && removeEl && labelEl) {
-                  previewEl.src = saved;
-                  previewEl.classList.remove('hidden');
-                  overlayEl.classList.add('hidden');
-                  removeEl.classList.remove('hidden');
-                  labelEl.classList.add('has-image');
-              }
-            }
-        });
         
         updateTimeFormatUI();
         applyTheme();
