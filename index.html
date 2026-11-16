@@ -172,9 +172,26 @@
     .inv-item .rarity-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; }
     .inv-item .name { font-size: 0.75rem; text-align: center; font-weight: 600; margin-top: 0.5rem; line-height: 1.2; }
     .inv-item .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 0.25rem; }
-    .inv-item .sell-btn { opacity: 0; position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.2s; z-index: 10; }
+    
+    /* Sell Button */
+    .inv-item .sell-btn { 
+      opacity: 0; 
+      position: absolute; 
+      top: 0.5rem; 
+      right: 0.5rem; 
+      background: rgba(34, 197, 94, 0.2); 
+      border: 1px solid rgba(34, 197, 94, 0.5); 
+      color: #22c55e; 
+      padding: 0.2rem 0.5rem; 
+      border-radius: 0.25rem; 
+      font-size: 0.65rem; 
+      font-weight: 700;
+      transition: all 0.2s; 
+      z-index: 10; 
+      text-transform: uppercase;
+    }
     .inv-item:hover .sell-btn { opacity: 1; }
-    .inv-item .sell-btn:hover { background: rgba(239, 68, 68, 0.4); }
+    .inv-item .sell-btn:hover { background: rgba(34, 197, 94, 0.4); color: white; }
 
     /* Roulette */
     .roulette-container { overflow: hidden; position: relative; height: 120px; border-radius: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
@@ -201,7 +218,7 @@
     .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
     .upgrade-wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
     
-    /* Balance Badge */
+    /* Balance Badge (Only in Cases) */
     .balance-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem; }
 
     /* Select Item Modal */
@@ -228,12 +245,6 @@
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
       <div class="flex items-center gap-3">
-        <!-- Balance Badge -->
-        <div id="balance-display" class="balance-badge">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span id="balance-amount">$0.00</span>
-        </div>
-        
         <button id="nav-cases-btn" class="px-4 py-2 text-sm font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/30 rounded-lg hover:bg-purple-500/20 transition flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
           Cases
@@ -343,7 +354,9 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <!-- DEMO BUTTON (Hidden if logged in) -->
         <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
+        
         <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
@@ -592,17 +605,24 @@
         <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Case Battles & Upgrader</h2>
         <p class="mt-2 text-gray-400">Test your luck. Open cases or try to upgrade your items.</p>
       </div>
-      <button id="back-from-cases-btn" class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/10 flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Back to Dashboard
-      </button>
+      <div class="flex items-center gap-3">
+        <!-- BALANCE DISPLAY (Only on this page) -->
+        <div id="balance-display" class="balance-badge">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span id="balance-amount">$0.00</span>
+        </div>
+        <button id="back-from-cases-btn" class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/10 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Back to Dashboard
+        </button>
+      </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- Tabs (Same style as standard buttons) -->
     <div class="flex gap-4 mb-8">
-      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
-      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
-      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Inventory</button>
+      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm text-white btn-gradient transition border border-white/5 shadow-lg">Open Cases</button>
+      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
+      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">Inventory</button>
     </div>
 
     <!-- Cases Section -->
@@ -679,7 +699,7 @@
           <div id="upgrader-selected-item" class="flex flex-col items-center justify-center py-4">
             <span class="text-gray-500 text-sm">No item selected</span>
           </div>
-          <button id="select-item-btn" class="mt-2 px-4 py-2 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">Select Item</button>
+          <button id="select-item-btn" class="mt-2 px-4 py-2 text-xs font-bold btn-gradient text-white rounded-lg transition">Select Item</button>
         </div>
 
         <div class="flex flex-col items-center gap-4">
@@ -721,7 +741,7 @@
     <div id="section-inventory" class="glass-card rounded-2xl p-6 neon-border hidden">
       <div class="flex justify-between items-center mb-6">
         <h3 class="text-xl font-bold text-white">Your Inventory</h3>
-        <button id="claim-daily-btn" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg transition text-sm">Claim Daily Reward</button>
+        <button id="claim-daily-btn" class="px-4 py-2 btn-gradient text-white font-bold rounded-lg shadow-lg transition text-sm">Claim Daily Reward</button>
       </div>
       
       <div id="daily-reward-section" class="hidden mb-10 p-6 border border-cyan-500/30 rounded-xl bg-cyan-500/5">
@@ -787,6 +807,7 @@
     const authChangeAccountBtn = document.getElementById('auth-change-account');
     const balanceDisplay = document.getElementById('balance-display');
     const balanceAmount = document.getElementById('balance-amount');
+    const demoBtn = document.getElementById('demo-btn');
 
     // --- КАСТОМНЫЙ КУРСОР ---
     const cursor = document.getElementById('custom-cursor');
@@ -939,6 +960,8 @@
       if (currentUser) {
         authBtnText.textContent = currentUser.email || 'Account'; closeAuthModal();
         setMemberSince(currentUser.created_at);
+        demoBtn.classList.add('hidden'); // Hide demo button if logged in
+        
         try {
           const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
           if (profile && !error) {
@@ -961,6 +984,8 @@
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
         setMemberSince(null);
+        demoBtn.classList.remove('hidden'); // Show demo button if not logged in
+        
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
         loadInventoryLocal();
         loadBalance();
@@ -1225,7 +1250,7 @@
       updateBalanceDisplay(0);
     }
 
-    document.getElementById('demo-btn')?.addEventListener('click', () => {
+    demoBtn?.addEventListener('click', () => {
       if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
         exitDemoMode();
         window.location.reload();
@@ -1239,7 +1264,7 @@
       const connectBtn = e.target.closest('[data-connect-steam]');
       if (connectBtn) { document.getElementById('connect-steam-btn')?.click(); return; }
       const demoBtn = e.target.closest('[data-demo]');
-      if (demoBtn) { document.getElementById('demo-btn')?.click(); return; }
+      if (demoBtn) { demoBtn?.click(); return; }
     });
 
     // --- АНАЛИТИКА И ГРАФИКИ ---
@@ -1370,14 +1395,14 @@
       dashboardPage.classList.remove('hidden');
     });
 
-    // Tabs
+    // Tabs (Same style as standard buttons)
     function setActiveTab(activeTab) {
       [tabCases, tabUpgrader, tabInventory].forEach(t => {
-        t.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
+        t.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition';
       });
       [sectionCases, sectionUpgrader, sectionInventory].forEach(s => s.classList.add('hidden'));
       
-      activeTab.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
+      activeTab.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white btn-gradient transition border border-white/5 shadow-lg';
       if (activeTab === tabCases) sectionCases.classList.remove('hidden');
       if (activeTab === tabUpgrader) sectionUpgrader.classList.remove('hidden');
       if (activeTab === tabInventory) sectionInventory.classList.remove('hidden');
@@ -1445,6 +1470,21 @@
       renderInventory();
     }
 
+    async function removeItem(itemId) {
+      const itemIndex = inventory.findIndex(i => i.id === itemId);
+      if (itemIndex === -1) return;
+      
+      if (currentUser) {
+        const { error } = await supabaseClient.from('inventory').delete().eq('id', itemId);
+        if (error) { console.error('Error removing item:', error); return; }
+      }
+      
+      inventory.splice(itemIndex, 1);
+      if (!currentUser) saveInventoryLocal();
+      
+      renderInventory();
+    }
+
     async function sellItem(itemId) {
       const itemIndex = inventory.findIndex(i => i.id === itemId);
       if (itemIndex === -1) return;
@@ -1481,7 +1521,7 @@
         const el = document.createElement('div');
         el.className = 'inv-item';
         el.innerHTML = `
-          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">✕</button>
+          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">Sell</button>
           <div class="rarity-bar" style="background: ${item.color}"></div>
           <span class="name" style="color: ${item.color}">${item.name}</span>
           <span class="price">$${item.price.toFixed(2)}</span>
@@ -1675,7 +1715,7 @@
         el.className = 'inv-item cursor-pointer';
         el.dataset.id = item.id;
         el.innerHTML = `
-          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">✕</button>
+          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">Sell</button>
           <div class="rarity-bar" style="background: ${item.color}"></div>
           <span class="name" style="color: ${item.color}">${item.name}</span>
           <span class="price">$${item.price.toFixed(2)}</span>
@@ -1765,7 +1805,7 @@
         if (win) {
           // Success
           // Remove old item
-          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local (does NOT add money here)
+          await removeItem(selectedUpgradeItem.id); // Use removeItem instead of sellItem
           
           // Add new upgraded item
           const newItem = {
@@ -1785,7 +1825,7 @@
           
         } else {
           // Fail
-          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local (does NOT add money here)
+          await removeItem(selectedUpgradeItem.id); // Use removeItem instead of sellItem
           
           upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
           
