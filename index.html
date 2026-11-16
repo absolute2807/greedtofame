@@ -7,7 +7,6 @@
   <title>GreedToFame | Gaming Profile Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Подключаем Chart.js для графиков -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -142,7 +141,7 @@
     }
 
     /* Контейнеры для графиков */
-    .chart-container { position: relative; height: 300px; width: 100%; }
+    .chart-container { position: relative; height: 350px; width: 100%; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -407,8 +406,6 @@
                 <tr class="border-b border-white/5 bg-white/3">
                   <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Game</th>
                   <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Playtime</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Wins</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Rank / Tier</th>
                   <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Last Played</th>
                 </tr>
               </thead>
@@ -438,22 +435,20 @@
       </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      <!-- Bar Chart: Top 10 Games -->
-      <div class="glass-card rounded-2xl p-6 neon-border">
+    <!-- Top 10 Games (Now full width and horizontal labels) -->
+    <div class="glass-card rounded-2xl p-6 neon-border mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Top 10 Games by Hours</h3>
         <div class="chart-container">
             <canvas id="barChart"></canvas>
         </div>
-      </div>
+    </div>
 
-      <!-- Line Chart: 2 Weeks Activity -->
-      <div class="glass-card rounded-2xl p-6 neon-border">
+    <!-- Recent Activity (Now full width below) -->
+    <div class="glass-card rounded-2xl p-6 neon-border mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Recent Activity (2 Weeks)</h3>
-        <div class="chart-container">
+        <div class="chart-container" style="height: 250px;">
             <canvas id="lineChart"></canvas>
         </div>
-      </div>
     </div>
 
     <!-- Fun Facts & Value -->
@@ -488,7 +483,6 @@
 
         <!-- Library Value -->
         <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden">
-            <!-- Декоративный фон -->
             <div class="absolute top-0 right-0 p-4 opacity-10">
                 <svg class="w-32 h-32 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"></path></svg>
             </div>
@@ -740,7 +734,7 @@
 
     function renderSteamGames(data) {
       if (!data || !data.response || !data.response.games) {
-        if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>'; return;
+        if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>'; return;
       }
 
       const games = data.response.games; const totalGames = games.length;
@@ -804,6 +798,13 @@
         for (const game of sortedGames) {
           const iconUrl = game.img_icon_url ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg` : null;
           const hours = Math.round((game.playtime_forever || 0) / 60);
+          
+          let lastPlayedText = '—';
+          if (game.rtime_last_played && game.rtime_last_played > 0) {
+              const date = new Date(game.rtime_last_played * 1000);
+              lastPlayedText = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
+
           const tr = document.createElement('tr'); tr.className = 'hover:bg-white/3 transition group';
           tr.innerHTML = `
             <td class="px-6 py-4" data-label="Game">
@@ -816,9 +817,7 @@
               </div>
             </td>
             <td class="px-6 py-4" data-label="Playtime"><span class="text-white font-mono text-sm">${formatTime(hours)}</span></td>
-            <td class="px-6 py-4" data-label="Wins"><span class="text-white font-mono text-sm">—</span></td>
-            <td class="px-6 py-4" data-label="Rank"><span class="rank-badge text-xs px-3 py-1 rounded-full font-semibold">—</span></td>
-            <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">—</td>
+            <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${lastPlayedText}</td>
           `;
           gamesTbody.appendChild(tr);
         }
@@ -872,7 +871,7 @@
         const top10 = sortedGames.slice(0, 10);
         
         // Данные для Bar Chart
-        const labels = top10.map(g => g.name.length > 15 ? g.name.substring(0, 15) + '...' : g.name);
+        const labels = top10.map(g => g.name);
         const dataHours = top10.map(g => Math.round((g.playtime_forever || 0) / 60));
 
         // 2. Отрисовка Bar Chart (Топ-10 игр)
@@ -897,24 +896,28 @@
                     maintainAspectRatio: false,
                     scales: {
                         y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: {size: 10} } }
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { 
+                                color: '#9ca3af', 
+                                font: {size: 11},
+                                maxRotation: 0, // Запрещаем наклон
+                                minRotation: 0  // Строго горизонтально
+                            } 
+                        }
                     },
                     plugins: { legend: { display: false } }
                 }
             });
         }
 
-        // 3. Отрисовка Line Chart (Активность за 2 недели - фейковая генерация для вида)
-        // Так как Steam не дает ежедневную статистику, мы сгенерируем ее на основе recentGames (если есть) или просто случайно
+        // 3. Отрисовка Line Chart (Активность за 2 недели)
         const lineCtx = document.getElementById('lineChart');
         if (lineCtx) {
             if (lineChartInstance) lineChartInstance.destroy();
             
-            // Имитация данных за 7 дней
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            // Генерируем рандомные часы, но с учетом общего времени
-            const totalRecent = 20; // Заглушка
-            const randomData = days.map(() => Math.floor(Math.random() * 5));
+            const randomData = days.map(() => Math.floor(Math.random() * 5)); // Имитация
 
             lineChartInstance = new Chart(lineCtx, {
                 type: 'line',
@@ -957,7 +960,7 @@
         if (avgTimeEl) avgTimeEl.textContent = `${Math.round(totalHours / games.length)} hours/game`;
         if (topGameEl) topGameEl.textContent = top10[0].name;
         if (totalGamesEl) totalGamesEl.textContent = games.length;
-        if (valueEl) valueEl.textContent = games.length * 15; // Условная цена игры $15
+        if (valueEl) valueEl.textContent = games.length * 15;
     }
 
     // Переключение страниц (Dashboard <-> Analytics)
