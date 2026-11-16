@@ -84,6 +84,19 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
 
+    /* --- [FEATURE 4] STAGGER АНИМАЦИЯ СТРОК --- */
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateX(-16px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .row-animate { animation: rowIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+
+    /* --- [FEATURE 1] EMPTY STATE --- */
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; padding: 1.5rem 0; text-align: center; }
+    .empty-state .empty-icon { width: 3rem; height: 3rem; color: rgba(168, 85, 247, 0.5); }
+    .empty-cta { font-size: 0.8rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%); color: #fff; transition: all 0.2s ease; }
+    .empty-cta:hover { filter: brightness(1.1); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+
     /* --- МОБИЛЬНАЯ АДАПТАЦИЯ ТАБЛИЦЫ --- */
     @media (max-width: 768px) {
       .mobile-table thead { display: none; }
@@ -142,12 +155,19 @@
 
     /* Контейнеры для графиков */
     .chart-container { position: relative; height: 350px; width: 100%; }
+
+    /* --- [FEATURE 2] DEMO BADGE --- */
+    .demo-badge { position: fixed; top: 5rem; right: 1rem; z-index: 40; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; }
+    body.light-theme .demo-badge { background: rgba(8, 145, 178, 0.12); border-color: rgba(8, 145, 178, 0.4); color: #0891b2; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
+
+  <!-- [FEATURE 2] Demo badge (скрыт по умолчанию) -->
+  <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
 
   <!-- Header -->
   <header class="sticky top-0 z-30 border-b border-white/5 header-bg bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
@@ -262,6 +282,8 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <!-- [FEATURE 2] Demo button -->
+        <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
         <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
@@ -342,6 +364,12 @@
                 <p id="top-game-name" class="text-2xl font-extrabold text-white truncate">—</p>
             </div>
             <p id="top-game-hours" class="text-xs text-gray-400 mt-2 font-medium">—</p>
+            <!-- [FEATURE 1] Empty CTA под топ-игрой -->
+            <div id="top-game-empty" class="empty-state mt-2">
+              <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+              <p class="text-xs text-gray-500">No games yet</p>
+              <button class="empty-cta" data-connect-steam>Connect Steam</button>
+            </div>
           </div>
         </section>
 
@@ -354,7 +382,7 @@
             </div>
           </div>
 
-          <div class="podium-wrapper">
+          <div class="podium-wrapper" id="podium-wrapper">
             <div class="podium-column">
               <div class="podium-header">
                 <img id="podium-img-2" src="" alt="2nd Game" />
@@ -377,6 +405,16 @@
                 <span id="podium-name-3" class="name text-orange-400">—</span>
               </div>
               <div class="podium-frame frame-bronze"><span>Placeholder for 3rd Place</span></div>
+            </div>
+          </div>
+          <!-- [FEATURE 1] Empty state для подиума -->
+          <div id="podium-empty" class="empty-state">
+            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+            <p class="text-sm text-gray-400">Your Hall of Fame is empty.</p>
+            <p class="text-xs text-gray-500">Link Steam or try the demo to see your top 3 games.</p>
+            <div class="flex gap-2 mt-1">
+              <button class="empty-cta" data-connect-steam>Connect Steam</button>
+              <button class="empty-cta" data-demo>Try demo</button>
             </div>
           </div>
         </section>
@@ -411,7 +449,7 @@
               </thead>
               <tbody id="games-tbody" class="divide-y divide-white/5">
                 <tr id="steam-placeholder">
-                  <td colspan="6" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td>
+                  <td colspan="3" class="px-6 py-8 text-center text-gray-400">Connect Steam to see your games</td>
                 </tr>
               </tbody>
             </table>
@@ -505,7 +543,8 @@
       username: 'gt_username',
       timeFormat: 'gt_time_format',
       theme: 'gt_theme',
-      libraryHidden: 'gt_library_hidden'
+      libraryHidden: 'gt_library_hidden',
+      demoMode: 'gt_demo_mode' // [FEATURE 2]
     };
 
     // 3. DOM Элементы
@@ -629,6 +668,8 @@
       const user = session?.user ?? null;
       if (user) {
         authBtnText.textContent = user.email || 'Account'; closeAuthModal();
+        // [FEATURE 3] Member since из auth.users.created_at
+        setMemberSince(user.created_at);
         try {
           const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
           if (profile && !error) {
@@ -647,8 +688,21 @@
         autoLoadSteamGames();
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
+        setMemberSince(null);
+        // [FEATURE 2] Если демо-режим активен — восстановим его
+        if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
       }
     });
+
+    // [FEATURE 3] Хелпер для Member since
+    function setMemberSince(dateStr) {
+      const el = document.getElementById('stat-member-since');
+      if (!el) return;
+      if (!dateStr) { el.textContent = '—'; return; }
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) { el.textContent = '—'; return; }
+      el.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
 
     // 7. Вспомогательные функции
     function applyUsername(name) {
@@ -733,6 +787,9 @@
     const gamesTbody = document.getElementById('games-tbody'); const totalGamesEl = document.getElementById('stat-total-games'); const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
+      // [FEATURE 1] Скрываем empty-state при наличии данных
+      toggleEmptyStates(!!(data && data.response && data.response.games && data.response.games.length));
+
       if (!data || !data.response || !data.response.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>'; return;
       }
@@ -795,7 +852,7 @@
 
       if (gamesTbody) {
         gamesTbody.innerHTML = '';
-        for (const game of sortedGames) {
+        sortedGames.forEach((game, idx) => {
           const iconUrl = game.img_icon_url ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg` : null;
           const hours = Math.round((game.playtime_forever || 0) / 60);
           
@@ -805,7 +862,10 @@
               lastPlayedText = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
           }
 
-          const tr = document.createElement('tr'); tr.className = 'hover:bg-white/3 transition group';
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-white/3 transition group row-animate';
+          // [FEATURE 4] Stagger-задержка для каждой строки
+          tr.style.animationDelay = `${Math.min(idx * 40, 800)}ms`;
           tr.innerHTML = `
             <td class="px-6 py-4" data-label="Game">
               <div class="flex items-center gap-3">
@@ -820,8 +880,18 @@
             <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${lastPlayedText}</td>
           `;
           gamesTbody.appendChild(tr);
-        }
+        });
       }
+    }
+
+    // [FEATURE 1] Управление видимостью empty-state блоков
+    function toggleEmptyStates(hasGames) {
+      const topEmpty = document.getElementById('top-game-empty');
+      const podiumEmpty = document.getElementById('podium-empty');
+      const podiumWrapper = document.getElementById('podium-wrapper');
+      if (topEmpty) topEmpty.classList.toggle('hidden', hasGames);
+      if (podiumEmpty) podiumEmpty.classList.toggle('hidden', hasGames);
+      if (podiumWrapper) podiumWrapper.classList.toggle('hidden', !hasGames);
     }
 
     async function autoLoadSteamGames() {
@@ -859,6 +929,86 @@
       } catch (e) { console.error('Failed to auto-load Steam games:', e); } finally { if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden'); }
     }
 
+    // --- [FEATURE 2] ДЕМО-РЕЖИМ ---
+    // Фейковые Steam-данные для оживления дашборда
+    function buildDemoData() {
+      const now = Math.floor(Date.now() / 1000);
+      const day = 86400;
+      const demoGames = [
+        { appid: 730,     name: 'Counter-Strike 2',            playtime_forever: 18240, img_icon_url: '9b3c5b5e6f7a8c9d0e1f2a3b4c5d6e7f8a9b0c1d', rtime_last_played: now - day * 2 },
+        { appid: 570,     name: 'Dota 2',                      playtime_forever: 14520, img_icon_url: '', rtime_last_played: now - day * 5 },
+        { appid: 1091500, name: 'Cyberpunk 2077',              playtime_forever: 6210,  img_icon_url: '', rtime_last_played: now - day * 10 },
+        { appid: 292030,  name: 'The Witcher 3: Wild Hunt',   playtime_forever: 4980,  img_icon_url: '', rtime_last_played: now - day * 30 },
+        { appid: 1174180, name: 'Red Dead Redemption 2',      playtime_forever: 3120,  img_icon_url: '', rtime_last_played: now - day * 15 },
+        { appid: 271590,  name: 'Grand Theft Auto V',         playtime_forever: 2880,  img_icon_url: '', rtime_last_played: now - day * 7 },
+        { appid: 413150,  name: 'Stardew Valley',             playtime_forever: 1740,  img_icon_url: '', rtime_last_played: now - day * 3 },
+        { appid: 105600,  name: 'Terraria',                   playtime_forever: 960,   img_icon_url: '', rtime_last_played: now - day * 40 },
+        { appid: 400,     name: 'Portal 2',                   playtime_forever: 480,   img_icon_url: '', rtime_last_played: now - day * 60 },
+        { appid: 620,     name: 'Portal 2 (Beta)',            playtime_forever: 120,   img_icon_url: '', rtime_last_played: now - day * 90 }
+      ];
+      // Присваиваем фейковые иконки, чтобы визуально было живее (используем плейсхолдеры Steam CDN по appid)
+      demoGames.forEach(g => {
+        g.img_icon_url = `${g.appid}/demo_icon`;
+      });
+      return { response: { games: demoGames } };
+    }
+
+    function enterDemoMode() {
+      localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
+      const demoData = buildDemoData();
+      applyUsername('DemoPlayer');
+      // Демо-аватар
+      const avatarEl = document.getElementById('profile-avatar');
+      if (avatarEl) { avatarEl.src = 'https://ui-avatars.com/api/?name=Demo+Player&background=a855f7&color=fff&size=512'; avatarEl.dataset.custom = 'true'; }
+      // Демо Member since
+      setMemberSince(new Date(Date.now() - 1000 * 60 * 60 * 24 * 400).toISOString());
+      // Скрываем Steam-кнопку, показываем Connected
+      const steamBtn = document.getElementById('connect-steam-btn');
+      const steamBtnText = document.getElementById('steam-btn-text');
+      const instructionText = document.getElementById('steam-instruction-text');
+      const connectTitle = document.getElementById('connect-platform-title');
+      if (steamBtn && steamBtnText) {
+        steamBtnText.textContent = 'Demo Mode Active';
+        steamBtn.removeAttribute('href');
+        steamBtn.classList.remove('btn-gradient');
+        steamBtn.classList.add('bg-cyan-600/20', 'border', 'border-cyan-500/50', 'cursor-default');
+        const svgIcon = steamBtn.querySelector('svg');
+        if (svgIcon) svgIcon.style.display = 'none';
+      }
+      if (instructionText) instructionText.textContent = 'This is a demo profile with fake data. Sign in and connect Steam to see your real stats.';
+      if (connectTitle) connectTitle.classList.add('hidden');
+
+      renderSteamGames(demoData);
+      updateAnalytics(demoData.response.games);
+      document.getElementById('demo-badge').classList.remove('hidden');
+    }
+
+    function exitDemoMode() {
+      localStorage.removeItem(STORAGE_KEYS.demoMode);
+      document.getElementById('demo-badge').classList.add('hidden');
+    }
+
+    // Кнопка "Try demo profile"
+    document.getElementById('demo-btn')?.addEventListener('click', () => {
+      if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
+        // выходим из демо
+        exitDemoMode();
+        window.location.reload();
+      } else {
+        enterDemoMode();
+        // Прокрутим к статистике, чтобы пользователь увидел результат
+        document.getElementById('main-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    // Делегированные клики по empty-CTA
+    document.addEventListener('click', (e) => {
+      const connectBtn = e.target.closest('[data-connect-steam]');
+      if (connectBtn) { document.getElementById('connect-steam-btn')?.click(); return; }
+      const demoBtn = e.target.closest('[data-demo]');
+      if (demoBtn) { document.getElementById('demo-btn')?.click(); return; }
+    });
+
     // --- АНАЛИТИКА И ГРАФИКИ ---
     let barChartInstance = null;
     let lineChartInstance = null;
@@ -889,7 +1039,9 @@
                         backgroundColor: 'rgba(168, 85, 247, 0.7)',
                         borderColor: 'rgba(168, 85, 247, 1)',
                         borderWidth: 1,
-                        borderRadius: 5
+                        borderRadius: 5,
+                        // [FEATURE 4] Анимация появления столбиков
+                        animation: { duration: 1200, easing: 'easeOutQuart' }
                     }]
                 },
                 options: {
@@ -1008,6 +1160,12 @@
         const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
         if (savedUsername) { applyUsername(savedUsername); }
         updateTimeFormatUI(); applyTheme(); updateLibraryVisibility();
+        // [FEATURE 1] Изначально empty-state'ы видимы (нет данных)
+        toggleEmptyStates(false);
+        // [FEATURE 2] Если демо-режим сохранён — восстановим
+        if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
+          enterDemoMode();
+        }
     })();
 
     // 10. Кнопка Share Profile
