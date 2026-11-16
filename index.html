@@ -869,12 +869,13 @@
         // 1. Сортировка и подготовка данных
         const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
         const top10 = sortedGames.slice(0, 10);
-        
-        // Данные для Bar Chart
-        const labels = top10.map(g => g.name);
-        const dataHours = top10.map(g => Math.round((g.playtime_forever || 0) / 60));
 
-        // 2. Отрисовка Bar Chart (Топ-10 игр)
+        // Данные для Bar Chart (горизонтальные столбики: сначала самая сыгранная сверху)
+        const barGames = [...top10].reverse(); // реверс, чтобы топ-1 был сверху на графике
+        const labels = barGames.map(g => g.name);
+        const dataHours = barGames.map(g => Math.round((g.playtime_forever || 0) / 60));
+
+        // 2. Отрисовка Bar Chart (Топ-10 игр) — Идея 1 + Идея 2
         const barCtx = document.getElementById('barChart');
         if (barCtx) {
             if (barChartInstance) barChartInstance.destroy();
@@ -892,30 +893,41 @@
                     }]
                 },
                 options: {
+                    indexAxis: 'y', // <--- ДЕЛАЕМ СТОЛБИКИ ГОРИЗОНТАЛЬНЫМИ
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                        x: { 
-                            grid: { display: false }, 
-                            ticks: { 
-                                color: '#9ca3af', 
-                                font: {size: 11},
-                                maxRotation: 0, // Запрещаем наклон
-                                minRotation: 0  // Строго горизонтально
-                            } 
+                        x: {
+                            type: 'logarithmic', // <--- ЛОГАРИФМИЧЕСКАЯ ШКАЛА
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                color: '#9ca3af',
+                                font: { size: 11 }
+                            }
                         }
                     },
-                    plugins: { legend: { display: false } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.parsed.x} h`
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // 3. Отрисовка Line Chart (Активность за 2 недели)
+        // 3. Отрисовка Line Chart (Активность за 2 недели) — без изменений
         const lineCtx = document.getElementById('lineChart');
         if (lineCtx) {
             if (lineChartInstance) lineChartInstance.destroy();
-            
+
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
             const randomData = days.map(() => Math.floor(Math.random() * 5)); // Имитация
 
@@ -951,7 +963,7 @@
         // 4. Заполняем текстовую статистику и стоимость
         const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
         const totalHours = Math.round(totalMinutes / 60);
-        
+
         const avgTimeEl = document.getElementById('analytics-avg-time');
         const topGameEl = document.getElementById('analytics-top-game');
         const totalGamesEl = document.getElementById('analytics-total-games');
