@@ -172,7 +172,7 @@
     .inv-item .rarity-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; }
     .inv-item .name { font-size: 0.75rem; text-align: center; font-weight: 600; margin-top: 0.5rem; line-height: 1.2; }
     .inv-item .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 0.25rem; }
-    .inv-item .sell-btn { opacity: 0; position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.2s; }
+    .inv-item .sell-btn { opacity: 0; position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.2s; z-index: 10; }
     .inv-item:hover .sell-btn { opacity: 1; }
     .inv-item .sell-btn:hover { background: rgba(239, 68, 68, 0.4); }
 
@@ -200,6 +200,14 @@
     .upgrade-wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto; }
     .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
     .upgrade-wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    
+    /* Balance Badge */
+    .balance-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem; }
+
+    /* Select Item Modal */
+    #select-item-modal .inventory-grid { max-height: 400px; overflow-y: auto; padding-right: 0.5rem; }
+    #select-item-modal .inv-item { cursor: pointer; }
+    #select-item-modal .inv-item:hover { border-color: #a855f7; background: rgba(168, 85, 247, 0.1); }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -219,7 +227,13 @@
         </div>
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
+        <!-- Balance Badge -->
+        <div id="balance-display" class="balance-badge">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span id="balance-amount">$0.00</span>
+        </div>
+        
         <button id="nav-cases-btn" class="px-4 py-2 text-sm font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/30 rounded-lg hover:bg-purple-500/20 transition flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
           Cases
@@ -665,6 +679,7 @@
           <div id="upgrader-selected-item" class="flex flex-col items-center justify-center py-4">
             <span class="text-gray-500 text-sm">No item selected</span>
           </div>
+          <button id="select-item-btn" class="mt-2 px-4 py-2 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition">Select Item</button>
         </div>
 
         <div class="flex flex-col items-center gap-4">
@@ -724,6 +739,21 @@
     </div>
   </div>
 
+  <!-- SELECT ITEM MODAL -->
+  <div id="select-item-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
+    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-2xl z-[10000] text-white flex flex-col max-h-[80vh]">
+      <div class="flex justify-between items-start mb-6">
+        <h3 class="text-lg font-bold text-white">Select Item to Upgrade</h3>
+        <button id="close-select-modal" class="text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
+      </div>
+      
+      <div class="inventory-grid flex-1 overflow-y-auto pr-2 mb-4">
+        <!-- Items will be inserted here -->
+      </div>
+      <p id="select-item-empty" class="text-center text-gray-500 py-4 hidden">Your inventory is empty.</p>
+    </div>
+  </div>
+
   <script>
     // 1. Инициализация Supabase
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
@@ -737,7 +767,8 @@
       theme: 'gt_theme',
       libraryHidden: 'gt_library_hidden',
       demoMode: 'gt_demo_mode',
-      inventoryLocal: 'gt_inventory_local' // Для неавторизованных
+      inventoryLocal: 'gt_inventory_local',
+      balanceLocal: 'gt_balance_local'
     };
 
     // 3. DOM Элементы
@@ -754,6 +785,8 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
+    const balanceDisplay = document.getElementById('balance-display');
+    const balanceAmount = document.getElementById('balance-amount');
 
     // --- КАСТОМНЫЙ КУРСОР ---
     const cursor = document.getElementById('custom-cursor');
@@ -856,6 +889,49 @@
     if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
     document.addEventListener('click', (e) => { const container = document.getElementById('auth-btn-container'); if (container && !container.contains(e.target)) { authDropdown.classList.add('hidden'); } });
 
+    // --- BALANCE LOGIC ---
+    let currentBalance = 0;
+
+    function updateBalanceDisplay(amount) {
+      currentBalance = amount;
+      if (balanceAmount) balanceAmount.textContent = `$${amount.toFixed(2)}`;
+      if (!currentUser) {
+        localStorage.setItem(STORAGE_KEYS.balanceLocal, amount.toFixed(2));
+      }
+    }
+
+    async function loadBalance() {
+      if (currentUser) {
+        const { data, error } = await supabaseClient.from('profiles').select('balance').eq('id', currentUser.id).single();
+        if (!error && data) {
+          updateBalanceDisplay(data.balance || 0);
+        }
+      } else {
+        const stored = localStorage.getItem(STORAGE_KEYS.balanceLocal);
+        updateBalanceDisplay(stored ? parseFloat(stored) : 0);
+      }
+    }
+
+    async function addToBalance(amount) {
+      const newBalance = currentBalance + amount;
+      updateBalanceDisplay(newBalance);
+      
+      if (currentUser) {
+        await supabaseClient.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
+      }
+    }
+
+    async function subtractFromBalance(amount) {
+      if (currentBalance < amount) return false;
+      const newBalance = currentBalance - amount;
+      updateBalanceDisplay(newBalance);
+      
+      if (currentUser) {
+        await supabaseClient.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
+      }
+      return true;
+    }
+
     // 6. Обработка состояния авторизации (Auth State)
     let currentUser = null;
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -874,8 +950,10 @@
                      avatarImg.dataset.custom = "true";
                  }
              }
+             // Update balance
+             updateBalanceDisplay(profile.balance || 0);
           } else if (error && error.code === 'PGRST116') {
-             await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User' });
+             await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User', balance: 0 });
           }
         } catch (err) { console.error('Error fetching profile:', err); }
         autoLoadSteamGames();
@@ -885,6 +963,7 @@
         setMemberSince(null);
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
         loadInventoryLocal();
+        loadBalance();
       }
     });
 
@@ -970,7 +1049,7 @@
       }
     });
 
-    // 8. Steam логика (сокращено для читаемости, без изменений)
+    // 8. Steam логика (сокращено для читаемости)
     const steamAutoLoadEl = document.getElementById('steam-auto-load'); const steamBtnText = document.getElementById('steam-btn-text');
     const gamesTbody = document.getElementById('games-tbody'); const totalGamesEl = document.getElementById('stat-total-games'); const totalHoursEl = document.getElementById('stat-total-hours');
 
@@ -1135,11 +1214,15 @@
       renderSteamGames(demoData);
       updateAnalytics(demoData.response.games);
       document.getElementById('demo-badge').classList.remove('hidden');
+      
+      // Give demo balance
+      addToBalance(50);
     }
 
     function exitDemoMode() {
       localStorage.removeItem(STORAGE_KEYS.demoMode);
       document.getElementById('demo-badge').classList.add('hidden');
+      updateBalanceDisplay(0);
     }
 
     document.getElementById('demo-btn')?.addEventListener('click', () => {
@@ -1280,6 +1363,7 @@
       dashboardPage.classList.add('hidden');
       analyticsPage.classList.add('hidden');
       casesPage.classList.remove('hidden');
+      checkDailyReward(); // Check when entering cases page
     });
     backFromCasesBtn?.addEventListener('click', () => {
       casesPage.classList.add('hidden');
@@ -1304,7 +1388,7 @@
     tabInventory?.addEventListener('click', () => setActiveTab(tabInventory));
 
     // --- INVENTORY LOGIC ---
-    let inventory = []; // { id, name, price, rarity, color }
+    let inventory = [];
 
     async function loadInventoryFromDB() {
       if (!currentUser) return;
@@ -1313,7 +1397,7 @@
       inventory = data.map(item => ({
         id: item.id,
         name: item.item_name,
-        price: item.item_price,
+        price: parseFloat(item.item_price),
         rarity: item.rarity,
         color: item.color
       }));
@@ -1343,7 +1427,7 @@
         inventory.unshift({
           id: data.id,
           name: data.item_name,
-          price: data.item_price,
+          price: parseFloat(data.item_price),
           rarity: data.rarity,
           color: data.color
         });
@@ -1373,6 +1457,10 @@
       
       inventory.splice(itemIndex, 1);
       if (!currentUser) saveInventoryLocal();
+      
+      // Add money to balance
+      await addToBalance(item.price);
+      
       renderInventory();
     }
 
@@ -1393,7 +1481,7 @@
         const el = document.createElement('div');
         el.className = 'inv-item';
         el.innerHTML = `
-          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price}">✕</button>
+          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">✕</button>
           <div class="rarity-bar" style="background: ${item.color}"></div>
           <span class="name" style="color: ${item.color}">${item.name}</span>
           <span class="price">$${item.price.toFixed(2)}</span>
@@ -1446,11 +1534,23 @@
     openCaseBtn?.addEventListener('click', async () => {
       if (!selectedCase) return;
       
+      const caseData = cases[selectedCase];
+      
+      // Check balance
+      if (caseData.price > 0) {
+        if (currentBalance < caseData.price) {
+          alert(`Not enough balance! You need $${caseData.price.toFixed(2)} but have $${currentBalance.toFixed(2)}.`);
+          return;
+        }
+        // Deduct balance
+        const success = await subtractFromBalance(caseData.price);
+        if (!success) return;
+      }
+      
       openCaseBtn.disabled = true;
       openCaseBtn.textContent = 'Opening...';
       caseResultText.classList.add('hidden');
 
-      const caseData = cases[selectedCase];
       const winner = getRandomItemFromCase(selectedCase);
       
       if (!winner) { openCaseBtn.disabled = false; openCaseBtn.textContent = 'Open Case'; return; }
@@ -1575,7 +1675,7 @@
         el.className = 'inv-item cursor-pointer';
         el.dataset.id = item.id;
         el.innerHTML = `
-          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price}">✕</button>
+          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">✕</button>
           <div class="rarity-bar" style="background: ${item.color}"></div>
           <span class="name" style="color: ${item.color}">${item.name}</span>
           <span class="price">$${item.price.toFixed(2)}</span>
@@ -1599,9 +1699,51 @@
     // Replace the renderInventory function pointer
     renderInventory = renderInventoryWithSelection;
 
+    // --- SELECT ITEM MODAL LOGIC ---
+    const selectItemModal = document.getElementById('select-item-modal');
+    const closeSelectModal = document.getElementById('close-select-modal');
+    const selectItemGrid = selectItemModal.querySelector('.inventory-grid');
+    const selectItemEmpty = document.getElementById('select-item-empty');
+
+    function openSelectItemModal() {
+      selectItemGrid.innerHTML = '';
+      if (inventory.length === 0) {
+        selectItemEmpty.classList.remove('hidden');
+      } else {
+        selectItemEmpty.classList.add('hidden');
+        inventory.forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'inv-item cursor-pointer';
+          el.innerHTML = `
+            <div class="rarity-bar" style="background: ${item.color}"></div>
+            <span class="name" style="color: ${item.color}">${item.name}</span>
+            <span class="price">$${item.price.toFixed(2)}</span>
+          `;
+          el.addEventListener('click', () => {
+            selectedUpgradeItem = item;
+            upgraderSelectedItemEl.innerHTML = `
+              <span class="text-sm font-bold text-purple-400 mb-1">Your Item</span>
+              <span class="text-xs font-bold text-white text-center">${item.name}</span>
+              <span class="text-sm font-extrabold text-green-400 mt-2">$${item.price.toFixed(2)}</span>
+            `;
+            updateUpgradeTarget();
+            closeSelectModal.click();
+          });
+          selectItemGrid.appendChild(el);
+        });
+      }
+      selectItemModal.classList.remove('hidden');
+    }
+
+    document.getElementById('select-item-btn')?.addEventListener('click', openSelectItemModal);
+    closeSelectModal?.addEventListener('click', () => selectItemModal.classList.add('hidden'));
+    selectItemModal?.addEventListener('click', (e) => {
+      if (e.target === selectItemModal) selectItemModal.classList.add('hidden');
+    });
+
     upgradeBtn?.addEventListener('click', async () => {
       if (!selectedUpgradeItem) {
-        alert('Please select an item from your inventory first (click on it in the Inventory tab).');
+        alert('Please select an item from your inventory first.');
         return;
       }
       
@@ -1623,7 +1765,7 @@
         if (win) {
           // Success
           // Remove old item
-          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local
+          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local (does NOT add money here)
           
           // Add new upgraded item
           const newItem = {
@@ -1643,7 +1785,7 @@
           
         } else {
           // Fail
-          await sellItem(selectedUpgradeItem.id);
+          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local (does NOT add money here)
           
           upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
           
@@ -1804,9 +1946,10 @@
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
           enterDemoMode();
         }
-        // Load initial inventory
+        // Load initial inventory and balance
         if (!currentUser) {
           loadInventoryLocal();
+          loadBalance();
         }
     })();
 
