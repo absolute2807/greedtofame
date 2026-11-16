@@ -8,8 +8,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -161,115 +159,6 @@
     /* --- DEMO BADGE --- */
     .demo-badge { position: fixed; top: 5rem; right: 1rem; z-index: 40; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; }
     body.light-theme .demo-badge { background: rgba(8, 145, 178, 0.12); border-color: rgba(8, 145, 178, 0.4); color: #0891b2; }
-
-    /* --- CASES & INVENTORY STYLES --- */
-    .case-card { transition: all 0.2s ease; }
-    .case-card:hover { transform: translateY(-5px); }
-    .case-card.disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-    .inv-item { background: #171722; border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: all 0.2s ease; }
-    .inv-item:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
-    .inv-item .rarity-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; }
-    .inv-item .name { font-size: 0.75rem; text-align: center; font-weight: 600; margin-top: 0.5rem; line-height: 1.2; }
-    .inv-item .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 0.25rem; }
-    
-    /* Sell Button */
-    .inv-item .sell-btn { 
-      opacity: 0; 
-      position: absolute; 
-      top: 0.5rem; 
-      right: 0.5rem; 
-      background: rgba(34, 197, 94, 0.2); 
-      border: 1px solid rgba(34, 197, 94, 0.5); 
-      color: #22c55e; 
-      padding: 0.2rem 0.5rem; 
-      border-radius: 0.25rem; 
-      font-size: 0.65rem; 
-      font-weight: 700;
-      transition: all 0.2s; 
-      z-index: 10; 
-      text-transform: uppercase;
-    }
-    .inv-item:hover .sell-btn { opacity: 1; }
-    .inv-item .sell-btn:hover { background: rgba(34, 197, 94, 0.4); color: white; }
-
-    /* Roulette */
-    .roulette-container { overflow: hidden; position: relative; height: 120px; border-radius: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
-    .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; transition: transform 6s cubic-bezier(0.1, 1, 0.1, 1); }
-    .roulette-item { width: 100px; height: 100px; margin: 0 5px; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #171722; border-bottom: 3px solid; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .roulette-item .r-name { font-size: 0.6rem; font-weight: 700; text-align: center; margin-top: 4px; padding: 0 4px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
-    .roulette-item .r-price { font-size: 0.65rem; font-weight: 800; color: #22c55e; margin-top: 2px; }
-    .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #22d3ee; z-index: 10; box-shadow: 0 0 10px #22d3ee; }
-    .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #22d3ee; }
-    .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #22d3ee; }
-
-    /* Daily Cards */
-    .daily-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 600px; margin: 0 auto; }
-    .daily-card { aspect-ratio: 1; background: linear-gradient(145deg, #1a1a24, #111117); border: 2px solid rgba(255,255,255,0.1); border-radius: 1rem; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
-    .daily-card:hover { border-color: rgba(168, 85, 247, 0.5); transform: scale(1.02); }
-    .daily-card.flipped { pointer-events: none; background: #111117; border-color: transparent; }
-    .daily-card.flipped .card-content { display: flex; }
-    .card-content { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0.5rem; text-align: center; }
-    .card-content .name { font-size: 0.7rem; font-weight: 700; line-height: 1.1; }
-    .card-content .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 4px; }
-
-    /* Upgrader Wheel (FIXED) */
-    .upgrade-wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto; }
-    .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
-    .upgrade-wheel-pointer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 120px; background: #fff; z-index: 10; transform-origin: bottom center; transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); border-radius: 999px; }
-    .upgrade-wheel-pointer::before { content: ''; position: absolute; top: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 15px solid #fff; }
-    .upgrade-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; background: #111117; border: 4px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; font-size: 1.2rem; font-weight: 800; color: #22c55e; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-    
-    /* Live Drops */
-    .live-drops-container { position: fixed; bottom: 2rem; right: 2rem; width: 300px; z-index: 50; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
-    .live-drop-item { background: rgba(17, 17, 23, 0.9); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; animation: slideInRight 0.5s ease-out forwards, fadeOut 0.5s ease-in 4.5s forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .live-drop-item .drop-text { font-size: 0.75rem; color: #d1d5db; }
-    .live-drop-item .drop-name { font-weight: 700; color: #fff; }
-    .live-drop-item .drop-item { font-weight: 800; }
-    
-    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
-
-    /* Leaderboard */
-    .leaderboard-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .leaderboard-row:last-child { border-bottom: none; }
-    .leaderboard-row .rank { font-weight: 800; color: #9ca3af; width: 2rem; text-align: center; }
-    .leaderboard-row .user { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
-    .leaderboard-row .avatar { width: 24px; height: 24px; border-radius: 50%; }
-    .leaderboard-row .value { font-weight: 800; color: #22c55e; }
-
-    /* Balance Badge */
-    .balance-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem; }
-
-    /* Select Item Modal */
-    #select-item-modal .inventory-grid { max-height: 400px; overflow-y: auto; padding-right: 0.5rem; }
-    #select-item-modal .inv-item { cursor: pointer; }
-    #select-item-modal .inv-item:hover { border-color: #a855f7; background: rgba(168, 85, 247, 0.1); }
-
-    /* Achievements */
-    .achievement-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1rem; display: flex; align-items: center; gap: 1rem; transition: all 0.2s; }
-    .achievement-item.unlocked { border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.05); }
-    .achievement-item.locked { opacity: 0.5; filter: grayscale(1); }
-    .achievement-item .icon { width: 48px; height: 48px; border-radius: 50%; background: #111; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .achievement-item .info { flex: 1; }
-    .achievement-item .title { font-weight: 800; color: white; }
-    .achievement-item .desc { font-size: 0.75rem; color: #9ca3af; }
-    
-    /* Shop */
-    .shop-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
-    .shop-item .preview { font-size: 1.2rem; font-weight: 800; }
-    .shop-item .price { font-size: 1rem; font-weight: 800; color: #22c55e; }
-
-    /* Battle Arena */
-    .battle-arena { display: flex; justify-content: space-between; align-items: center; gap: 2rem; background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }
-    .battle-player { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-    .battle-vs { font-size: 2rem; font-weight: 800; color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.5); }
-    .battle-drops { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; min-height: 50px; }
-    
-    /* Share Card Modal */
-    #share-card-modal { background: rgba(0,0,0,0.9); }
-    .share-card-preview { background: linear-gradient(145deg, #1a1a24, #111117); border: 2px solid var(--neon-purple); border-radius: 1rem; padding: 2rem; width: 400px; text-align: center; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -277,7 +166,7 @@
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
 
-  <!-- Demo badge -->
+  <!-- Demo badge (скрыт по умолчанию) -->
   <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
 
   <!-- Header -->
@@ -289,20 +178,14 @@
         </div>
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
-      <div class="flex items-center gap-3">
-        <button id="nav-cases-btn" class="px-4 py-2 text-sm font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/30 rounded-lg hover:bg-purple-500/20 transition flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          Cases
+      <div id="auth-btn-container" class="relative">
+        <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2">
+          <span id="auth-btn-text">Login</span>
+          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
-        <div id="auth-btn-container" class="relative">
-          <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2">
-            <span id="auth-btn-text">Login</span>
-            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-          </button>
-          <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
-            <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
-            <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
-          </div>
+        <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
+          <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
+          <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
         </div>
       </div>
     </div>
@@ -390,7 +273,7 @@
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD PAGE -->
+  <!-- MAIN DASHBOARD PAGE (Visible by default) -->
   <div id="dashboard-page" class="max-w-7xl mx-auto px-6 py-10 transition-opacity duration-300">
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
@@ -415,7 +298,7 @@
               <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.35)] object-cover transition-colors duration-500" />
             </div>
             <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
-            <p id="profile-prefix" class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
+            <p class="text-xs text-purple-400 font-medium mt-1">Premium Member</p>
           </div>
 
           <div class="mt-6 pt-6 border-t border-white/5">
@@ -573,8 +456,9 @@
     </div>
   </div>
 
-  <!-- ANALYTICS PAGE -->
+  <!-- ANALYTICS PAGE (Hidden by default) -->
   <div id="analytics-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
+    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
         <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Advanced Analytics</h2>
@@ -640,280 +524,6 @@
     </div>
   </div>
 
-  <!-- CASES PAGE -->
-  <div id="cases-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-      <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Case Battles & Upgrader</h2>
-        <p class="mt-2 text-gray-400">Test your luck. Open cases or try to upgrade your items.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <div id="balance-display" class="balance-badge">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span id="balance-amount">$0.00</span>
-        </div>
-        <button id="back-from-cases-btn" class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/10 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-          Back to Dashboard
-        </button>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="flex gap-4 mb-8">
-      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
-      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
-      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Inventory</button>
-      <button id="tab-battles" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Case Battles</button>
-      <button id="tab-achievements" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Achievements</button>
-      <button id="tab-shop" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Shop</button>
-    </div>
-
-    <!-- Cases Section -->
-    <div id="section-cases" class="glass-card rounded-2xl p-6 neon-border">
-      <h3 class="text-xl font-bold text-white mb-6 text-center">Select a Case</h3>
-      
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-        <!-- Case Cards -->
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-green-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="free">
-          <div class="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
-          <h4 class="font-bold text-white text-sm">Free Case</h4>
-          <p class="text-xs text-green-400 mt-1 font-bold">FREE</p>
-        </div>
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case1">
-          <div class="w-16 h-16 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
-          <h4 class="font-bold text-white text-sm">Starter Case</h4>
-          <p class="text-xs text-blue-400 mt-1 font-bold">$1.00</p>
-        </div>
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case2">
-          <div class="w-16 h-16 bg-gradient-to-br from-purple-700 to-purple-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
-          <h4 class="font-bold text-white text-sm">Advanced Case</h4>
-          <p class="text-xs text-purple-400 mt-1 font-bold">$5.00</p>
-        </div>
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-pink-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case3">
-          <div class="w-16 h-16 bg-gradient-to-br from-pink-700 to-pink-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
-          <h4 class="font-bold text-white text-sm">Elite Case</h4>
-          <p class="text-xs text-pink-400 mt-1 font-bold">$20.00</p>
-        </div>
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-yellow-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case4">
-          <div class="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
-          <h4 class="font-bold text-white text-sm">Legendary Case</h4>
-          <p class="text-xs text-yellow-400 mt-1 font-bold">$100.00</p>
-        </div>
-      </div>
-
-      <!-- Roulette Area -->
-      <div id="roulette-area" class="hidden">
-        <div class="roulette-container mb-8" id="roulette-container">
-          <div class="roulette-track" id="roulette-track"></div>
-          <div class="roulette-pointer"></div>
-        </div>
-        <div class="text-center">
-          <button id="open-case-btn" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Open Case</button>
-          <p id="case-result-text" class="mt-4 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hidden"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Upgrader Section -->
-    <div id="section-upgrader" class="glass-card rounded-2xl p-6 neon-border hidden">
-      <h3 class="text-xl font-bold text-white mb-6 text-center">Upgrade Your Skin</h3>
-      
-      <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
-        <div class="flex flex-col items-center p-4 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs text-center">
-          <p class="text-sm text-gray-400 mb-2">Selected Item</p>
-          <div id="upgrader-selected-item" class="flex flex-col items-center justify-center py-4">
-            <span class="text-gray-500 text-sm">No item selected</span>
-          </div>
-          <button id="select-item-btn" class="mt-2 px-4 py-2 text-xs font-bold btn-gradient text-white rounded-lg transition">Select Item</button>
-        </div>
-
-        <div class="flex flex-col items-center gap-4">
-          <div class="upgrade-wheel-container">
-            <div class="upgrade-wheel" id="upgrade-wheel"></div>
-            <div class="upgrade-wheel-pointer" id="upgrade-wheel-pointer"></div>
-            <div class="upgrade-wheel-center" id="upgrade-wheel-center">50%</div>
-          </div>
-        </div>
-
-        <div class="flex flex-col items-center p-4 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs text-center">
-          <p class="text-sm text-gray-400 mb-2">Target Item</p>
-          <div id="upgrader-target-item" class="flex flex-col items-center justify-center py-4">
-            <span class="text-gray-500 text-sm">—</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 max-w-2xl mx-auto space-y-6">
-        <div class="flex justify-center gap-2">
-          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="1">1%</button>
-          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="10">10%</button>
-          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="20">20%</button>
-          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="50">50%</button>
-          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="75">75%</button>
-        </div>
-        
-        <button id="upgrade-btn" class="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-          Upgrade Now
-        </button>
-      </div>
-      
-      <div id="upgrader-result" class="mt-6 text-center hidden">
-        <p class="text-2xl font-bold"></p>
-      </div>
-    </div>
-
-    <!-- Inventory Section -->
-    <div id="section-inventory" class="glass-card rounded-2xl p-6 neon-border hidden">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-white">Your Inventory</h3>
-        <button id="claim-daily-btn" class="px-4 py-2 btn-gradient text-white font-bold rounded-lg shadow-lg transition text-sm">Claim Daily Reward</button>
-      </div>
-      
-      <div id="daily-reward-section" class="hidden mb-10 p-6 border border-cyan-500/30 rounded-xl bg-cyan-500/5">
-        <h4 class="text-lg font-bold text-cyan-400 mb-4 text-center">Choose Your Daily Reward</h4>
-        <div class="daily-grid" id="daily-grid"></div>
-        <p class="text-center text-sm text-gray-400 mt-4">Pick one card. You can do this once every 24 hours.</p>
-      </div>
-
-      <div id="inventory-grid" class="inventory-grid">
-        <!-- Items will be inserted here -->
-      </div>
-      <div id="inventory-empty" class="text-center py-10 text-gray-500">
-        Your inventory is empty. Open a case to get your first skin!
-      </div>
-    </div>
-
-    <!-- Case Battles Section -->
-    <div id="section-battles" class="glass-card rounded-2xl p-6 neon-border hidden">
-      <h3 class="text-xl font-bold text-white mb-6 text-center">Case Battles PvE</h3>
-      <p class="text-center text-gray-400 mb-8">Play against a bot. The one with the most expensive drop wins the pot.</p>
-      
-      <div class="battle-arena">
-        <div class="battle-player">
-          <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl border-2 border-purple-500">You</div>
-          <div class="text-sm font-bold text-white">Your Balance: <span id="battle-your-balance">$0</span></div>
-          <div class="battle-drops" id="battle-your-drops"></div>
-        </div>
-        
-        <div class="battle-vs">VS</div>
-        
-        <div class="battle-player">
-          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-2xl border-2 border-red-500">Bot</div>
-          <div class="text-sm font-bold text-white">Bot</div>
-          <div class="battle-drops" id="battle-bot-drops"></div>
-        </div>
-      </div>
-      
-      <div class="mt-8 flex flex-col items-center gap-4">
-        <div class="flex gap-2">
-          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case1">$1 Battle</button>
-          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case2">$5 Battle</button>
-          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case3">$20 Battle</button>
-        </div>
-        <button id="start-battle-btn" class="px-8 py-3 btn-gradient text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Start Battle</button>
-        <p id="battle-result" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hidden"></p>
-      </div>
-    </div>
-
-    <!-- Achievements Section -->
-    <div id="section-achievements" class="glass-card rounded-2xl p-6 neon-border hidden">
-      <h3 class="text-xl font-bold text-white mb-6">Your Achievements</h3>
-      <div id="achievements-list" class="space-y-3">
-        <!-- Achievements will be inserted here -->
-      </div>
-    </div>
-
-    <!-- Shop Section -->
-    <div id="section-shop" class="glass-card rounded-2xl p-6 neon-border hidden">
-      <h3 class="text-xl font-bold text-white mb-6">Profile Customization</h3>
-      <p class="text-gray-400 mb-6">Spend your balance on exclusive prefixes to show off.</p>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="shop-item">
-          <div class="preview text-purple-400">Premium Member</div>
-          <div class="price">FREE</div>
-          <button class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-bold text-gray-400 cursor-default">Equipped</button>
-        </div>
-        <div class="shop-item">
-          <div class="preview text-yellow-400">Case King</div>
-          <div class="price">$50.00</div>
-          <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Case King" data-price="50">Buy / Equip</button>
-        </div>
-        <div class="shop-item">
-          <div class="preview text-green-400">Upgrade Master</div>
-          <div class="price">$50.00</div>
-          <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Upgrade Master" data-price="50">Buy / Equip</button>
-        </div>
-        <div class="shop-item">
-          <div class="preview text-blue-400">Skin Collector</div>
-          <div class="price">$20.00</div>
-          <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Skin Collector" data-price="20">Buy / Equip</button>
-        </div>
-        <div class="shop-item">
-          <div class="preview text-red-500">No-Lifer</div>
-          <div class="price">$100.00</div>
-          <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="No-Lifer" data-price="100">Buy / Equip</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SHARE CARD MODAL -->
-  <div id="share-card-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden">
-    <div class="flex flex-col items-center gap-4">
-      <div id="share-card-content" class="share-card-preview">
-        <div class="flex flex-col items-center gap-4">
-          <img id="share-card-avatar" src="" class="w-20 h-20 rounded-full border-4 border-purple-500" />
-          <h3 id="share-card-username" class="text-2xl font-bold text-white">Username</h3>
-          <p id="share-card-prefix" class="text-sm text-purple-400">Premium Member</p>
-          
-          <div class="w-full grid grid-cols-2 gap-4 mt-4">
-            <div class="bg-white/5 p-2 rounded-lg text-center">
-              <p class="text-xs text-gray-400">Total Hours</p>
-              <p id="share-card-hours" class="text-lg font-bold text-white">0h</p>
-            </div>
-            <div class="bg-white/5 p-2 rounded-lg text-center">
-              <p class="text-xs text-gray-400">Library Value</p>
-              <p id="share-card-value" class="text-lg font-bold text-green-400">$0</p>
-            </div>
-          </div>
-          
-          <div class="w-full mt-2">
-            <p class="text-xs text-gray-400 text-left mb-1">Top Game</p>
-            <p id="share-card-top-game" class="text-sm font-bold text-white truncate">—</p>
-          </div>
-          
-          <p class="text-xs text-gray-500 mt-4">greedtofame.github.io</p>
-        </div>
-      </div>
-      
-      <div class="flex gap-4">
-        <button id="download-share-card" class="px-6 py-2 btn-gradient text-white rounded-lg font-bold">Download PNG</button>
-        <button id="close-share-card" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SELECT ITEM MODAL -->
-  <div id="select-item-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden bg-[rgba(0,0,0,0.8)]">
-    <div class="bg-[#1a1a1a] p-8 rounded-[1rem] border border-[#333] w-full max-w-2xl z-[10000] text-white flex flex-col max-h-[80vh]">
-      <div class="flex justify-between items-start mb-6">
-        <h3 class="text-lg font-bold text-white">Select Item to Upgrade</h3>
-        <button id="close-select-modal" class="text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
-      </div>
-      
-      <div class="inventory-grid flex-1 overflow-y-auto pr-2 mb-4">
-        <!-- Items will be inserted here -->
-      </div>
-      <p id="select-item-empty" class="text-center text-gray-500 py-4 hidden">Your inventory is empty.</p>
-    </div>
-  </div>
-
-  <!-- LIVE DROPS CONTAINER -->
-  <div id="live-drops-container" class="live-drops-container"></div>
-
   <script>
     // 1. Инициализация Supabase
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
@@ -926,11 +536,7 @@
       timeFormat: 'gt_time_format',
       theme: 'gt_theme',
       libraryHidden: 'gt_library_hidden',
-      demoMode: 'gt_demo_mode',
-      inventoryLocal: 'gt_inventory_local',
-      balanceLocal: 'gt_balance_local',
-      prefixLocal: 'gt_prefix_local',
-      achievementsLocal: 'gt_achievements_local'
+      demoMode: 'gt_demo_mode'
     };
 
     // 3. DOM Элементы
@@ -947,13 +553,11 @@
     const authDropdown = document.getElementById('auth-dropdown');
     const authLogoutBtn = document.getElementById('auth-logout');
     const authChangeAccountBtn = document.getElementById('auth-change-account');
-    const balanceDisplay = document.getElementById('balance-display');
-    const balanceAmount = document.getElementById('balance-amount');
     const demoBtn = document.getElementById('demo-btn');
 
     // --- КАСТОМНЫЙ КУРСОР ---
     const cursor = document.getElementById('custom-cursor');
-    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame, .case-card, .inv-item');
+    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame');
     document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
     hoverElements.forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')); });
 
@@ -1052,155 +656,6 @@
     if (authChangeAccountBtn) authChangeAccountBtn.addEventListener('click', handleSignOut);
     document.addEventListener('click', (e) => { const container = document.getElementById('auth-btn-container'); if (container && !container.contains(e.target)) { authDropdown.classList.add('hidden'); } });
 
-    // --- BALANCE LOGIC ---
-    let currentBalance = 0;
-
-    function updateBalanceDisplay(amount) {
-      currentBalance = amount;
-      if (balanceAmount) balanceAmount.textContent = `$${amount.toFixed(2)}`;
-      if (!currentUser) {
-        localStorage.setItem(STORAGE_KEYS.balanceLocal, amount.toFixed(2));
-      }
-    }
-
-    async function loadBalance() {
-      if (currentUser) {
-        const { data, error } = await supabaseClient.from('profiles').select('balance').eq('id', currentUser.id).single();
-        if (!error && data) {
-          updateBalanceDisplay(data.balance || 0);
-        }
-      } else {
-        const stored = localStorage.getItem(STORAGE_KEYS.balanceLocal);
-        updateBalanceDisplay(stored ? parseFloat(stored) : 0);
-      }
-    }
-
-    async function addToBalance(amount) {
-      const newBalance = currentBalance + amount;
-      updateBalanceDisplay(newBalance);
-      
-      if (currentUser) {
-        await supabaseClient.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
-      }
-    }
-
-    async function subtractFromBalance(amount) {
-      if (currentBalance < amount) return false;
-      const newBalance = currentBalance - amount;
-      updateBalanceDisplay(newBalance);
-      
-      if (currentUser) {
-        await supabaseClient.from('profiles').update({ balance: newBalance }).eq('id', currentUser.id);
-      }
-      return true;
-    }
-
-    // --- PREFIX LOGIC ---
-    let currentPrefix = 'Premium Member';
-
-    function updatePrefixDisplay(prefix) {
-      currentPrefix = prefix;
-      const prefixEl = document.getElementById('profile-prefix');
-      if (prefixEl) prefixEl.textContent = prefix;
-      
-      if (!currentUser) {
-        localStorage.setItem(STORAGE_KEYS.prefixLocal, prefix);
-      }
-    }
-
-    async function loadPrefix() {
-      if (currentUser) {
-        const { data, error } = await supabaseClient.from('profiles').select('prefix').eq('id', currentUser.id).single();
-        if (!error && data) {
-          updatePrefixDisplay(data.prefix || 'Premium Member');
-        }
-      } else {
-        const stored = localStorage.getItem(STORAGE_KEYS.prefixLocal);
-        updatePrefixDisplay(stored || 'Premium Member');
-      }
-    }
-
-    async function buyPrefix(prefixName, price) {
-      if (currentBalance < price) {
-        alert(`Not enough balance! You need $${price.toFixed(2)}.`);
-        return;
-      }
-      
-      if (currentUser) {
-        await subtractFromBalance(price);
-        await supabaseClient.from('profiles').update({ prefix: prefixName }).eq('id', currentUser.id);
-        updatePrefixDisplay(prefixName);
-        alert(`Equipped prefix: ${prefixName}`);
-      } else {
-        await subtractFromBalance(price);
-        updatePrefixDisplay(prefixName);
-        alert(`Equipped prefix: ${prefixName}`);
-      }
-    }
-
-    // --- ACHIEVEMENTS LOGIC ---
-    const allAchievements = [
-      { id: 'first_case', title: 'First Blood', desc: 'Open your first case.', icon: '🩸' },
-      { id: 'case_king', title: 'Case King', desc: 'Open 100 cases.', icon: '👑' },
-      { id: 'upgrade_master', title: 'Upgrade Master', desc: 'Successfully upgrade 100 times.', icon: '⚙️' },
-      { id: 'high_roller', title: 'High Roller', desc: 'Successfully upgrade an item worth $500+.', icon: '💎' },
-      { id: 'collector', title: 'Collector', desc: 'Have 50 items in your inventory at once.', icon: '🎒' },
-      { id: 'rich', title: 'Rich Boy', desc: 'Have a balance of $1000+.', icon: '💰' },
-      { id: 'battle_winner', title: 'Battle Winner', desc: 'Win 10 Case Battles.', icon: '⚔️' }
-    ];
-
-    let currentAchievements = [];
-
-    function renderAchievements() {
-      const container = document.getElementById('achievements-list');
-      if (!container) return;
-      
-      container.innerHTML = '';
-      allAchievements.forEach(ach => {
-        const unlocked = currentAchievements.includes(ach.id);
-        const el = document.createElement('div');
-        el.className = `achievement-item ${unlocked ? 'unlocked' : 'locked'}`;
-        el.innerHTML = `
-          <div class="icon">${ach.icon}</div>
-          <div class="info">
-            <div class="title">${ach.title}</div>
-            <div class="desc">${ach.desc}</div>
-          </div>
-          ${unlocked ? '<span class="text-green-500 text-sm font-bold">UNLOCKED</span>' : '<span class="text-gray-600 text-sm font-bold">LOCKED</span>'}
-        `;
-        container.appendChild(el);
-      });
-    }
-
-    async function unlockAchievement(id) {
-      if (currentAchievements.includes(id)) return;
-      
-      currentAchievements.push(id);
-      
-      if (currentUser) {
-        await supabaseClient.from('profiles').update({ achievements: currentAchievements }).eq('id', currentUser.id);
-      } else {
-        localStorage.setItem(STORAGE_KEYS.achievementsLocal, JSON.stringify(currentAchievements));
-      }
-      
-      renderAchievements();
-      const ach = allAchievements.find(a => a.id === id);
-      alert(`Achievement Unlocked: ${ach.title}!`);
-    }
-
-    async function loadAchievements() {
-      if (currentUser) {
-        const { data, error } = await supabaseClient.from('profiles').select('achievements').eq('id', currentUser.id).single();
-        if (!error && data) {
-          currentAchievements = data.achievements || [];
-        }
-      } else {
-        const stored = localStorage.getItem(STORAGE_KEYS.achievementsLocal);
-        currentAchievements = stored ? JSON.parse(stored) : [];
-      }
-      renderAchievements();
-    }
-
     // 6. Обработка состояния авторизации (Auth State)
     let currentUser = null;
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -1221,26 +676,17 @@
                      avatarImg.dataset.custom = "true";
                  }
              }
-             updateBalanceDisplay(profile.balance || 0);
-             updatePrefixDisplay(profile.prefix || 'Premium Member');
-             currentAchievements = profile.achievements || [];
           } else if (error && error.code === 'PGRST116') {
-             await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User', balance: 0 });
+             await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User' });
           }
         } catch (err) { console.error('Error fetching profile:', err); }
         autoLoadSteamGames();
-        loadInventoryFromDB();
-        loadLeaderboard();
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
         setMemberSince(null);
         demoBtn.classList.remove('hidden'); 
         
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
-        loadInventoryLocal();
-        loadBalance();
-        loadPrefix();
-        loadAchievements();
       }
     });
 
@@ -1343,27 +789,14 @@
       if (totalHoursEl) { totalHoursEl.classList.remove('stat-number'); animateValue(totalHoursEl, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => totalHoursEl.classList.add('stat-number'), 1500); }
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) { hoursCard.classList.remove('stat-number'); animateValue(hoursCard, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => hoursCard.classList.add('stat-number'), 1500); }
-      
-      // SMART PLA YSTYLE
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames; let playstyleLabel = '—'; let playstyleDesc = '—';
-          
-          if (avgHours > 20) { playstyleLabel = 'Hardcore Marathoner'; playstyleDesc = 'You dedicate serious time to your games.'; } 
-          else if (avgHours >= 5) { playstyleLabel = 'Balanced Gamer'; playstyleDesc = 'A healthy mix of new and old games.'; } 
-          else { playstyleLabel = 'Digital Hoarder'; playstyleDesc = 'So many games, so little time...'; }
-          
-          // Check for specific games for "Cyberathlete"
-          const shooterIds = [730, 570, 578080, 1172470, 252490]; // CS2, Dota, PUBG, Apex, Rust
-          const shooterTime = games.filter(g => shooterIds.includes(g.appid)).reduce((sum, g) => sum + g.playtime_forever, 0);
-          if (shooterTime / totalMinutes > 0.7) {
-             playstyleLabel = 'Cyberathlete';
-             playstyleDesc = 'Competitive shooters are your life.';
-          }
-
+          if (avgHours > 20) { playstyleLabel = 'Devoted'; playstyleDesc = 'Dedicated player'; } 
+          else if (avgHours >= 5) { playstyleLabel = 'Balanced'; playstyleDesc = 'Balanced player'; } 
+          else { playstyleLabel = 'Collector'; playstyleDesc = 'Game collector'; }
           const playstyleLabelEl = document.getElementById('stat-playstyle-label'); const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
           if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel; if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
-      
       const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (sortedGames.length > 0) {
           const topGame = sortedGames[0]; const topNameEl = document.getElementById('top-game-name'); const topHoursEl = document.getElementById('top-game-hours'); const topIconEl = document.getElementById('top-game-icon');
@@ -1504,14 +937,11 @@
       renderSteamGames(demoData);
       updateAnalytics(demoData.response.games);
       document.getElementById('demo-badge').classList.remove('hidden');
-      
-      addToBalance(50);
     }
 
     function exitDemoMode() {
       localStorage.removeItem(STORAGE_KEYS.demoMode);
       document.getElementById('demo-badge').classList.add('hidden');
-      updateBalanceDisplay(0);
     }
 
     demoBtn?.addEventListener('click', () => {
@@ -1584,786 +1014,6 @@
         document.getElementById('dashboard-page').classList.remove('hidden');
     });
 
-    // --- CS2 SKINS DATA & LOGIC ---
-    const skinsDB = {
-      'Consumer': { color: '#b0c3d9' },
-      'Industrial': { color: '#5e98d9' },
-      'Mil-Spec': { color: '#4b69ff' },
-      'Restricted': { color: '#8847ff' },
-      'Classified': { color: '#d32ce6' },
-      'Covert': { color: '#eb4b4b' },
-      'Rare Special': { color: '#ffd700' }
-    };
-
-    const cases = {
-      free: { price: 0, items: [
-        { name: 'P250 | Sand Dune', price: 0.05, rarity: 'Consumer' },
-        { name: 'MP9 | Hot Rod', price: 0.12, rarity: 'Industrial' },
-        { name: 'MAC-10 | Candy Apple', price: 0.35, rarity: 'Mil-Spec' },
-        { name: 'AK-47 | Slate', price: 0.80, rarity: 'Restricted' },
-        { name: 'AWP | Atheris', price: 1.00, rarity: 'Classified' }
-      ]},
-      case1: { price: 1, items: [
-        { name: 'Glock-18 | Fade', price: 0.40, rarity: 'Industrial' },
-        { name: 'USP-S | Cortex', price: 0.90, rarity: 'Mil-Spec' },
-        { name: 'AK-47 | Redline', price: 1.50, rarity: 'Restricted' },
-        { name: 'M4A4 | Asiimov', price: 2.50, rarity: 'Classified' },
-        { name: 'Desert Eagle | Printstream', price: 3.00, rarity: 'Covert' }
-      ]},
-      case2: { price: 5, items: [
-        { name: 'AWP | Neo-Noir', price: 2.00, rarity: 'Mil-Spec' },
-        { name: 'AK-47 | Vulcan', price: 5.50, rarity: 'Restricted' },
-        { name: 'M4A1-S | Hyper Beast', price: 8.00, rarity: 'Classified' },
-        { name: 'Butterfly Knife | Slaughter', price: 12.00, rarity: 'Covert' },
-        { name: 'Karambit | Doppler', price: 15.00, rarity: 'Rare Special' }
-      ]},
-      case3: { price: 20, items: [
-        { name: 'AK-47 | Bloodsport', price: 5.00, rarity: 'Mil-Spec' },
-        { name: 'AWP | Dragon Lore (FT)', price: 25.00, rarity: 'Restricted' },
-        { name: 'M4A4 | Howl (MW)', price: 45.00, rarity: 'Classified' },
-        { name: 'Glock-18 | Fade (FN)', price: 75.00, rarity: 'Covert' },
-        { name: 'Karambit | Fade (FN)', price: 100.00, rarity: 'Rare Special' }
-      ]},
-      case4: { price: 100, items: [
-        { name: 'AWP | Gungnir (MW)', price: 20.00, rarity: 'Mil-Spec' },
-        { name: 'M4A4 | Howl (FN)', price: 60.00, rarity: 'Restricted' },
-        { name: 'Butterfly Knife | Emerald (FN)', price: 150.00, rarity: 'Classified' },
-        { name: 'Karambit | Case Hardened (FN)', price: 300.00, rarity: 'Covert' },
-        { name: 'M4A4 | Howl (FN) StatTrak', price: 500.00, rarity: 'Rare Special' }
-      ]}
-    };
-
-    // DOM Elements for Cases
-    const navCasesBtn = document.getElementById('nav-cases-btn');
-    const backFromCasesBtn = document.getElementById('back-from-cases-btn');
-    const casesPage = document.getElementById('cases-page');
-    const dashboardPage = document.getElementById('dashboard-page');
-    const analyticsPage = document.getElementById('analytics-page');
-
-    const tabCases = document.getElementById('tab-cases');
-    const tabUpgrader = document.getElementById('tab-upgrader');
-    const tabInventory = document.getElementById('tab-inventory');
-    const tabBattles = document.getElementById('tab-battles');
-    const tabAchievements = document.getElementById('tab-achievements');
-    const tabShop = document.getElementById('tab-shop');
-    
-    const sectionCases = document.getElementById('section-cases');
-    const sectionUpgrader = document.getElementById('section-upgrader');
-    const sectionInventory = document.getElementById('section-inventory');
-    const sectionBattles = document.getElementById('section-battles');
-    const sectionAchievements = document.getElementById('section-achievements');
-    const sectionShop = document.getElementById('section-shop');
-
-    // Navigation
-    navCasesBtn?.addEventListener('click', () => {
-      dashboardPage.classList.add('hidden');
-      analyticsPage.classList.add('hidden');
-      casesPage.classList.remove('hidden');
-      checkDailyReward(); 
-    });
-    backFromCasesBtn?.addEventListener('click', () => {
-      casesPage.classList.add('hidden');
-      dashboardPage.classList.remove('hidden');
-    });
-
-    // Tabs
-    function setActiveTab(activeTab) {
-      [tabCases, tabUpgrader, tabInventory, tabBattles, tabAchievements, tabShop].forEach(t => {
-        t.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition';
-      });
-      [sectionCases, sectionUpgrader, sectionInventory, sectionBattles, sectionAchievements, sectionShop].forEach(s => s.classList.add('hidden'));
-      
-      activeTab.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white btn-gradient transition border border-white/5 shadow-lg';
-      if (activeTab === tabCases) sectionCases.classList.remove('hidden');
-      if (activeTab === tabUpgrader) sectionUpgrader.classList.remove('hidden');
-      if (activeTab === tabInventory) sectionInventory.classList.remove('hidden');
-      if (activeTab === tabBattles) sectionBattles.classList.remove('hidden');
-      if (activeTab === tabAchievements) sectionAchievements.classList.remove('hidden');
-      if (activeTab === tabShop) sectionShop.classList.remove('hidden');
-    }
-
-    tabCases?.addEventListener('click', () => setActiveTab(tabCases));
-    tabUpgrader?.addEventListener('click', () => setActiveTab(tabUpgrader));
-    tabInventory?.addEventListener('click', () => setActiveTab(tabInventory));
-    tabBattles?.addEventListener('click', () => setActiveTab(tabBattles));
-    tabAchievements?.addEventListener('click', () => setActiveTab(tabAchievements));
-    tabShop?.addEventListener('click', () => setActiveTab(tabShop));
-
-    // --- INVENTORY LOGIC ---
-    let inventory = [];
-
-    async function loadInventoryFromDB() {
-      if (!currentUser) return;
-      const { data, error } = await supabaseClient.from('inventory').select('*').order('obtained_at', { ascending: false });
-      if (error) { console.error('Error loading inventory:', error); return; }
-      inventory = data.map(item => ({
-        id: item.id,
-        name: item.item_name,
-        price: parseFloat(item.item_price),
-        rarity: item.rarity,
-        color: item.color
-      }));
-      renderInventory();
-    }
-
-    function loadInventoryLocal() {
-      const stored = localStorage.getItem(STORAGE_KEYS.inventoryLocal);
-      inventory = stored ? JSON.parse(stored) : [];
-      renderInventory();
-    }
-
-    function saveInventoryLocal() {
-      localStorage.setItem(STORAGE_KEYS.inventoryLocal, JSON.stringify(inventory));
-    }
-
-    async function addItemToInventory(item) {
-      if (currentUser) {
-        const { data, error } = await supabaseClient.from('inventory').insert({
-          user_id: currentUser.id,
-          item_name: item.name,
-          item_price: item.price,
-          rarity: item.rarity,
-          color: skinsDB[item.rarity].color
-        }).select().single();
-        if (error) { console.error('Error adding item:', error); return; }
-        inventory.unshift({
-          id: data.id,
-          name: data.item_name,
-          price: parseFloat(data.item_price),
-          rarity: data.rarity,
-          color: data.color
-        });
-      } else {
-        const newItem = {
-          id: Date.now().toString(),
-          name: item.name,
-          price: item.price,
-          rarity: item.rarity,
-          color: skinsDB[item.rarity].color
-        };
-        inventory.unshift(newItem);
-        saveInventoryLocal();
-      }
-      renderInventory();
-      if (inventory.length >= 50) unlockAchievement('collector');
-    }
-
-    async function removeItem(itemId) {
-      const itemIndex = inventory.findIndex(i => i.id === itemId);
-      if (itemIndex === -1) return;
-      
-      if (currentUser) {
-        const { error } = await supabaseClient.from('inventory').delete().eq('id', itemId);
-        if (error) { console.error('Error removing item:', error); return; }
-      }
-      
-      inventory.splice(itemIndex, 1);
-      if (!currentUser) saveInventoryLocal();
-      
-      renderInventory();
-    }
-
-    async function sellItem(itemId) {
-      const itemIndex = inventory.findIndex(i => i.id === itemId);
-      if (itemIndex === -1) return;
-      const item = inventory[itemIndex];
-      
-      if (currentUser) {
-        const { error } = await supabaseClient.from('inventory').delete().eq('id', itemId);
-        if (error) { console.error('Error selling item:', error); return; }
-      }
-      
-      inventory.splice(itemIndex, 1);
-      if (!currentUser) saveInventoryLocal();
-      
-      await addToBalance(item.price);
-      
-      renderInventory();
-    }
-
-    function renderInventory() {
-      const grid = document.getElementById('inventory-grid');
-      const emptyState = document.getElementById('inventory-empty');
-      if (!grid || !emptyState) return;
-
-      if (inventory.length === 0) {
-        grid.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      grid.innerHTML = '';
-      inventory.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'inv-item';
-        el.innerHTML = `
-          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">Sell</button>
-          <div class="rarity-bar" style="background: ${item.color}"></div>
-          <span class="name" style="color: ${item.color}">${item.name}</span>
-          <span class="price">$${item.price.toFixed(2)}</span>
-        `;
-        grid.appendChild(el);
-      });
-    }
-
-    // Expose sellItem for inline onclick
-    window.sellItem = sellItem;
-
-    // --- CASES LOGIC ---
-    let selectedCase = null;
-    const rouletteTrack = document.getElementById('roulette-track');
-    const openCaseBtn = document.getElementById('open-case-btn');
-    const caseResultText = document.getElementById('case-result-text');
-    const rouletteArea = document.getElementById('roulette-area');
-
-    document.querySelectorAll('.case-card').forEach(card => {
-      card.addEventListener('click', () => {
-        if (card.classList.contains('disabled')) return;
-        selectedCase = card.dataset.case;
-        rouletteArea.classList.remove('hidden');
-        caseResultText.classList.add('hidden');
-        caseResultText.textContent = '';
-        
-        document.querySelectorAll('.case-card').forEach(c => c.classList.remove('border-purple-500', 'bg-white/5'));
-        card.classList.add('border-purple-500', 'bg-white/5');
-      });
-    });
-
-    function getRandomItemFromCase(caseKey) {
-      const caseData = cases[caseKey];
-      if (!caseData) return null;
-      const items = caseData.items;
-      const weights = items.map((item, index) => {
-        return 100 / (index + 1); 
-      });
-      const totalWeight = weights.reduce((a, b) => a + b, 0);
-      let random = Math.random() * totalWeight;
-      for (let i = 0; i < items.length; i++) {
-        if (random < weights[i]) return items[i];
-        random -= weights[i];
-      }
-      return items[items.length - 1];
-    }
-
-    openCaseBtn?.addEventListener('click', async () => {
-      if (!selectedCase) return;
-      
-      const caseData = cases[selectedCase];
-      
-      if (caseData.price > 0) {
-        if (currentBalance < caseData.price) {
-          alert(`Not enough balance! You need $${caseData.price.toFixed(2)} but have $${currentBalance.toFixed(2)}.`);
-          return;
-        }
-        const success = await subtractFromBalance(caseData.price);
-        if (!success) return;
-      }
-      
-      openCaseBtn.disabled = true;
-      openCaseBtn.textContent = 'Opening...';
-      caseResultText.classList.add('hidden');
-
-      const winner = getRandomItemFromCase(selectedCase);
-      
-      if (!winner) { openCaseBtn.disabled = false; openCaseBtn.textContent = 'Open Case'; return; }
-
-      rouletteTrack.innerHTML = '';
-      const winnerIndex = 40;
-      for (let i = 0; i < 50; i++) {
-        let item = (i === winnerIndex) ? winner : caseData.items[Math.floor(Math.random() * caseData.items.length)];
-        const el = document.createElement('div');
-        el.className = 'roulette-item';
-        el.style.borderBottomColor = skinsDB[item.rarity].color;
-        el.innerHTML = `
-          <div class="w-10 h-10 rounded bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-500">GT</div>
-          <span class="r-name" style="color: ${skinsDB[item.rarity].color}">${item.name}</span>
-          <span class="r-price">$${item.price.toFixed(2)}</span>
-        `;
-        rouletteTrack.appendChild(el);
-      }
-
-      rouletteTrack.style.transition = 'none';
-      rouletteTrack.style.transform = 'translateX(0)';
-      void rouletteTrack.offsetWidth;
-
-      const itemWidth = 110;
-      const containerWidth = document.getElementById('roulette-container').offsetWidth;
-      const centerOffset = containerWidth / 2 - itemWidth / 2;
-      const finalPosition = -(winnerIndex * itemWidth) + centerOffset;
-
-      rouletteTrack.style.transition = 'transform 6s cubic-bezier(0.1, 1, 0.1, 1)';
-      rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
-
-      setTimeout(async () => {
-        openCaseBtn.disabled = false;
-        openCaseBtn.textContent = 'Open Case';
-        caseResultText.textContent = `You unboxed: ${winner.name} ($${winner.price.toFixed(2)})`;
-        caseResultText.style.color = skinsDB[winner.rarity].color;
-        caseResultText.classList.remove('hidden');
-
-        await addItemToInventory(winner);
-        await incrementCaseCount();
-
-        if (winner.price > 10) {
-          confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#a855f7'] });
-        }
-      }, 6100);
-    });
-
-    async function incrementCaseCount() {
-      if (currentUser) {
-        const { data } = await supabaseClient.from('profiles').select('case_count').eq('id', currentUser.id).single();
-        const newCount = (data?.case_count || 0) + 1;
-        await supabaseClient.from('profiles').update({ case_count: newCount }).eq('id', currentUser.id);
-        if (newCount >= 100) unlockAchievement('case_king');
-      }
-      unlockAchievement('first_case');
-    }
-
-    // --- UPGRADER LOGIC (NEW WHEEL) ---
-    let selectedUpgradeChance = 50;
-    const upgradeWheel = document.getElementById('upgrade-wheel');
-    const upgradeWheelPointer = document.getElementById('upgrade-wheel-pointer');
-    const upgradeWheelCenter = document.getElementById('upgrade-wheel-center');
-    const upgradeBtn = document.getElementById('upgrade-btn');
-    const upgraderResult = document.getElementById('upgrader-result');
-    const upgraderSelectedItemEl = document.getElementById('upgrader-selected-item');
-    const upgraderTargetItemEl = document.getElementById('upgrader-target-item');
-    let selectedUpgradeItem = null;
-
-    function updateUpgradeWheel() {
-      const greenPercent = selectedUpgradeChance;
-      
-      // Green is at the bottom (50% to 50+greenPercent)
-      upgradeWheel.style.background = `conic-gradient(
-        #ef4444 0% 50%, 
-        #22c55e 50% ${50 + greenPercent}%, 
-        #ef4444 ${50 + greenPercent}% 100%
-      )`;
-      
-      upgradeWheelCenter.textContent = `${selectedUpgradeChance}%`;
-      upgradeWheelCenter.style.color = '#22c55e'; 
-    }
-
-    document.querySelectorAll('.upgrade-chance-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedUpgradeChance = parseInt(btn.dataset.chance);
-        document.querySelectorAll('.upgrade-chance-btn').forEach(b => {
-          b.className = 'upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition';
-        });
-        btn.className = 'upgrade-chance-btn px-4 py-2 rounded-lg border border-purple-500 text-purple-400 bg-purple-500/10 transition';
-        updateUpgradeWheel();
-        updateUpgradeTarget();
-      });
-    });
-
-    function updateUpgradeTarget() {
-      if (!selectedUpgradeItem) {
-        upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
-        return;
-      }
-      const targetPrice = selectedUpgradeItem.price * (100 / selectedUpgradeChance);
-      upgraderTargetItemEl.innerHTML = `
-        <span class="text-sm font-bold text-purple-400 mb-1">Upgrade Target</span>
-        <span class="text-xs font-bold text-white text-center">${selectedUpgradeItem.name} (Upgraded)</span>
-        <span class="text-sm font-extrabold text-green-400 mt-2">$${targetPrice.toFixed(2)}</span>
-      `;
-    }
-
-    const originalRenderInventory = renderInventory;
-    renderInventory = function() {
-      originalRenderInventory();
-      document.querySelectorAll('.inv-item').forEach(el => {});
-    };
-
-    function renderInventoryWithSelection() {
-      const grid = document.getElementById('inventory-grid');
-      const emptyState = document.getElementById('inventory-empty');
-      if (!grid || !emptyState) return;
-
-      if (inventory.length === 0) {
-        grid.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      grid.innerHTML = '';
-      inventory.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'inv-item cursor-pointer';
-        el.dataset.id = item.id;
-        el.innerHTML = `
-          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price.toFixed(2)}">Sell</button>
-          <div class="rarity-bar" style="background: ${item.color}"></div>
-          <span class="name" style="color: ${item.color}">${item.name}</span>
-          <span class="price">$${item.price.toFixed(2)}</span>
-        `;
-        el.addEventListener('click', () => {
-          selectedUpgradeItem = item;
-          upgraderSelectedItemEl.innerHTML = `
-            <span class="text-sm font-bold text-purple-400 mb-1">Your Item</span>
-            <span class="text-xs font-bold text-white text-center">${item.name}</span>
-            <span class="text-sm font-extrabold text-green-400 mt-2">$${item.price.toFixed(2)}</span>
-          `;
-          updateUpgradeTarget();
-          setActiveTab(tabUpgrader);
-        });
-        grid.appendChild(el);
-      });
-    }
-
-    renderInventory = renderInventoryWithSelection;
-
-    // --- SELECT ITEM MODAL LOGIC ---
-    const selectItemModal = document.getElementById('select-item-modal');
-    const closeSelectModal = document.getElementById('close-select-modal');
-    const selectItemGrid = selectItemModal.querySelector('.inventory-grid');
-    const selectItemEmpty = document.getElementById('select-item-empty');
-
-    function openSelectItemModal() {
-      selectItemGrid.innerHTML = '';
-      if (inventory.length === 0) {
-        selectItemEmpty.classList.remove('hidden');
-      } else {
-        selectItemEmpty.classList.add('hidden');
-        inventory.forEach(item => {
-          const el = document.createElement('div');
-          el.className = 'inv-item cursor-pointer';
-          el.innerHTML = `
-            <div class="rarity-bar" style="background: ${item.color}"></div>
-            <span class="name" style="color: ${item.color}">${item.name}</span>
-            <span class="price">$${item.price.toFixed(2)}</span>
-          `;
-          el.addEventListener('click', () => {
-            selectedUpgradeItem = item;
-            upgraderSelectedItemEl.innerHTML = `
-              <span class="text-sm font-bold text-purple-400 mb-1">Your Item</span>
-              <span class="text-xs font-bold text-white text-center">${item.name}</span>
-              <span class="text-sm font-extrabold text-green-400 mt-2">$${item.price.toFixed(2)}</span>
-            `;
-            updateUpgradeTarget();
-            closeSelectModal.click();
-          });
-          selectItemGrid.appendChild(el);
-        });
-      }
-      selectItemModal.classList.remove('hidden');
-    }
-
-    document.getElementById('select-item-btn')?.addEventListener('click', openSelectItemModal);
-    closeSelectModal?.addEventListener('click', () => selectItemModal.classList.add('hidden'));
-    selectItemModal?.addEventListener('click', (e) => {
-      if (e.target === selectItemModal) selectItemModal.classList.add('hidden');
-    });
-
-    upgradeBtn?.addEventListener('click', async () => {
-      if (!selectedUpgradeItem) {
-        alert('Please select an item from your inventory first.');
-        return;
-      }
-      
-      const chance = selectedUpgradeChance;
-      const targetPrice = selectedUpgradeItem.price * (100 / chance);
-      
-      upgradeBtn.disabled = true;
-      upgradeBtn.textContent = 'Rolling...';
-      upgraderResult.classList.add('hidden');
-      
-      let targetAngle;
-      const win = Math.random() * 100 < chance;
-      
-      if (win) {
-        targetAngle = 180 + Math.random() * (chance * 3.6);
-      } else {
-        if (Math.random() > 0.5) {
-          targetAngle = Math.random() * 180;
-        } else {
-          targetAngle = 180 + (chance * 3.6) + Math.random() * (360 - (180 + (chance * 3.6)));
-        }
-      }
-      
-      const totalRotation = 360 * 5 + targetAngle;
-      
-      upgradeWheelPointer.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
-      upgradeWheelPointer.style.transform = `translate(-50%, -50%) rotate(${totalRotation}deg)`;
-      
-      setTimeout(async () => {
-        if (win) {
-          await removeItem(selectedUpgradeItem.id);
-          
-          const newItem = {
-            name: `${selectedUpgradeItem.name} (Upgraded)`,
-            price: targetPrice,
-            rarity: selectedUpgradeItem.rarity,
-          };
-          await addItemToInventory(newItem);
-          await incrementUpgradeCount(targetPrice);
-          
-          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-green-400">Success! You won $${targetPrice.toFixed(2)}</p>`;
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-          
-          selectedUpgradeItem = null;
-          upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
-          upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
-          
-        } else {
-          await removeItem(selectedUpgradeItem.id);
-          
-          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
-          
-          selectedUpgradeItem = null;
-          upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
-          upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
-        }
-        
-        upgraderResult.classList.remove('hidden');
-        upgradeBtn.disabled = false;
-        upgradeBtn.textContent = 'Upgrade Now';
-        
-        setTimeout(() => {
-          upgradeWheelPointer.style.transition = 'none';
-          upgradeWheelPointer.style.transform = `translate(-50%, -50%) rotate(0deg)`;
-        }, 500);
-        
-      }, 4100);
-    });
-
-    async function incrementUpgradeCount(price) {
-      if (currentUser) {
-        const { data } = await supabaseClient.from('profiles').select('upgrade_count').eq('id', currentUser.id).single();
-        const newCount = (data?.upgrade_count || 0) + 1;
-        await supabaseClient.from('profiles').update({ upgrade_count: newCount }).eq('id', currentUser.id);
-        if (newCount >= 100) unlockAchievement('upgrade_master');
-      }
-      if (price >= 500) unlockAchievement('high_roller');
-    }
-
-    // --- CASE BATTLES PVE ---
-    let battleCase = 'case1';
-    let isBattleRunning = false;
-
-    document.querySelectorAll('.battle-case-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (isBattleRunning) return;
-        battleCase = btn.dataset.case;
-        document.querySelectorAll('.battle-case-btn').forEach(b => b.className = 'battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition');
-        btn.className = 'battle-case-btn px-4 py-2 rounded-lg border border-purple-500 text-purple-400 bg-purple-500/10 transition';
-      });
-    });
-
-    document.getElementById('start-battle-btn')?.addEventListener('click', async () => {
-      if (isBattleRunning) return;
-      const caseData = cases[battleCase];
-      
-      if (currentBalance < caseData.price) {
-        alert(`Not enough balance! You need $${caseData.price.toFixed(2)}.`);
-        return;
-      }
-
-      isBattleRunning = true;
-      document.getElementById('start-battle-btn').disabled = true;
-      document.getElementById('start-battle-btn').textContent = 'Battling...';
-      document.getElementById('battle-your-drops').innerHTML = '';
-      document.getElementById('battle-bot-drops').innerHTML = '';
-      document.getElementById('battle-result').classList.add('hidden');
-
-      await subtractFromBalance(caseData.price);
-
-      // Generate 3 drops for each
-      const yourDrops = [getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase)];
-      const botDrops = [getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase)];
-
-      const yourTotal = yourDrops.reduce((sum, i) => sum + i.price, 0);
-      const botTotal = botDrops.reduce((sum, i) => sum + i.price, 0);
-
-      // Animation simulation
-      for (let i = 0; i < 3; i++) {
-        await new Promise(r => setTimeout(r, 500));
-        document.getElementById('battle-your-drops').innerHTML += `
-          <div class="inv-item" style="width: 60px; height: 60px; padding: 0.2rem;">
-            <span class="name" style="font-size: 0.5rem; color: ${skinsDB[yourDrops[i].rarity].color}">${yourDrops[i].name}</span>
-          </div>
-        `;
-        document.getElementById('battle-bot-drops').innerHTML += `
-          <div class="inv-item" style="width: 60px; height: 60px; padding: 0.2rem;">
-            <span class="name" style="font-size: 0.5rem; color: ${skinsDB[botDrops[i].rarity].color}">${botDrops[i].name}</span>
-          </div>
-        `;
-      }
-
-      setTimeout(async () => {
-        const resultEl = document.getElementById('battle-result');
-        resultEl.classList.remove('hidden');
-        
-        if (yourTotal > botTotal) {
-          resultEl.textContent = `You won $${(yourTotal + botTotal).toFixed(2)}!`;
-          resultEl.className = 'text-xl font-bold text-green-400';
-          await addToBalance(yourTotal + botTotal);
-          confetti({ particleCount: 100 });
-        } else if (botTotal > yourTotal) {
-          resultEl.textContent = `Bot won! You lost $${caseData.price.toFixed(2)}.`;
-          resultEl.className = 'text-xl font-bold text-red-500';
-        } else {
-          resultEl.textContent = `Tie! You got your $${caseData.price.toFixed(2)} back.`;
-          resultEl.className = 'text-xl font-bold text-gray-400';
-          await addToBalance(caseData.price);
-        }
-
-        isBattleRunning = false;
-        document.getElementById('start-battle-btn').disabled = false;
-        document.getElementById('start-battle-btn').textContent = 'Start Battle';
-      }, 2000);
-    });
-
-    // --- SHARE CARD LOGIC ---
-    document.getElementById('share-profile-btn')?.addEventListener('click', () => {
-      const modal = document.getElementById('share-card-modal');
-      const avatar = document.getElementById('profile-avatar').src;
-      const username = document.getElementById('welcome-username').textContent;
-      const prefix = document.getElementById('profile-prefix').textContent;
-      
-      document.getElementById('share-card-avatar').src = avatar;
-      document.getElementById('share-card-username').textContent = username;
-      document.getElementById('share-card-prefix').textContent = prefix;
-      
-      if (window.lastSteamData) {
-        const totalMinutes = window.lastSteamData.response.games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-        const totalHours = Math.round(totalMinutes / 60);
-        document.getElementById('share-card-hours').textContent = totalHours + 'h';
-        document.getElementById('share-card-value').textContent = '$' + (window.lastSteamData.response.games.length * 15);
-        
-        const sorted = [...window.lastSteamData.response.games].sort((a,b) => b.playtime_forever - a.playtime_forever);
-        document.getElementById('share-card-top-game').textContent = sorted[0].name;
-      } else {
-        document.getElementById('share-card-hours').textContent = '0h';
-        document.getElementById('share-card-value').textContent = '$0';
-        document.getElementById('share-card-top-game').textContent = '—';
-      }
-      
-      modal.classList.remove('hidden');
-    });
-
-    document.getElementById('close-share-card')?.addEventListener('click', () => {
-      document.getElementById('share-card-modal').classList.add('hidden');
-    });
-
-    document.getElementById('download-share-card')?.addEventListener('click', () => {
-      html2canvas(document.getElementById('share-card-content')).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'greedtofame-profile.png';
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    });
-
-    // --- LIVE DROPS LOGIC ---
-    const liveDropsContainer = document.getElementById('live-drops-container');
-    const fakeUsers = ['NoobMaster', 'xX_Sniper_Xx', 'ProGamer123', 'LuckyLuke', 'CSGO_KING', 'HeadshotGod', 'RushB_Pro', 'AWP_Master', 'KnifeCollector', 'GlobalElite'];
-    
-    function spawnLiveDrop() {
-      if (!liveDropsContainer) return;
-      
-      const randomUser = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
-      const randomCaseKey = Object.keys(cases)[Math.floor(Math.random() * Object.keys(cases).length)];
-      const randomItem = cases[randomCaseKey].items[Math.floor(Math.random() * cases[randomCaseKey].items.length)];
-      
-      const dropEl = document.createElement('div');
-      dropEl.className = 'live-drop-item';
-      dropEl.innerHTML = `
-        <span class="drop-text">
-          <span class="drop-name">${randomUser}</span> just unboxed <span class="drop-item" style="color: ${skinsDB[randomItem.rarity].color}">${randomItem.name}</span>
-        </span>
-      `;
-      
-      liveDropsContainer.appendChild(dropEl);
-      
-      setTimeout(() => {
-        if (dropEl.parentNode) dropEl.parentNode.removeChild(dropEl);
-      }, 5500);
-    }
-
-    setInterval(spawnLiveDrop, 8000);
-    setTimeout(spawnLiveDrop, 1000);
-
-    // --- LEADERBOARD LOGIC ---
-    async function loadLeaderboard() {
-      const container = document.getElementById('leaderboard-container');
-      if (!container) return;
-      
-      const { data, error } = await supabaseClient.rpc('get_top_inventories');
-      
-      if (error) {
-        console.error('Error loading leaderboard:', error);
-        const { data: fallbackData, error: fallbackError } = await supabaseClient
-          .from('inventory')
-          .select('user_id, item_price');
-          
-        if (fallbackError) return;
-        
-        const userValues = {};
-        fallbackData.forEach(item => {
-          if (!userValues[item.user_id]) userValues[item.user_id] = { total: 0, count: 0 };
-          userValues[item.user_id].total += parseFloat(item.item_price);
-          userValues[item.user_id].count += 1;
-        });
-        
-        const sortedUsers = Object.entries(userValues)
-          .sort(([,a], [,b]) => b.total - a.total)
-          .slice(0, 10);
-          
-        const userIds = sortedUsers.map(([id]) => id);
-        const { data: profiles } = await supabaseClient.from('profiles').select('id, username').in('id', userIds);
-        
-        container.innerHTML = '';
-        sortedUsers.forEach(([userId, stats], index) => {
-          const profile = profiles?.find(p => p.id === userId);
-          const username = profile?.username || 'Unknown';
-          
-          const row = document.createElement('div');
-          row.className = 'leaderboard-row';
-          row.innerHTML = `
-            <div class="rank">#${index + 1}</div>
-            <div class="user">
-              <img src="https://ui-avatars.com/api/?name=${username}&background=random&size=32" class="avatar" />
-              <span class="text-sm font-bold text-white">${username}</span>
-            </div>
-            <div class="value">$${stats.total.toFixed(2)}</div>
-          `;
-          container.appendChild(row);
-        });
-        
-        if (sortedUsers.length === 0) {
-          container.innerHTML = '<p class="text-center text-gray-500 py-4">No data yet.</p>';
-        }
-      } else {
-        container.innerHTML = '';
-        data.forEach((row, index) => {
-          const rowEl = document.createElement('div');
-          rowEl.className = 'leaderboard-row';
-          rowEl.innerHTML = `
-            <div class="rank">#${index + 1}</div>
-            <div class="user">
-              <img src="https://ui-avatars.com/api/?name=${row.username}&background=random&size=32" class="avatar" />
-              <span class="text-sm font-bold text-white">${row.username}</span>
-            </div>
-            <div class="value">$${parseFloat(row.total_value).toFixed(2)}</div>
-          `;
-          container.appendChild(rowEl);
-        });
-      }
-    }
-
-    // --- ACHIEVEMENTS & SHOP EVENTS ---
-    document.querySelectorAll('.buy-prefix-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const prefix = btn.dataset.prefix;
-        const price = parseFloat(btn.dataset.price);
-        buyPrefix(prefix, price);
-      });
-    });
-
     // 9. ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
     (async function handleSteamReturn() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -2390,13 +1040,11 @@
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
           enterDemoMode();
         }
-        if (!currentUser) {
-          loadInventoryLocal();
-          loadBalance();
-          loadPrefix();
-          loadAchievements();
-        }
     })();
+
+    // 10. Кнопка Share Profile
+    const shareBtn = document.getElementById('share-profile-btn');
+    if (shareBtn) { shareBtn.addEventListener('click', () => { navigator.clipboard.writeText(window.location.href).then(() => { const originalText = shareBtn.textContent; shareBtn.textContent = 'Copied!'; setTimeout(() => { shareBtn.textContent = originalText; }, 2000); }); }); }
   </script>
 </body>
 </html>
