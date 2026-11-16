@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -213,7 +214,7 @@
     .card-content .name { font-size: 0.7rem; font-weight: 700; line-height: 1.1; }
     .card-content .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 4px; }
 
-    /* Upgrader Wheel (NEW) */
+    /* Upgrader Wheel (FIXED) */
     .upgrade-wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto; }
     .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
     .upgrade-wheel-pointer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 120px; background: #fff; z-index: 10; transform-origin: bottom center; transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); border-radius: 999px; }
@@ -238,7 +239,7 @@
     .leaderboard-row .avatar { width: 24px; height: 24px; border-radius: 50%; }
     .leaderboard-row .value { font-weight: 800; color: #22c55e; }
 
-    /* Balance Badge (Only in Cases) */
+    /* Balance Badge */
     .balance-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem; }
 
     /* Select Item Modal */
@@ -259,6 +260,16 @@
     .shop-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; }
     .shop-item .preview { font-size: 1.2rem; font-weight: 800; }
     .shop-item .price { font-size: 1rem; font-weight: 800; color: #22c55e; }
+
+    /* Battle Arena */
+    .battle-arena { display: flex; justify-content: space-between; align-items: center; gap: 2rem; background: rgba(0,0,0,0.3); padding: 2rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }
+    .battle-player { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .battle-vs { font-size: 2rem; font-weight: 800; color: #ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.5); }
+    .battle-drops { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; min-height: 50px; }
+    
+    /* Share Card Modal */
+    #share-card-modal { background: rgba(0,0,0,0.9); }
+    .share-card-preview { background: linear-gradient(145deg, #1a1a24, #111117); border: 2px solid var(--neon-purple); border-radius: 1rem; padding: 2rem; width: 400px; text-align: center; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -266,7 +277,7 @@
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
 
-  <!-- Demo badge (скрыт по умолчанию) -->
+  <!-- Demo badge -->
   <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
 
   <!-- Header -->
@@ -379,7 +390,7 @@
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD PAGE (Visible by default) -->
+  <!-- MAIN DASHBOARD PAGE -->
   <div id="dashboard-page" class="max-w-7xl mx-auto px-6 py-10 transition-opacity duration-300">
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
@@ -562,9 +573,8 @@
     </div>
   </div>
 
-  <!-- ANALYTICS PAGE (Hidden by default) -->
+  <!-- ANALYTICS PAGE -->
   <div id="analytics-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
-    <!-- Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
         <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Advanced Analytics</h2>
@@ -630,7 +640,7 @@
     </div>
   </div>
 
-  <!-- CASES PAGE (Hidden by default) -->
+  <!-- CASES PAGE -->
   <div id="cases-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
@@ -638,7 +648,6 @@
         <p class="mt-2 text-gray-400">Test your luck. Open cases or try to upgrade your items.</p>
       </div>
       <div class="flex items-center gap-3">
-        <!-- BALANCE DISPLAY (Only on this page) -->
         <div id="balance-display" class="balance-badge">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
           <span id="balance-amount">$0.00</span>
@@ -655,6 +664,7 @@
       <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
       <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
       <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Inventory</button>
+      <button id="tab-battles" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Case Battles</button>
       <button id="tab-achievements" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Achievements</button>
       <button id="tab-shop" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Shop</button>
     </div>
@@ -664,47 +674,29 @@
       <h3 class="text-xl font-bold text-white mb-6 text-center">Select a Case</h3>
       
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-        <!-- Case 1 (Free) -->
+        <!-- Case Cards -->
         <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-green-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="free">
-          <div class="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <svg class="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          </div>
+          <div class="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
           <h4 class="font-bold text-white text-sm">Free Case</h4>
           <p class="text-xs text-green-400 mt-1 font-bold">FREE</p>
         </div>
-
-        <!-- Case 2 ($1) -->
         <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case1">
-          <div class="w-16 h-16 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          </div>
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
           <h4 class="font-bold text-white text-sm">Starter Case</h4>
           <p class="text-xs text-blue-400 mt-1 font-bold">$1.00</p>
         </div>
-
-        <!-- Case 3 ($5) -->
         <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case2">
-          <div class="w-16 h-16 bg-gradient-to-br from-purple-700 to-purple-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          </div>
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-700 to-purple-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
           <h4 class="font-bold text-white text-sm">Advanced Case</h4>
           <p class="text-xs text-purple-400 mt-1 font-bold">$5.00</p>
         </div>
-
-        <!-- Case 4 ($20) -->
         <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-pink-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case3">
-          <div class="w-16 h-16 bg-gradient-to-br from-pink-700 to-pink-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <svg class="w-8 h-8 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          </div>
+          <div class="w-16 h-16 bg-gradient-to-br from-pink-700 to-pink-900 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
           <h4 class="font-bold text-white text-sm">Elite Case</h4>
           <p class="text-xs text-pink-400 mt-1 font-bold">$20.00</p>
         </div>
-
-        <!-- Case 5 ($100) -->
         <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-yellow-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case4">
-          <div class="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <svg class="w-8 h-8 text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-          </div>
+          <div class="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-lg flex items-center justify-center mb-3 shadow-lg"><svg class="w-8 h-8 text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg></div>
           <h4 class="font-bold text-white text-sm">Legendary Case</h4>
           <p class="text-xs text-yellow-400 mt-1 font-bold">$100.00</p>
         </div>
@@ -723,7 +715,7 @@
       </div>
     </div>
 
-    <!-- Upgrader Section (NEW WHEEL) -->
+    <!-- Upgrader Section -->
     <div id="section-upgrader" class="glass-card rounded-2xl p-6 neon-border hidden">
       <h3 class="text-xl font-bold text-white mb-6 text-center">Upgrade Your Skin</h3>
       
@@ -793,6 +785,38 @@
       </div>
     </div>
 
+    <!-- Case Battles Section -->
+    <div id="section-battles" class="glass-card rounded-2xl p-6 neon-border hidden">
+      <h3 class="text-xl font-bold text-white mb-6 text-center">Case Battles PvE</h3>
+      <p class="text-center text-gray-400 mb-8">Play against a bot. The one with the most expensive drop wins the pot.</p>
+      
+      <div class="battle-arena">
+        <div class="battle-player">
+          <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl border-2 border-purple-500">You</div>
+          <div class="text-sm font-bold text-white">Your Balance: <span id="battle-your-balance">$0</span></div>
+          <div class="battle-drops" id="battle-your-drops"></div>
+        </div>
+        
+        <div class="battle-vs">VS</div>
+        
+        <div class="battle-player">
+          <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center text-2xl border-2 border-red-500">Bot</div>
+          <div class="text-sm font-bold text-white">Bot</div>
+          <div class="battle-drops" id="battle-bot-drops"></div>
+        </div>
+      </div>
+      
+      <div class="mt-8 flex flex-col items-center gap-4">
+        <div class="flex gap-2">
+          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case1">$1 Battle</button>
+          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case2">$5 Battle</button>
+          <button class="battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-case="case3">$20 Battle</button>
+        </div>
+        <button id="start-battle-btn" class="px-8 py-3 btn-gradient text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Start Battle</button>
+        <p id="battle-result" class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hidden"></p>
+      </div>
+    </div>
+
     <!-- Achievements Section -->
     <div id="section-achievements" class="glass-card rounded-2xl p-6 neon-border hidden">
       <h3 class="text-xl font-bold text-white mb-6">Your Achievements</h3>
@@ -807,40 +831,67 @@
       <p class="text-gray-400 mb-6">Spend your balance on exclusive prefixes to show off.</p>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Premium Member (Default) -->
         <div class="shop-item">
           <div class="preview text-purple-400">Premium Member</div>
           <div class="price">FREE</div>
           <button class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm font-bold text-gray-400 cursor-default">Equipped</button>
         </div>
-        
-        <!-- Case King -->
         <div class="shop-item">
           <div class="preview text-yellow-400">Case King</div>
           <div class="price">$50.00</div>
           <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Case King" data-price="50">Buy / Equip</button>
         </div>
-
-        <!-- Upgrade Master -->
         <div class="shop-item">
           <div class="preview text-green-400">Upgrade Master</div>
           <div class="price">$50.00</div>
           <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Upgrade Master" data-price="50">Buy / Equip</button>
         </div>
-        
-        <!-- Skin Collector -->
         <div class="shop-item">
           <div class="preview text-blue-400">Skin Collector</div>
           <div class="price">$20.00</div>
           <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="Skin Collector" data-price="20">Buy / Equip</button>
         </div>
-        
-        <!-- No-Lifer -->
         <div class="shop-item">
           <div class="preview text-red-500">No-Lifer</div>
           <div class="price">$100.00</div>
           <button class="buy-prefix-btn px-4 py-2 btn-gradient text-white rounded-lg text-sm font-bold transition" data-prefix="No-Lifer" data-price="100">Buy / Equip</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARE CARD MODAL -->
+  <div id="share-card-modal" class="fixed inset-0 z-[9999] flex items-center justify-center hidden">
+    <div class="flex flex-col items-center gap-4">
+      <div id="share-card-content" class="share-card-preview">
+        <div class="flex flex-col items-center gap-4">
+          <img id="share-card-avatar" src="" class="w-20 h-20 rounded-full border-4 border-purple-500" />
+          <h3 id="share-card-username" class="text-2xl font-bold text-white">Username</h3>
+          <p id="share-card-prefix" class="text-sm text-purple-400">Premium Member</p>
+          
+          <div class="w-full grid grid-cols-2 gap-4 mt-4">
+            <div class="bg-white/5 p-2 rounded-lg text-center">
+              <p class="text-xs text-gray-400">Total Hours</p>
+              <p id="share-card-hours" class="text-lg font-bold text-white">0h</p>
+            </div>
+            <div class="bg-white/5 p-2 rounded-lg text-center">
+              <p class="text-xs text-gray-400">Library Value</p>
+              <p id="share-card-value" class="text-lg font-bold text-green-400">$0</p>
+            </div>
+          </div>
+          
+          <div class="w-full mt-2">
+            <p class="text-xs text-gray-400 text-left mb-1">Top Game</p>
+            <p id="share-card-top-game" class="text-sm font-bold text-white truncate">—</p>
+          </div>
+          
+          <p class="text-xs text-gray-500 mt-4">greedtofame.github.io</p>
+        </div>
+      </div>
+      
+      <div class="flex gap-4">
+        <button id="download-share-card" class="px-6 py-2 btn-gradient text-white rounded-lg font-bold">Download PNG</button>
+        <button id="close-share-card" class="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-bold">Close</button>
       </div>
     </div>
   </div>
@@ -862,9 +913,6 @@
 
   <!-- LIVE DROPS CONTAINER -->
   <div id="live-drops-container" class="live-drops-container"></div>
-
-  <!-- LEADERBOARD CONTAINER (Added to Community block) -->
-  <div id="leaderboard-container" class="mt-4 space-y-2 hidden"></div>
 
   <script>
     // 1. Инициализация Supabase
@@ -1079,7 +1127,6 @@
       }
       
       if (currentUser) {
-        // Check if already owned (simplified: just buy/equip)
         await subtractFromBalance(price);
         await supabaseClient.from('profiles').update({ prefix: prefixName }).eq('id', currentUser.id);
         updatePrefixDisplay(prefixName);
@@ -1098,7 +1145,8 @@
       { id: 'upgrade_master', title: 'Upgrade Master', desc: 'Successfully upgrade 100 times.', icon: '⚙️' },
       { id: 'high_roller', title: 'High Roller', desc: 'Successfully upgrade an item worth $500+.', icon: '💎' },
       { id: 'collector', title: 'Collector', desc: 'Have 50 items in your inventory at once.', icon: '🎒' },
-      { id: 'rich', title: 'Rich Boy', desc: 'Have a balance of $1000+.', icon: '💰' }
+      { id: 'rich', title: 'Rich Boy', desc: 'Have a balance of $1000+.', icon: '💰' },
+      { id: 'battle_winner', title: 'Battle Winner', desc: 'Win 10 Case Battles.', icon: '⚔️' }
     ];
 
     let currentAchievements = [];
@@ -1136,7 +1184,6 @@
       }
       
       renderAchievements();
-      // Optional: Show toast
       const ach = allAchievements.find(a => a.id === id);
       alert(`Achievement Unlocked: ${ach.title}!`);
     }
@@ -1279,7 +1326,7 @@
       }
     });
 
-    // 8. Steam логика (сокращено для читаемости)
+    // 8. Steam логика
     const steamAutoLoadEl = document.getElementById('steam-auto-load'); const steamBtnText = document.getElementById('steam-btn-text');
     const gamesTbody = document.getElementById('games-tbody'); const totalGamesEl = document.getElementById('stat-total-games'); const totalHoursEl = document.getElementById('stat-total-hours');
 
@@ -1296,14 +1343,27 @@
       if (totalHoursEl) { totalHoursEl.classList.remove('stat-number'); animateValue(totalHoursEl, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => totalHoursEl.classList.add('stat-number'), 1500); }
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) { hoursCard.classList.remove('stat-number'); animateValue(hoursCard, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => hoursCard.classList.add('stat-number'), 1500); }
+      
+      // SMART PLA YSTYLE
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames; let playstyleLabel = '—'; let playstyleDesc = '—';
-          if (avgHours > 20) { playstyleLabel = 'Devoted'; playstyleDesc = 'Dedicated player'; } 
-          else if (avgHours >= 5) { playstyleLabel = 'Balanced'; playstyleDesc = 'Balanced player'; } 
-          else { playstyleLabel = 'Collector'; playstyleDesc = 'Game collector'; }
+          
+          if (avgHours > 20) { playstyleLabel = 'Hardcore Marathoner'; playstyleDesc = 'You dedicate serious time to your games.'; } 
+          else if (avgHours >= 5) { playstyleLabel = 'Balanced Gamer'; playstyleDesc = 'A healthy mix of new and old games.'; } 
+          else { playstyleLabel = 'Digital Hoarder'; playstyleDesc = 'So many games, so little time...'; }
+          
+          // Check for specific games for "Cyberathlete"
+          const shooterIds = [730, 570, 578080, 1172470, 252490]; // CS2, Dota, PUBG, Apex, Rust
+          const shooterTime = games.filter(g => shooterIds.includes(g.appid)).reduce((sum, g) => sum + g.playtime_forever, 0);
+          if (shooterTime / totalMinutes > 0.7) {
+             playstyleLabel = 'Cyberathlete';
+             playstyleDesc = 'Competitive shooters are your life.';
+          }
+
           const playstyleLabelEl = document.getElementById('stat-playstyle-label'); const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
           if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel; if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
+      
       const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (sortedGames.length > 0) {
           const topGame = sortedGames[0]; const topNameEl = document.getElementById('top-game-name'); const topHoursEl = document.getElementById('top-game-hours'); const topIconEl = document.getElementById('top-game-icon');
@@ -1583,12 +1643,14 @@
     const tabCases = document.getElementById('tab-cases');
     const tabUpgrader = document.getElementById('tab-upgrader');
     const tabInventory = document.getElementById('tab-inventory');
+    const tabBattles = document.getElementById('tab-battles');
     const tabAchievements = document.getElementById('tab-achievements');
     const tabShop = document.getElementById('tab-shop');
     
     const sectionCases = document.getElementById('section-cases');
     const sectionUpgrader = document.getElementById('section-upgrader');
     const sectionInventory = document.getElementById('section-inventory');
+    const sectionBattles = document.getElementById('section-battles');
     const sectionAchievements = document.getElementById('section-achievements');
     const sectionShop = document.getElementById('section-shop');
 
@@ -1606,15 +1668,16 @@
 
     // Tabs
     function setActiveTab(activeTab) {
-      [tabCases, tabUpgrader, tabInventory, tabAchievements, tabShop].forEach(t => {
+      [tabCases, tabUpgrader, tabInventory, tabBattles, tabAchievements, tabShop].forEach(t => {
         t.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition';
       });
-      [sectionCases, sectionUpgrader, sectionInventory, sectionAchievements, sectionShop].forEach(s => s.classList.add('hidden'));
+      [sectionCases, sectionUpgrader, sectionInventory, sectionBattles, sectionAchievements, sectionShop].forEach(s => s.classList.add('hidden'));
       
       activeTab.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white btn-gradient transition border border-white/5 shadow-lg';
       if (activeTab === tabCases) sectionCases.classList.remove('hidden');
       if (activeTab === tabUpgrader) sectionUpgrader.classList.remove('hidden');
       if (activeTab === tabInventory) sectionInventory.classList.remove('hidden');
+      if (activeTab === tabBattles) sectionBattles.classList.remove('hidden');
       if (activeTab === tabAchievements) sectionAchievements.classList.remove('hidden');
       if (activeTab === tabShop) sectionShop.classList.remove('hidden');
     }
@@ -1622,6 +1685,7 @@
     tabCases?.addEventListener('click', () => setActiveTab(tabCases));
     tabUpgrader?.addEventListener('click', () => setActiveTab(tabUpgrader));
     tabInventory?.addEventListener('click', () => setActiveTab(tabInventory));
+    tabBattles?.addEventListener('click', () => setActiveTab(tabBattles));
     tabAchievements?.addEventListener('click', () => setActiveTab(tabAchievements));
     tabShop?.addEventListener('click', () => setActiveTab(tabShop));
 
@@ -1868,18 +1932,10 @@
     const upgraderTargetItemEl = document.getElementById('upgrader-target-item');
     let selectedUpgradeItem = null;
 
-    // Update wheel visual based on chance
     function updateUpgradeWheel() {
       const greenPercent = selectedUpgradeChance;
-      const redPercent = 100 - greenPercent;
       
-      // Green is always at the bottom (180deg in conic-gradient, which starts from top)
-      // Actually conic-gradient starts from top (12 o'clock) and goes clockwise.
-      // So 0% is top, 25% is right, 50% is bottom, 75% is left.
-      // We want green to be at the bottom, so from 50% to (50% + greenPercent).
-      // Wait, if greenPercent is 1%, it should be a small slice at the bottom.
-      // So green from 50% to 50% + greenPercent. Red is the rest.
-      
+      // Green is at the bottom (50% to 50+greenPercent)
       upgradeWheel.style.background = `conic-gradient(
         #ef4444 0% 50%, 
         #22c55e 50% ${50 + greenPercent}%, 
@@ -1915,13 +1971,10 @@
       `;
     }
 
-    // Override renderInventory to add click-to-select for upgrader
     const originalRenderInventory = renderInventory;
     renderInventory = function() {
       originalRenderInventory();
-      document.querySelectorAll('.inv-item').forEach(el => {
-        // No need to do anything extra here, handled in renderInventoryWithSelection
-      });
+      document.querySelectorAll('.inv-item').forEach(el => {});
     };
 
     function renderInventoryWithSelection() {
@@ -2018,24 +2071,15 @@
       upgradeBtn.textContent = 'Rolling...';
       upgraderResult.classList.add('hidden');
       
-      // Animate pointer
-      // Green is at the bottom. The pointer starts at 12 o'clock (0deg).
-      // To point at green, we need to rotate to 180deg + random offset.
-      // If win: angle between 180 and 180 + (chance * 3.6)
-      // If lose: angle between 0 and 180 (top half), or 180 + (chance * 3.6) to 360.
-      
       let targetAngle;
       const win = Math.random() * 100 < chance;
       
       if (win) {
         targetAngle = 180 + Math.random() * (chance * 3.6);
       } else {
-        // To avoid landing in green accidentally, pick angle in red zones
         if (Math.random() > 0.5) {
-          // top half
           targetAngle = Math.random() * 180;
         } else {
-          // right bottom part
           targetAngle = 180 + (chance * 3.6) + Math.random() * (360 - (180 + (chance * 3.6)));
         }
       }
@@ -2096,113 +2140,123 @@
       if (price >= 500) unlockAchievement('high_roller');
     }
 
-    // Initial wheel visual
-    updateUpgradeWheel();
+    // --- CASE BATTLES PVE ---
+    let battleCase = 'case1';
+    let isBattleRunning = false;
 
-    // --- DAILY REWARD & STREAK LOGIC ---
-    const dailyGrid = document.getElementById('daily-grid');
-    const dailySection = document.getElementById('daily-reward-section');
-    const claimDailyBtn = document.getElementById('claim-daily-btn');
-    let dailyClaimed = false;
+    document.querySelectorAll('.battle-case-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isBattleRunning) return;
+        battleCase = btn.dataset.case;
+        document.querySelectorAll('.battle-case-btn').forEach(b => b.className = 'battle-case-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition');
+        btn.className = 'battle-case-btn px-4 py-2 rounded-lg border border-purple-500 text-purple-400 bg-purple-500/10 transition';
+      });
+    });
 
-    async function checkDailyReward() {
-      if (!currentUser) return; 
+    document.getElementById('start-battle-btn')?.addEventListener('click', async () => {
+      if (isBattleRunning) return;
+      const caseData = cases[battleCase];
       
-      const { data, error } = await supabaseClient.from('daily_rewards').select('last_claimed_at, streak').eq('user_id', currentUser.id).single();
-      
-      if (error && error.code !== 'PGRST116') { console.error(error); return; }
-      
-      const now = new Date();
-      const lastClaimed = data ? new Date(data.last_claimed_at) : null;
-      let streak = data ? data.streak : 0;
-      
-      if (!lastClaimed || (now - lastClaimed) > 24 * 60 * 60 * 1000) {
-        dailyClaimed = false;
-        claimDailyBtn.textContent = `Claim Daily Reward ${streak > 0 ? `(🔥 ${streak} days)` : ''}`;
-        claimDailyBtn.disabled = false;
-        claimDailyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      } else {
-        dailyClaimed = true;
-        claimDailyBtn.textContent = `Come back tomorrow! (🔥 ${streak} days)`;
-        claimDailyBtn.disabled = true;
-        claimDailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      if (currentBalance < caseData.price) {
+        alert(`Not enough balance! You need $${caseData.price.toFixed(2)}.`);
+        return;
       }
-    }
 
-    claimDailyBtn?.addEventListener('click', async () => {
-      if (dailyClaimed) return;
-      
-      const allPossibleItems = [
-        ...cases.free.items,
-        ...cases.case1.items,
-        ...cases.case2.items,
-        ...cases.case3.items,
-        ...cases.case4.items
-      ].filter(i => i.price >= 0.1 && i.price <= 100);
-      
-      const shuffled = allPossibleItems.sort(() => 0.5 - Math.random());
-      const rewardItems = shuffled.slice(0, 9);
-      
-      dailyGrid.innerHTML = '';
-      rewardItems.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'daily-card';
-        card.innerHTML = `
-          <span style="color: ${skinsDB[item.rarity].color}; opacity: 0.3;">?</span>
-          <div class="card-content">
-            <span class="name" style="color: ${skinsDB[item.rarity].color}">${item.name}</span>
-            <span class="price">$${item.price.toFixed(2)}</span>
+      isBattleRunning = true;
+      document.getElementById('start-battle-btn').disabled = true;
+      document.getElementById('start-battle-btn').textContent = 'Battling...';
+      document.getElementById('battle-your-drops').innerHTML = '';
+      document.getElementById('battle-bot-drops').innerHTML = '';
+      document.getElementById('battle-result').classList.add('hidden');
+
+      await subtractFromBalance(caseData.price);
+
+      // Generate 3 drops for each
+      const yourDrops = [getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase)];
+      const botDrops = [getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase), getRandomItemFromCase(battleCase)];
+
+      const yourTotal = yourDrops.reduce((sum, i) => sum + i.price, 0);
+      const botTotal = botDrops.reduce((sum, i) => sum + i.price, 0);
+
+      // Animation simulation
+      for (let i = 0; i < 3; i++) {
+        await new Promise(r => setTimeout(r, 500));
+        document.getElementById('battle-your-drops').innerHTML += `
+          <div class="inv-item" style="width: 60px; height: 60px; padding: 0.2rem;">
+            <span class="name" style="font-size: 0.5rem; color: ${skinsDB[yourDrops[i].rarity].color}">${yourDrops[i].name}</span>
           </div>
         `;
-        
-        card.addEventListener('click', async () => {
-          if (card.classList.contains('flipped')) return;
-          
-          document.querySelectorAll('.daily-card').forEach(c => {
-            c.classList.add('flipped');
-            c.querySelector('span').style.display = 'none';
-            c.querySelector('.card-content').style.display = 'flex';
-          });
-          
-          await addItemToInventory(item);
-          
-          if (currentUser) {
-            const { data } = await supabaseClient.from('daily_rewards').select('streak').eq('user_id', currentUser.id).single();
-            const newStreak = (data?.streak || 0) + 1;
-            
-            await supabaseClient.from('daily_rewards').upsert({
-              user_id: currentUser.id,
-              last_claimed_at: new Date().toISOString(),
-              streak: newStreak
-            });
-          }
-          
-          dailyClaimed = true;
-          claimDailyBtn.textContent = 'Come back tomorrow!';
-          claimDailyBtn.disabled = true;
-          claimDailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
-          
-          confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-          
-          setTimeout(() => {
-            dailySection.classList.add('hidden');
-          }, 3000);
-        });
-        
-        dailyGrid.appendChild(card);
-      });
-      
-      dailySection.classList.remove('hidden');
-      claimDailyBtn.style.display = 'none'; 
-    });
-
-    tabInventory?.addEventListener('click', () => {
-      if (!dailyClaimed) {
-        checkDailyReward();
+        document.getElementById('battle-bot-drops').innerHTML += `
+          <div class="inv-item" style="width: 60px; height: 60px; padding: 0.2rem;">
+            <span class="name" style="font-size: 0.5rem; color: ${skinsDB[botDrops[i].rarity].color}">${botDrops[i].name}</span>
+          </div>
+        `;
       }
+
+      setTimeout(async () => {
+        const resultEl = document.getElementById('battle-result');
+        resultEl.classList.remove('hidden');
+        
+        if (yourTotal > botTotal) {
+          resultEl.textContent = `You won $${(yourTotal + botTotal).toFixed(2)}!`;
+          resultEl.className = 'text-xl font-bold text-green-400';
+          await addToBalance(yourTotal + botTotal);
+          confetti({ particleCount: 100 });
+        } else if (botTotal > yourTotal) {
+          resultEl.textContent = `Bot won! You lost $${caseData.price.toFixed(2)}.`;
+          resultEl.className = 'text-xl font-bold text-red-500';
+        } else {
+          resultEl.textContent = `Tie! You got your $${caseData.price.toFixed(2)} back.`;
+          resultEl.className = 'text-xl font-bold text-gray-400';
+          await addToBalance(caseData.price);
+        }
+
+        isBattleRunning = false;
+        document.getElementById('start-battle-btn').disabled = false;
+        document.getElementById('start-battle-btn').textContent = 'Start Battle';
+      }, 2000);
     });
 
-    checkDailyReward();
+    // --- SHARE CARD LOGIC ---
+    document.getElementById('share-profile-btn')?.addEventListener('click', () => {
+      const modal = document.getElementById('share-card-modal');
+      const avatar = document.getElementById('profile-avatar').src;
+      const username = document.getElementById('welcome-username').textContent;
+      const prefix = document.getElementById('profile-prefix').textContent;
+      
+      document.getElementById('share-card-avatar').src = avatar;
+      document.getElementById('share-card-username').textContent = username;
+      document.getElementById('share-card-prefix').textContent = prefix;
+      
+      if (window.lastSteamData) {
+        const totalMinutes = window.lastSteamData.response.games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+        const totalHours = Math.round(totalMinutes / 60);
+        document.getElementById('share-card-hours').textContent = totalHours + 'h';
+        document.getElementById('share-card-value').textContent = '$' + (window.lastSteamData.response.games.length * 15);
+        
+        const sorted = [...window.lastSteamData.response.games].sort((a,b) => b.playtime_forever - a.playtime_forever);
+        document.getElementById('share-card-top-game').textContent = sorted[0].name;
+      } else {
+        document.getElementById('share-card-hours').textContent = '0h';
+        document.getElementById('share-card-value').textContent = '$0';
+        document.getElementById('share-card-top-game').textContent = '—';
+      }
+      
+      modal.classList.remove('hidden');
+    });
+
+    document.getElementById('close-share-card')?.addEventListener('click', () => {
+      document.getElementById('share-card-modal').classList.add('hidden');
+    });
+
+    document.getElementById('download-share-card')?.addEventListener('click', () => {
+      html2canvas(document.getElementById('share-card-content')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'greedtofame-profile.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
 
     // --- LIVE DROPS LOGIC ---
     const liveDropsContainer = document.getElementById('live-drops-container');
@@ -2301,8 +2355,6 @@
       }
     }
 
-    loadLeaderboard();
-
     // --- ACHIEVEMENTS & SHOP EVENTS ---
     document.querySelectorAll('.buy-prefix-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2345,10 +2397,6 @@
           loadAchievements();
         }
     })();
-
-    // 10. Кнопка Share Profile
-    const shareBtn = document.getElementById('share-profile-btn');
-    if (shareBtn) { shareBtn.addEventListener('click', () => { navigator.clipboard.writeText(window.location.href).then(() => { const originalText = shareBtn.textContent; shareBtn.textContent = 'Copied!'; setTimeout(() => { shareBtn.textContent = originalText; }, 2000); }); }); }
   </script>
 </body>
 </html>
