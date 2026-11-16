@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -84,14 +85,14 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
 
-    /* --- [FEATURE 4] STAGGER АНИМАЦИЯ СТРОК --- */
+    /* --- STAGGER АНИМАЦИЯ СТРОК --- */
     @keyframes rowIn {
       from { opacity: 0; transform: translateX(-16px); }
       to { opacity: 1; transform: translateX(0); }
     }
     .row-animate { animation: rowIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
 
-    /* --- [FEATURE 1] EMPTY STATE --- */
+    /* --- EMPTY STATE --- */
     .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; padding: 1.5rem 0; text-align: center; }
     .empty-state .empty-icon { width: 3rem; height: 3rem; color: rgba(168, 85, 247, 0.5); }
     .empty-cta { font-size: 0.8rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-blue) 100%); color: #fff; transition: all 0.2s ease; }
@@ -156,9 +157,37 @@
     /* Контейнеры для графиков */
     .chart-container { position: relative; height: 350px; width: 100%; }
 
-    /* --- [FEATURE 2] DEMO BADGE --- */
+    /* --- DEMO BADGE --- */
     .demo-badge { position: fixed; top: 5rem; right: 1rem; z-index: 40; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; }
     body.light-theme .demo-badge { background: rgba(8, 145, 178, 0.12); border-color: rgba(8, 145, 178, 0.4); color: #0891b2; }
+
+    /* --- CASES GAME STYLES --- */
+    .case-item { transition: transform 0.2s; }
+    .case-item:hover { transform: scale(1.05); }
+    .roulette-container {
+      overflow: hidden; position: relative; height: 120px; border-radius: 0.5rem;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    }
+    .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; transition: transform 5s cubic-bezier(0.1, 1, 0.1, 1); }
+    .roulette-item {
+      width: 100px; height: 100px; margin: 0 5px; border-radius: 0.5rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: #171722; border-bottom: 3px solid; flex-shrink: 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .roulette-item img { width: 60px; height: 60px; object-fit: contain; }
+    .roulette-item span { font-size: 0.65rem; font-weight: 700; text-align: center; margin-top: 4px; padding: 0 4px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+    .roulette-pointer {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 100%; background: #22d3ee; z-index: 10;
+      box-shadow: 0 0 10px #22d3ee;
+    }
+    .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #22d3ee; }
+    .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #22d3ee; }
+    .upgrader-multiplier { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -166,7 +195,7 @@
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
 
-  <!-- [FEATURE 2] Demo badge (скрыт по умолчанию) -->
+  <!-- Demo badge (скрыт по умолчанию) -->
   <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
 
   <!-- Header -->
@@ -178,14 +207,20 @@
         </div>
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
       </div>
-      <div id="auth-btn-container" class="relative">
-        <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2">
-          <span id="auth-btn-text">Login</span>
-          <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <div class="flex items-center gap-2">
+        <button id="nav-cases-btn" class="px-4 py-2 text-sm font-semibold text-purple-400 bg-purple-500/10 border border-purple-500/30 rounded-lg hover:bg-purple-500/20 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          Cases
         </button>
-        <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
-          <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
-          <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
+        <div id="auth-btn-container" class="relative">
+          <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white border border-white/10 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#0a0a0f] flex items-center gap-2">
+            <span id="auth-btn-text">Login</span>
+            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
+            <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Change Account</button>
+            <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
+          </div>
         </div>
       </div>
     </div>
@@ -282,7 +317,6 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <!-- [FEATURE 2] Demo button -->
         <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
         <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
@@ -364,7 +398,6 @@
                 <p id="top-game-name" class="text-2xl font-extrabold text-white truncate">—</p>
             </div>
             <p id="top-game-hours" class="text-xs text-gray-400 mt-2 font-medium">—</p>
-            <!-- [FEATURE 1] Empty CTA под топ-игрой -->
             <div id="top-game-empty" class="empty-state mt-2">
               <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
               <p class="text-xs text-gray-500">No games yet</p>
@@ -407,7 +440,6 @@
               <div class="podium-frame frame-bronze"><span>Placeholder for 3rd Place</span></div>
             </div>
           </div>
-          <!-- [FEATURE 1] Empty state для подиума -->
           <div id="podium-empty" class="empty-state">
             <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
             <p class="text-sm text-gray-400">Your Hall of Fame is empty.</p>
@@ -532,6 +564,122 @@
     </div>
   </div>
 
+  <!-- CASES PAGE (Hidden by default) -->
+  <div id="cases-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Case Battles & Upgrader</h2>
+        <p class="mt-2 text-gray-400">Test your luck. Open cases or try to upgrade your items.</p>
+      </div>
+      <button id="back-from-cases-btn" class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/10 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Dashboard
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-4 mb-8">
+      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
+      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
+    </div>
+
+    <!-- Cases Section -->
+    <div id="section-cases" class="glass-card rounded-2xl p-6 neon-border">
+      <h3 class="text-xl font-bold text-white mb-6 text-center">Select a Case</h3>
+      
+      <div class="flex justify-center gap-8 mb-10" id="case-selection">
+        <!-- Case 1 -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center w-48" data-case="budget">
+          <div class="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center mb-4 shadow-lg">
+            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          </div>
+          <h4 class="font-bold text-white">Budget Case</h4>
+          <p class="text-xs text-gray-400 mt-1">Free to open</p>
+        </div>
+        <!-- Case 2 -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center w-48 opacity-50" data-case="premium">
+          <div class="w-24 h-24 bg-gradient-to-br from-purple-700 to-blue-900 rounded-lg flex items-center justify-center mb-4 shadow-lg">
+            <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+          </div>
+          <h4 class="font-bold text-white">Premium Case</h4>
+          <p class="text-xs text-gray-400 mt-1">Coming soon</p>
+        </div>
+      </div>
+
+      <!-- Roulette Area -->
+      <div id="roulette-area" class="hidden">
+        <div class="roulette-container mb-8" id="roulette-container">
+          <div class="roulette-track" id="roulette-track"></div>
+          <div class="roulette-pointer"></div>
+        </div>
+        <div class="text-center">
+          <button id="open-case-btn" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Open Case (Free)</button>
+          <p id="case-result-text" class="mt-4 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hidden"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upgrader Section -->
+    <div id="section-upgrader" class="glass-card rounded-2xl p-6 neon-border hidden">
+      <h3 class="text-xl font-bold text-white mb-6 text-center">Upgrade Your Skin</h3>
+      
+      <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+        <!-- Left: Your Item -->
+        <div class="flex flex-col items-center p-6 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs">
+          <p class="text-sm text-gray-400 mb-4">Your Item</p>
+          <div id="upgrader-current-item" class="w-32 h-32 bg-[#171722] rounded-xl flex flex-col items-center justify-center border-b-4 border-gray-500 relative">
+            <span class="text-4xl">🔫</span>
+            <span class="text-xs font-bold mt-2 text-white">AK-47 | Slate</span>
+            <span class="text-xs text-gray-400">$1.50</span>
+          </div>
+        </div>
+
+        <!-- Middle: Multiplier -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="text-center">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Multiplier</p>
+            <p class="upgrader-multiplier" id="upgrader-multiplier">2.00x</p>
+          </div>
+          <div class="w-px h-16 bg-white/20"></div>
+          <div class="text-center">
+            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Win Chance</p>
+            <p class="text-xl font-bold text-green-400" id="upgrader-chance">50.0%</p>
+          </div>
+        </div>
+
+        <!-- Right: Target Item -->
+        <div class="flex flex-col items-center p-6 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs">
+          <p class="text-sm text-gray-400 mb-4">Target Item</p>
+          <div id="upgrader-target-item" class="w-32 h-32 bg-[#171722] rounded-xl flex flex-col items-center justify-center border-b-4 border-purple-500 relative shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+            <span class="text-4xl">🔪</span>
+            <span class="text-xs font-bold mt-2 text-white">Karambit | Doppler</span>
+            <span class="text-xs text-green-400 font-bold">$3.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="mt-10 max-w-2xl mx-auto space-y-6">
+        <div>
+          <div class="flex justify-between text-sm text-gray-400 mb-2">
+            <span>Multiplier</span>
+            <span id="upgrader-mult-label">2.0x</span>
+          </div>
+          <input type="range" id="upgrader-slider" min="1.1" max="10" step="0.1" value="2" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+        </div>
+        <button id="upgrade-btn" class="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          Upgrade Now
+        </button>
+      </div>
+      
+      <!-- Result -->
+      <div id="upgrader-result" class="mt-6 text-center hidden">
+        <p class="text-2xl font-bold"></p>
+      </div>
+    </div>
+  </div>
+
   <script>
     // 1. Инициализация Supabase
     const SUPABASE_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co';
@@ -544,7 +692,7 @@
       timeFormat: 'gt_time_format',
       theme: 'gt_theme',
       libraryHidden: 'gt_library_hidden',
-      demoMode: 'gt_demo_mode' // [FEATURE 2]
+      demoMode: 'gt_demo_mode'
     };
 
     // 3. DOM Элементы
@@ -564,7 +712,7 @@
 
     // --- КАСТОМНЫЙ КУРСОР ---
     const cursor = document.getElementById('custom-cursor');
-    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame');
+    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame, .case-card');
     document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
     hoverElements.forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')); });
 
@@ -668,7 +816,6 @@
       const user = session?.user ?? null;
       if (user) {
         authBtnText.textContent = user.email || 'Account'; closeAuthModal();
-        // [FEATURE 3] Member since из auth.users.created_at
         setMemberSince(user.created_at);
         try {
           const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
@@ -689,12 +836,11 @@
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
         setMemberSince(null);
-        // [FEATURE 2] Если демо-режим активен — восстановим его
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
       }
     });
 
-    // [FEATURE 3] Хелпер для Member since
+    // Хелпер для Member since
     function setMemberSince(dateStr) {
       const el = document.getElementById('stat-member-since');
       if (!el) return;
@@ -787,7 +933,6 @@
     const gamesTbody = document.getElementById('games-tbody'); const totalGamesEl = document.getElementById('stat-total-games'); const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
-      // [FEATURE 1] Скрываем empty-state при наличии данных
       toggleEmptyStates(!!(data && data.response && data.response.games && data.response.games.length));
 
       if (!data || !data.response || !data.response.games) {
@@ -864,7 +1009,6 @@
 
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-white/3 transition group row-animate';
-          // [FEATURE 4] Stagger-задержка для каждой строки
           tr.style.animationDelay = `${Math.min(idx * 40, 800)}ms`;
           tr.innerHTML = `
             <td class="px-6 py-4" data-label="Game">
@@ -884,7 +1028,6 @@
       }
     }
 
-    // [FEATURE 1] Управление видимостью empty-state блоков
     function toggleEmptyStates(hasGames) {
       const topEmpty = document.getElementById('top-game-empty');
       const podiumEmpty = document.getElementById('podium-empty');
@@ -924,13 +1067,12 @@
         const { data, error } = await supabaseClient.functions.invoke('steam-api', { body: { steamid: profile.steam_id } });
         if (!error && data) { 
             renderSteamGames(data); 
-            updateAnalytics(data.response.games); // Обновляем графики
+            updateAnalytics(data.response.games);
         }
       } catch (e) { console.error('Failed to auto-load Steam games:', e); } finally { if (steamAutoLoadEl) steamAutoLoadEl.classList.add('hidden'); }
     }
 
-    // --- [FEATURE 2] ДЕМО-РЕЖИМ ---
-    // Фейковые Steam-данные для оживления дашборда
+    // --- ДЕМО-РЕЖИМ ---
     function buildDemoData() {
       const now = Math.floor(Date.now() / 1000);
       const day = 86400;
@@ -946,7 +1088,6 @@
         { appid: 400,     name: 'Portal 2',                   playtime_forever: 480,   img_icon_url: '', rtime_last_played: now - day * 60 },
         { appid: 620,     name: 'Portal 2 (Beta)',            playtime_forever: 120,   img_icon_url: '', rtime_last_played: now - day * 90 }
       ];
-      // Присваиваем фейковые иконки, чтобы визуально было живее (используем плейсхолдеры Steam CDN по appid)
       demoGames.forEach(g => {
         g.img_icon_url = `${g.appid}/demo_icon`;
       });
@@ -957,12 +1098,9 @@
       localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
       const demoData = buildDemoData();
       applyUsername('DemoPlayer');
-      // Демо-аватар
       const avatarEl = document.getElementById('profile-avatar');
       if (avatarEl) { avatarEl.src = 'https://ui-avatars.com/api/?name=Demo+Player&background=a855f7&color=fff&size=512'; avatarEl.dataset.custom = 'true'; }
-      // Демо Member since
       setMemberSince(new Date(Date.now() - 1000 * 60 * 60 * 24 * 400).toISOString());
-      // Скрываем Steam-кнопку, показываем Connected
       const steamBtn = document.getElementById('connect-steam-btn');
       const steamBtnText = document.getElementById('steam-btn-text');
       const instructionText = document.getElementById('steam-instruction-text');
@@ -988,20 +1126,16 @@
       document.getElementById('demo-badge').classList.add('hidden');
     }
 
-    // Кнопка "Try demo profile"
     document.getElementById('demo-btn')?.addEventListener('click', () => {
       if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
-        // выходим из демо
         exitDemoMode();
         window.location.reload();
       } else {
         enterDemoMode();
-        // Прокрутим к статистике, чтобы пользователь увидел результат
         document.getElementById('main-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
 
-    // Делегированные клики по empty-CTA
     document.addEventListener('click', (e) => {
       const connectBtn = e.target.closest('[data-connect-steam]');
       if (connectBtn) { document.getElementById('connect-steam-btn')?.click(); return; }
@@ -1016,16 +1150,13 @@
     function updateAnalytics(games) {
         if (!games || games.length === 0) return;
 
-        // 1. Сортировка и подготовка данных
         const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
         const top10 = sortedGames.slice(0, 10);
 
-        // Данные для Bar Chart (горизонтальные столбики: сначала самая сыгранная сверху)
-        const barGames = [...top10].reverse(); // реверс, чтобы топ-1 был сверху на графике
+        const barGames = [...top10].reverse();
         const labels = barGames.map(g => g.name);
         const dataHours = barGames.map(g => Math.round((g.playtime_forever || 0) / 60));
 
-        // 2. Отрисовка Bar Chart (Топ-10 игр) — Идея 1 + Идея 2
         const barCtx = document.getElementById('barChart');
         if (barCtx) {
             if (barChartInstance) barChartInstance.destroy();
@@ -1040,48 +1171,27 @@
                         borderColor: 'rgba(168, 85, 247, 1)',
                         borderWidth: 1,
                         borderRadius: 5,
-                        // [FEATURE 4] Анимация появления столбиков
                         animation: { duration: 1200, easing: 'easeOutQuart' }
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // <--- ДЕЛАЕМ СТОЛБИКИ ГОРИЗОНТАЛЬНЫМИ
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: {
-                            type: 'logarithmic', // <--- ЛОГАРИФМИЧЕСКАЯ ШКАЛА
-                            beginAtZero: false,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#9ca3af' }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: {
-                                color: '#9ca3af',
-                                font: { size: 11 }
-                            }
-                        }
+                        x: { type: 'logarithmic', beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } }
                     },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: (ctx) => `${ctx.parsed.x} h`
-                            }
-                        }
-                    }
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.x} h` } } }
                 }
             });
         }
 
-        // 3. Отрисовка Line Chart (Активность за 2 недели) — без изменений
         const lineCtx = document.getElementById('lineChart');
         if (lineCtx) {
             if (lineChartInstance) lineChartInstance.destroy();
-
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            const randomData = days.map(() => Math.floor(Math.random() * 5)); // Имитация
+            const randomData = days.map(() => Math.floor(Math.random() * 5)); // Временная заглушка
 
             lineChartInstance = new Chart(lineCtx, {
                 type: 'line',
@@ -1112,7 +1222,6 @@
             });
         }
 
-        // 4. Заполняем текстовую статистику и стоимость
         const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
         const totalHours = Math.round(totalMinutes / 60);
 
@@ -1138,6 +1247,220 @@
         document.getElementById('dashboard-page').classList.remove('hidden');
     });
 
+    // --- CASES GAME LOGIC ---
+    const csItems = [
+      { name: 'P250 | Sand Dune', price: 0.05, rarity: 'Consumer', color: '#b0c3d9' },
+      { name: 'MP9 | Hot Rod', price: 0.12, rarity: 'Industrial', color: '#5e98d9' },
+      { name: 'MAC-10 | Candy Apple', price: 0.35, rarity: 'Mil-Spec', color: '#4b69ff' },
+      { name: 'AK-47 | Slate', price: 1.50, rarity: 'Restricted', color: '#8847ff' },
+      { name: 'AWP | Atheris', price: 3.20, rarity: 'Classified', color: '#d32ce6' },
+      { name: 'Desert Eagle | Printstream', price: 45.00, rarity: 'Covert', color: '#eb4b4b' },
+      { name: 'Karambit | Doppler', price: 850.00, rarity: 'Rare Special', color: '#ffd700' }
+    ];
+
+    function getRandomCaseItem() {
+      const rand = Math.random() * 100;
+      if (rand < 40) return csItems[0];
+      if (rand < 65) return csItems[1];
+      if (rand < 82) return csItems[2];
+      if (rand < 93) return csItems[3];
+      if (rand < 98) return csItems[4];
+      if (rand < 99.5) return csItems[5];
+      return csItems[6];
+    }
+
+    // Navigation
+    document.getElementById('nav-cases-btn')?.addEventListener('click', () => {
+      document.getElementById('dashboard-page').classList.add('hidden');
+      document.getElementById('analytics-page').classList.add('hidden');
+      document.getElementById('cases-page').classList.remove('hidden');
+    });
+    document.getElementById('back-from-cases-btn')?.addEventListener('click', () => {
+      document.getElementById('cases-page').classList.add('hidden');
+      document.getElementById('dashboard-page').classList.remove('hidden');
+    });
+
+    // Tabs
+    const tabCases = document.getElementById('tab-cases');
+    const tabUpgrader = document.getElementById('tab-upgrader');
+    const sectionCases = document.getElementById('section-cases');
+    const sectionUpgrader = document.getElementById('section-upgrader');
+
+    tabCases?.addEventListener('click', () => {
+      tabCases.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
+      tabUpgrader.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
+      sectionCases.classList.remove('hidden');
+      sectionUpgrader.classList.add('hidden');
+    });
+
+    tabUpgrader?.addEventListener('click', () => {
+      tabUpgrader.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
+      tabCases.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
+      sectionUpgrader.classList.remove('hidden');
+      sectionCases.classList.add('hidden');
+    });
+
+    // Case Selection
+    let selectedCase = null;
+    const rouletteTrack = document.getElementById('roulette-track');
+    const openCaseBtn = document.getElementById('open-case-btn');
+    const caseResultText = document.getElementById('case-result-text');
+
+    document.querySelectorAll('.case-card').forEach(card => {
+      card.addEventListener('click', () => {
+        if (card.dataset.case === 'premium') return; // Disabled
+        selectedCase = card.dataset.case;
+        document.getElementById('roulette-area').classList.remove('hidden');
+        caseResultText.classList.add('hidden');
+        caseResultText.textContent = '';
+        
+        // Highlight selected
+        document.querySelectorAll('.case-card').forEach(c => c.classList.remove('border-purple-500', 'bg-white/5'));
+        card.classList.add('border-purple-500', 'bg-white/5');
+      });
+    });
+
+    function buildRoulette() {
+      rouletteTrack.innerHTML = '';
+      // 50 items
+      for (let i = 0; i < 50; i++) {
+        const item = getRandomCaseItem();
+        const el = document.createElement('div');
+        el.className = 'roulette-item';
+        el.style.borderBottomColor = item.color;
+        el.innerHTML = `
+          <div class="w-12 h-12 rounded bg-gray-800 flex items-center justify-center text-2xl">🔫</div>
+          <span style="color: ${item.color}">${item.name}</span>
+        `;
+        rouletteTrack.appendChild(el);
+      }
+    }
+
+    openCaseBtn?.addEventListener('click', () => {
+      if (!selectedCase) return;
+      
+      openCaseBtn.disabled = true;
+      openCaseBtn.textContent = 'Opening...';
+      caseResultText.classList.add('hidden');
+
+      buildRoulette();
+
+      // Reset position
+      rouletteTrack.style.transition = 'none';
+      rouletteTrack.style.transform = 'translateX(0)';
+      
+      // Force reflow
+      void rouletteTrack.offsetWidth;
+
+      // Animate
+      const winnerIndex = 40; // Land on 40th item
+      const itemWidth = 110; // 100px + 10px margin
+      const containerWidth = document.getElementById('roulette-container').offsetWidth;
+      const centerOffset = containerWidth / 2 - itemWidth / 2;
+      const finalPosition = -(winnerIndex * itemWidth) + centerOffset;
+
+      rouletteTrack.style.transition = 'transform 5s cubic-bezier(0.1, 1, 0.1, 1)';
+      rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
+
+      // Determine winner (we cheat here and just read the item at the winning index)
+      // Actually, for a real game, the server determines the winner.
+      // Here, we'll just pick a random item and insert it at the winning index.
+      
+      // Let's re-build the track with a guaranteed winner at index 40
+      const actualWinner = getRandomCaseItem();
+      
+      // Rebuild to ensure visual matches the result
+      rouletteTrack.innerHTML = '';
+      for (let i = 0; i < 50; i++) {
+        let item = (i === winnerIndex) ? actualWinner : getRandomCaseItem();
+        const el = document.createElement('div');
+        el.className = 'roulette-item';
+        el.style.borderBottomColor = item.color;
+        el.innerHTML = `
+          <div class="w-12 h-12 rounded bg-gray-800 flex items-center justify-center text-2xl">🔫</div>
+          <span style="color: ${item.color}">${item.name}</span>
+        `;
+        rouletteTrack.appendChild(el);
+      }
+      
+      // Trigger animation after rebuild
+      void rouletteTrack.offsetWidth;
+      rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
+
+      setTimeout(() => {
+        openCaseBtn.disabled = false;
+        openCaseBtn.textContent = 'Open Case (Free)';
+        caseResultText.textContent = `You unboxed: ${actualWinner.name} ($${actualWinner.price})`;
+        caseResultText.style.color = actualWinner.color;
+        caseResultText.classList.remove('hidden');
+
+        if (actualWinner.price > 10) {
+          confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#a855f7'] });
+        }
+      }, 5100);
+    });
+
+    // Upgrader Logic
+    const upgraderSlider = document.getElementById('upgrader-slider');
+    const upgraderMultLabel = document.getElementById('upgrader-mult-label');
+    const upgraderMultiplier = document.getElementById('upgrader-multiplier');
+    const upgraderChance = document.getElementById('upgrader-chance');
+    const upgradeBtn = document.getElementById('upgrade-btn');
+    const upgraderResult = document.getElementById('upgrader-result');
+    
+    // Base item value
+    const baseValue = 1.50;
+    
+    function updateUpgraderUI() {
+      const mult = parseFloat(upgraderSlider.value);
+      const chance = (100 / mult).toFixed(1);
+      
+      upgraderMultLabel.textContent = `${mult.toFixed(1)}x`;
+      upgraderMultiplier.textContent = `${mult.toFixed(2)}x`;
+      upgraderChance.textContent = `${chance}%`;
+      
+      // Update target item price
+      const targetValue = baseValue * mult;
+      document.querySelector('#upgrader-target-item .text-green-400').textContent = `$${targetValue.toFixed(2)}`;
+      
+      // Color chance
+      if (chance < 10) upgraderChance.className = 'text-xl font-bold text-red-500';
+      else if (chance < 30) upgraderChance.className = 'text-xl font-bold text-orange-500';
+      else upgraderChance.className = 'text-xl font-bold text-green-400';
+    }
+
+    upgraderSlider?.addEventListener('input', updateUpgraderUI);
+    updateUpgraderUI();
+
+    upgradeBtn?.addEventListener('click', () => {
+      const mult = parseFloat(upgraderSlider.value);
+      const chance = 100 / mult;
+      
+      upgradeBtn.disabled = true;
+      upgradeBtn.textContent = 'Rolling...';
+      upgraderResult.classList.add('hidden');
+      
+      const targetItem = document.getElementById('upgrader-target-item');
+      targetItem.classList.add('animate-pulse');
+      
+      setTimeout(() => {
+        const win = Math.random() * 100 < chance;
+        
+        targetItem.classList.remove('animate-pulse');
+        
+        if (win) {
+          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-green-400">Success! You won $${(baseValue * mult).toFixed(2)}</p>`;
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        } else {
+          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
+        }
+        
+        upgraderResult.classList.remove('hidden');
+        upgradeBtn.disabled = false;
+        upgradeBtn.textContent = 'Upgrade Now';
+      }, 1500);
+    });
+
     // 9. ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
     (async function handleSteamReturn() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -1160,9 +1483,7 @@
         const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
         if (savedUsername) { applyUsername(savedUsername); }
         updateTimeFormatUI(); applyTheme(); updateLibraryVisibility();
-        // [FEATURE 1] Изначально empty-state'ы видимы (нет данных)
         toggleEmptyStates(false);
-        // [FEATURE 2] Если демо-режим сохранён — восстановим
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
           enterDemoMode();
         }
