@@ -795,6 +795,7 @@
       const steamBtn = document.getElementById('connect-steam-btn'); 
       const steamBtnText = document.getElementById('steam-btn-text');
       const instructionText = document.getElementById('steam-instruction-text');
+      const connectTitle = document.getElementById('connect-platform-title');
       
       if (steamBtn && steamBtnText) { 
           steamBtnText.textContent = 'Steam Connected'; 
@@ -806,6 +807,9 @@
       }
       if (instructionText) {
           instructionText.classList.add('hidden');
+      }
+      if (connectTitle) {
+          connectTitle.classList.add('hidden');
       }
 
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
