@@ -213,10 +213,30 @@
     .card-content .name { font-size: 0.7rem; font-weight: 700; line-height: 1.1; }
     .card-content .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 4px; }
 
-    /* Upgrader Wheel */
+    /* Upgrader Wheel (NEW) */
     .upgrade-wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto; }
-    .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
-    .upgrade-wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
+    .upgrade-wheel-pointer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 120px; background: #fff; z-index: 10; transform-origin: bottom center; transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); border-radius: 999px; }
+    .upgrade-wheel-pointer::before { content: ''; position: absolute; top: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 15px solid #fff; }
+    .upgrade-wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; background: #111117; border: 4px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 20; font-size: 1.2rem; font-weight: 800; color: #22c55e; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+    
+    /* Live Drops */
+    .live-drops-container { position: fixed; bottom: 2rem; right: 2rem; width: 300px; z-index: 50; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+    .live-drop-item { background: rgba(17, 17, 23, 0.9); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.5rem; animation: slideInRight 0.5s ease-out forwards, fadeOut 0.5s ease-in 4.5s forwards; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .live-drop-item .drop-text { font-size: 0.75rem; color: #d1d5db; }
+    .live-drop-item .drop-name { font-weight: 700; color: #fff; }
+    .live-drop-item .drop-item { font-weight: 800; }
+    
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(10px); } }
+
+    /* Leaderboard */
+    .leaderboard-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .leaderboard-row:last-child { border-bottom: none; }
+    .leaderboard-row .rank { font-weight: 800; color: #9ca3af; width: 2rem; text-align: center; }
+    .leaderboard-row .user { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+    .leaderboard-row .avatar { width: 24px; height: 24px; border-radius: 50%; }
+    .leaderboard-row .value { font-weight: 800; color: #22c55e; }
     
     /* Balance Badge (Only in Cases) */
     .balance-badge { display: flex; align-items: center; gap: 0.5rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.9rem; }
@@ -354,9 +374,7 @@
         <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <!-- DEMO BUTTON (Hidden if logged in) -->
         <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
-        
         <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
         <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
@@ -618,11 +636,11 @@
       </div>
     </div>
 
-    <!-- Tabs (Same style as standard buttons) -->
+    <!-- Tabs -->
     <div class="flex gap-4 mb-8">
-      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm text-white btn-gradient transition border border-white/5 shadow-lg">Open Cases</button>
-      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
-      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">Inventory</button>
+      <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
+      <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
+      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Inventory</button>
     </div>
 
     <!-- Cases Section -->
@@ -689,7 +707,7 @@
       </div>
     </div>
 
-    <!-- Upgrader Section -->
+    <!-- Upgrader Section (NEW WHEEL) -->
     <div id="section-upgrader" class="glass-card rounded-2xl p-6 neon-border hidden">
       <h3 class="text-xl font-bold text-white mb-6 text-center">Upgrade Your Skin</h3>
       
@@ -705,7 +723,8 @@
         <div class="flex flex-col items-center gap-4">
           <div class="upgrade-wheel-container">
             <div class="upgrade-wheel" id="upgrade-wheel"></div>
-            <div class="upgrade-wheel-pointer"></div>
+            <div class="upgrade-wheel-pointer" id="upgrade-wheel-pointer"></div>
+            <div class="upgrade-wheel-center" id="upgrade-wheel-center">50%</div>
           </div>
         </div>
 
@@ -773,6 +792,9 @@
       <p id="select-item-empty" class="text-center text-gray-500 py-4 hidden">Your inventory is empty.</p>
     </div>
   </div>
+
+  <!-- LIVE DROPS CONTAINER -->
+  <div id="live-drops-container" class="live-drops-container"></div>
 
   <script>
     // 1. Инициализация Supabase
@@ -960,7 +982,7 @@
       if (currentUser) {
         authBtnText.textContent = currentUser.email || 'Account'; closeAuthModal();
         setMemberSince(currentUser.created_at);
-        demoBtn.classList.add('hidden'); // Hide demo button if logged in
+        demoBtn.classList.add('hidden'); 
         
         try {
           const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
@@ -973,7 +995,6 @@
                      avatarImg.dataset.custom = "true";
                  }
              }
-             // Update balance
              updateBalanceDisplay(profile.balance || 0);
           } else if (error && error.code === 'PGRST116') {
              await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User', balance: 0 });
@@ -981,10 +1002,11 @@
         } catch (err) { console.error('Error fetching profile:', err); }
         autoLoadSteamGames();
         loadInventoryFromDB();
+        loadLeaderboard();
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
         setMemberSince(null);
-        demoBtn.classList.remove('hidden'); // Show demo button if not logged in
+        demoBtn.classList.remove('hidden'); 
         
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
         loadInventoryLocal();
@@ -1240,7 +1262,6 @@
       updateAnalytics(demoData.response.games);
       document.getElementById('demo-badge').classList.remove('hidden');
       
-      // Give demo balance
       addToBalance(50);
     }
 
@@ -1388,14 +1409,14 @@
       dashboardPage.classList.add('hidden');
       analyticsPage.classList.add('hidden');
       casesPage.classList.remove('hidden');
-      checkDailyReward(); // Check when entering cases page
+      checkDailyReward(); 
     });
     backFromCasesBtn?.addEventListener('click', () => {
       casesPage.classList.add('hidden');
       dashboardPage.classList.remove('hidden');
     });
 
-    // Tabs (Same style as standard buttons)
+    // Tabs
     function setActiveTab(activeTab) {
       [tabCases, tabUpgrader, tabInventory].forEach(t => {
         t.className = 'px-6 py-3 rounded-xl font-bold text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition';
@@ -1556,10 +1577,8 @@
     function getRandomItemFromCase(caseKey) {
       const caseData = cases[caseKey];
       if (!caseData) return null;
-      // Взвешенный рандом: более дорогие предметы выпадают реже
       const items = caseData.items;
       const weights = items.map((item, index) => {
-        // Инвертируем индекс: чем выше индекс (дороже), тем меньше вес
         return 100 / (index + 1); 
       });
       const totalWeight = weights.reduce((a, b) => a + b, 0);
@@ -1576,13 +1595,11 @@
       
       const caseData = cases[selectedCase];
       
-      // Check balance
       if (caseData.price > 0) {
         if (currentBalance < caseData.price) {
           alert(`Not enough balance! You need $${caseData.price.toFixed(2)} but have $${currentBalance.toFixed(2)}.`);
           return;
         }
-        // Deduct balance
         const success = await subtractFromBalance(caseData.price);
         if (!success) return;
       }
@@ -1595,7 +1612,6 @@
       
       if (!winner) { openCaseBtn.disabled = false; openCaseBtn.textContent = 'Open Case'; return; }
 
-      // Build visual roulette
       rouletteTrack.innerHTML = '';
       const winnerIndex = 40;
       for (let i = 0; i < 50; i++) {
@@ -1611,12 +1627,10 @@
         rouletteTrack.appendChild(el);
       }
 
-      // Reset position
       rouletteTrack.style.transition = 'none';
       rouletteTrack.style.transform = 'translateX(0)';
       void rouletteTrack.offsetWidth;
 
-      // Animate
       const itemWidth = 110;
       const containerWidth = document.getElementById('roulette-container').offsetWidth;
       const centerOffset = containerWidth / 2 - itemWidth / 2;
@@ -1640,9 +1654,11 @@
       }, 6100);
     });
 
-    // --- UPGRADER LOGIC ---
+    // --- UPGRADER LOGIC (NEW WHEEL) ---
     let selectedUpgradeChance = 50;
     const upgradeWheel = document.getElementById('upgrade-wheel');
+    const upgradeWheelPointer = document.getElementById('upgrade-wheel-pointer');
+    const upgradeWheelCenter = document.getElementById('upgrade-wheel-center');
     const upgradeBtn = document.getElementById('upgrade-btn');
     const upgraderResult = document.getElementById('upgrader-result');
     const upgraderSelectedItemEl = document.getElementById('upgrader-selected-item');
@@ -1653,7 +1669,11 @@
     function updateUpgradeWheel() {
       const greenPercent = selectedUpgradeChance;
       const redPercent = 100 - greenPercent;
+      
+      // Always green at bottom (0deg), red at top
       upgradeWheel.style.background = `conic-gradient(#22c55e 0% ${greenPercent}%, #ef4444 ${greenPercent}% 100%)`;
+      upgradeWheelCenter.textContent = `${selectedUpgradeChance}%`;
+      upgradeWheelCenter.style.color = '#22c55e'; // Always green text
     }
 
     document.querySelectorAll('.upgrade-chance-btn').forEach(btn => {
@@ -1681,22 +1701,15 @@
       `;
     }
 
-    // Populate inventory selector for upgrader
-    // Note: To keep UI simple, clicking an inventory item selects it for upgrade.
-    // We'll attach this logic in renderInventory.
-    
     // Override renderInventory to add click-to-select for upgrader
     const originalRenderInventory = renderInventory;
     renderInventory = function() {
       originalRenderInventory();
-      // Add click handlers to inventory items for upgrader selection
       document.querySelectorAll('.inv-item').forEach(el => {
-        // We need to find the item data. Since we only have innerHTML, let's re-render with data attributes.
-        // For simplicity, let's just re-write the grid generation to include data-id.
+        // No need to do anything extra here, handled in renderInventoryWithSelection
       });
     };
 
-    // Let's just rewrite renderInventory cleanly
     function renderInventoryWithSelection() {
       const grid = document.getElementById('inventory-grid');
       const emptyState = document.getElementById('inventory-empty');
@@ -1721,7 +1734,6 @@
           <span class="price">$${item.price.toFixed(2)}</span>
         `;
         el.addEventListener('click', () => {
-          // Set for upgrader
           selectedUpgradeItem = item;
           upgraderSelectedItemEl.innerHTML = `
             <span class="text-sm font-bold text-purple-400 mb-1">Your Item</span>
@@ -1729,14 +1741,12 @@
             <span class="text-sm font-extrabold text-green-400 mt-2">$${item.price.toFixed(2)}</span>
           `;
           updateUpgradeTarget();
-          // Switch to upgrader tab
           setActiveTab(tabUpgrader);
         });
         grid.appendChild(el);
       });
     }
 
-    // Replace the renderInventory function pointer
     renderInventory = renderInventoryWithSelection;
 
     // --- SELECT ITEM MODAL LOGIC ---
@@ -1794,42 +1804,51 @@
       upgradeBtn.textContent = 'Rolling...';
       upgraderResult.classList.add('hidden');
       
-      // Animate wheel
-      const randomRotation = 360 * 5 + Math.random() * 360; // 5 full spins + random
-      upgradeWheel.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
-      upgradeWheel.style.transform = `rotate(${randomRotation}deg)`;
+      // Animate pointer
+      // The green area is at the bottom (180 degrees in conic-gradient, but CSS rotation starts from top)
+      // We want the pointer to land on the green (win) or red (lose) segment based on chance.
+      // Let's calculate the angle for the win segment.
+      
+      // Green segment is from 0% to `chance`% of the circle, starting from top.
+      // Actually, conic-gradient starts from top (12 o'clock) and goes clockwise.
+      // We want the pointer to point at the green segment if win.
+      // The pointer is currently at 12 o'clock (0deg).
+      // To point at a random spot in the green area, the angle should be between 0 and (chance * 3.6) degrees.
+      
+      const winAngle = Math.random() * (chance * 3.6); 
+      const loseAngle = chance * 3.6 + Math.random() * ((100 - chance) * 3.6);
+      
+      const win = Math.random() * 100 < chance;
+      const targetAngle = win ? winAngle : loseAngle;
+      
+      // Add 5 full spins
+      const totalRotation = 360 * 5 + targetAngle;
+      
+      upgradeWheelPointer.style.transform = `translate(-50%, -50%) rotate(${totalRotation}deg)`;
       
       setTimeout(async () => {
-        const win = Math.random() * 100 < chance;
-        
         if (win) {
-          // Success
-          // Remove old item
-          await removeItem(selectedUpgradeItem.id); // Use removeItem instead of sellItem
+          await removeItem(selectedUpgradeItem.id);
           
-          // Add new upgraded item
           const newItem = {
             name: `${selectedUpgradeItem.name} (Upgraded)`,
             price: targetPrice,
-            rarity: selectedUpgradeItem.rarity, // Keep same rarity for simplicity
+            rarity: selectedUpgradeItem.rarity,
           };
           await addItemToInventory(newItem);
           
           upgraderResult.innerHTML = `<p class="text-2xl font-bold text-green-400">Success! You won $${targetPrice.toFixed(2)}</p>`;
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
           
-          // Reset selection
           selectedUpgradeItem = null;
           upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
           upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
           
         } else {
-          // Fail
-          await removeItem(selectedUpgradeItem.id); // Use removeItem instead of sellItem
+          await removeItem(selectedUpgradeItem.id);
           
           upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
           
-          // Reset selection
           selectedUpgradeItem = null;
           upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
           upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
@@ -1839,10 +1858,9 @@
         upgradeBtn.disabled = false;
         upgradeBtn.textContent = 'Upgrade Now';
         
-        // Reset wheel rotation for next time
         setTimeout(() => {
-          upgradeWheel.style.transition = 'none';
-          upgradeWheel.style.transform = 'rotate(0deg)';
+          upgradeWheelPointer.style.transition = 'none';
+          upgradeWheelPointer.style.transform = `translate(-50%, -50%) rotate(0deg)`;
         }, 500);
         
       }, 4100);
@@ -1851,32 +1869,32 @@
     // Initial wheel visual
     updateUpgradeWheel();
 
-    // --- DAILY REWARD LOGIC ---
+    // --- DAILY REWARD & STREAK LOGIC ---
     const dailyGrid = document.getElementById('daily-grid');
     const dailySection = document.getElementById('daily-reward-section');
     const claimDailyBtn = document.getElementById('claim-daily-btn');
     let dailyClaimed = false;
 
     async function checkDailyReward() {
-      if (!currentUser) return; // Only for logged in users for now
+      if (!currentUser) return; 
       
-      const { data, error } = await supabaseClient.from('daily_rewards').select('last_claimed_at').eq('user_id', currentUser.id).single();
+      const { data, error } = await supabaseClient.from('daily_rewards').select('last_claimed_at, streak').eq('user_id', currentUser.id).single();
       
       if (error && error.code !== 'PGRST116') { console.error(error); return; }
       
       const now = new Date();
       const lastClaimed = data ? new Date(data.last_claimed_at) : null;
+      let streak = data ? data.streak : 0;
       
+      // Check if 24 hours passed
       if (!lastClaimed || (now - lastClaimed) > 24 * 60 * 60 * 1000) {
-        // Can claim
         dailyClaimed = false;
-        claimDailyBtn.textContent = 'Claim Daily Reward';
+        claimDailyBtn.textContent = `Claim Daily Reward ${streak > 0 ? `(🔥 ${streak} days)` : ''}`;
         claimDailyBtn.disabled = false;
         claimDailyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       } else {
-        // Cannot claim yet
         dailyClaimed = true;
-        claimDailyBtn.textContent = 'Come back tomorrow!';
+        claimDailyBtn.textContent = `Come back tomorrow! (🔥 ${streak} days)`;
         claimDailyBtn.disabled = true;
         claimDailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
       }
@@ -1885,7 +1903,6 @@
     claimDailyBtn?.addEventListener('click', async () => {
       if (dailyClaimed) return;
       
-      // Generate 9 random items
       const allPossibleItems = [
         ...cases.free.items,
         ...cases.case1.items,
@@ -1894,7 +1911,6 @@
         ...cases.case4.items
       ].filter(i => i.price >= 0.1 && i.price <= 100);
       
-      // Shuffle and pick 9
       const shuffled = allPossibleItems.sort(() => 0.5 - Math.random());
       const rewardItems = shuffled.slice(0, 9);
       
@@ -1913,21 +1929,23 @@
         card.addEventListener('click', async () => {
           if (card.classList.contains('flipped')) return;
           
-          // Flip all cards to reveal
           document.querySelectorAll('.daily-card').forEach(c => {
             c.classList.add('flipped');
-            // Reveal content
             c.querySelector('span').style.display = 'none';
             c.querySelector('.card-content').style.display = 'flex';
           });
           
           await addItemToInventory(item);
           
-          // Update DB
+          // Update DB with new streak
           if (currentUser) {
+            const { data } = await supabaseClient.from('daily_rewards').select('streak').eq('user_id', currentUser.id).single();
+            const newStreak = (data?.streak || 0) + 1;
+            
             await supabaseClient.from('daily_rewards').upsert({
               user_id: currentUser.id,
-              last_claimed_at: new Date().toISOString()
+              last_claimed_at: new Date().toISOString(),
+              streak: newStreak
             });
           }
           
@@ -1947,18 +1965,124 @@
       });
       
       dailySection.classList.remove('hidden');
-      claimDailyBtn.style.display = 'none'; // Hide button while picking
+      claimDailyBtn.style.display = 'none'; 
     });
 
-    // Add event listener to show daily section when entering inventory
     tabInventory?.addEventListener('click', () => {
       if (!dailyClaimed) {
         checkDailyReward();
       }
     });
 
-    // Run check on load
     checkDailyReward();
+
+    // --- LIVE DROPS LOGIC ---
+    const liveDropsContainer = document.getElementById('live-drops-container');
+    const fakeUsers = ['NoobMaster', 'xX_Sniper_Xx', 'ProGamer123', 'LuckyLuke', 'CSGO_KING', 'HeadshotGod', 'RushB_Pro', 'AWP_Master', 'KnifeCollector', 'GlobalElite'];
+    
+    function spawnLiveDrop() {
+      if (!liveDropsContainer) return;
+      
+      const randomUser = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
+      const randomCaseKey = Object.keys(cases)[Math.floor(Math.random() * Object.keys(cases).length)];
+      const randomItem = cases[randomCaseKey].items[Math.floor(Math.random() * cases[randomCaseKey].items.length)];
+      
+      const dropEl = document.createElement('div');
+      dropEl.className = 'live-drop-item';
+      dropEl.innerHTML = `
+        <span class="drop-text">
+          <span class="drop-name">${randomUser}</span> just unboxed <span class="drop-item" style="color: ${skinsDB[randomItem.rarity].color}">${randomItem.name}</span>
+        </span>
+      `;
+      
+      liveDropsContainer.appendChild(dropEl);
+      
+      // Remove after animation (5s total: 0.5s in + 4.5s wait + 0.5s out)
+      setTimeout(() => {
+        if (dropEl.parentNode) dropEl.parentNode.removeChild(dropEl);
+      }, 5500);
+    }
+
+    // Spawn every 8 seconds
+    setInterval(spawnLiveDrop, 8000);
+    // Spawn one immediately
+    setTimeout(spawnLiveDrop, 1000);
+
+    // --- LEADERBOARD LOGIC ---
+    async function loadLeaderboard() {
+      const container = document.getElementById('leaderboard-container');
+      if (!container) return;
+      
+      // Get top 10 users by inventory value
+      const { data, error } = await supabaseClient.rpc('get_top_inventories');
+      
+      if (error) {
+        console.error('Error loading leaderboard:', error);
+        // Fallback: try without RPC
+        const { data: fallbackData, error: fallbackError } = await supabaseClient
+          .from('inventory')
+          .select('user_id, item_price');
+          
+        if (fallbackError) return;
+        
+        // Aggregate in JS
+        const userValues = {};
+        fallbackData.forEach(item => {
+          if (!userValues[item.user_id]) userValues[item.user_id] = { total: 0, count: 0 };
+          userValues[item.user_id].total += parseFloat(item.item_price);
+          userValues[item.user_id].count += 1;
+        });
+        
+        const sortedUsers = Object.entries(userValues)
+          .sort(([,a], [,b]) => b.total - a.total)
+          .slice(0, 10);
+          
+        // Get usernames
+        const userIds = sortedUsers.map(([id]) => id);
+        const { data: profiles } = await supabaseClient.from('profiles').select('id, username').in('id', userIds);
+        
+        container.innerHTML = '';
+        sortedUsers.forEach(([userId, stats], index) => {
+          const profile = profiles?.find(p => p.id === userId);
+          const username = profile?.username || 'Unknown';
+          
+          const row = document.createElement('div');
+          row.className = 'leaderboard-row';
+          row.innerHTML = `
+            <div class="rank">#${index + 1}</div>
+            <div class="user">
+              <img src="https://ui-avatars.com/api/?name=${username}&background=random&size=32" class="avatar" />
+              <span class="text-sm font-bold text-white">${username}</span>
+            </div>
+            <div class="value">$${stats.total.toFixed(2)}</div>
+          `;
+          container.appendChild(row);
+        });
+        
+        if (sortedUsers.length === 0) {
+          container.innerHTML = '<p class="text-center text-gray-500 py-4">No data yet.</p>';
+        }
+      } else {
+        // Render from RPC data
+        container.innerHTML = '';
+        data.forEach((row, index) => {
+          const rowEl = document.createElement('div');
+          rowEl.className = 'leaderboard-row';
+          rowEl.innerHTML = `
+            <div class="rank">#${index + 1}</div>
+            <div class="user">
+              <img src="https://ui-avatars.com/api/?name=${row.username}&background=random&size=32" class="avatar" />
+              <span class="text-sm font-bold text-white">${row.username}</span>
+            </div>
+            <div class="value">$${parseFloat(row.total_value).toFixed(2)}</div>
+          `;
+          container.appendChild(rowEl);
+        });
+      }
+    }
+
+    // Call on init
+    loadLeaderboard();
 
     // 9. ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
     (async function handleSteamReturn() {
@@ -1986,7 +2110,6 @@
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
           enterDemoMode();
         }
-        // Load initial inventory and balance
         if (!currentUser) {
           loadInventoryLocal();
           loadBalance();
