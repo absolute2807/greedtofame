@@ -161,33 +161,45 @@
     .demo-badge { position: fixed; top: 5rem; right: 1rem; z-index: 40; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; padding: 0.35rem 0.75rem; border-radius: 999px; background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; }
     body.light-theme .demo-badge { background: rgba(8, 145, 178, 0.12); border-color: rgba(8, 145, 178, 0.4); color: #0891b2; }
 
-    /* --- CASES GAME STYLES --- */
-    .case-item { transition: transform 0.2s; }
-    .case-item:hover { transform: scale(1.05); }
-    .roulette-container {
-      overflow: hidden; position: relative; height: 120px; border-radius: 0.5rem;
-      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-      mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-      -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-    }
-    .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; transition: transform 5s cubic-bezier(0.1, 1, 0.1, 1); }
-    .roulette-item {
-      width: 100px; height: 100px; margin: 0 5px; border-radius: 0.5rem;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: #171722; border-bottom: 3px solid; flex-shrink: 0;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
-    .roulette-item img { width: 60px; height: 60px; object-fit: contain; }
-    .roulette-item span { font-size: 0.65rem; font-weight: 700; text-align: center; margin-top: 4px; padding: 0 4px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
-    .roulette-pointer {
-      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 4px; height: 100%; background: #22d3ee; z-index: 10;
-      box-shadow: 0 0 10px #22d3ee;
-    }
+    /* --- CASES & INVENTORY STYLES --- */
+    .case-card { transition: all 0.2s ease; }
+    .case-card:hover { transform: translateY(-5px); }
+    .case-card.disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+    .inv-item { background: #171722; border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: all 0.2s ease; }
+    .inv-item:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+    .inv-item .rarity-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; }
+    .inv-item .name { font-size: 0.75rem; text-align: center; font-weight: 600; margin-top: 0.5rem; line-height: 1.2; }
+    .inv-item .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 0.25rem; }
+    .inv-item .sell-btn { opacity: 0; position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ef4444; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.2s; }
+    .inv-item:hover .sell-btn { opacity: 1; }
+    .inv-item .sell-btn:hover { background: rgba(239, 68, 68, 0.4); }
+
+    /* Roulette */
+    .roulette-container { overflow: hidden; position: relative; height: 120px; border-radius: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
+    .roulette-track { display: flex; position: absolute; left: 0; top: 0; height: 100%; align-items: center; transition: transform 6s cubic-bezier(0.1, 1, 0.1, 1); }
+    .roulette-item { width: 100px; height: 100px; margin: 0 5px; border-radius: 0.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #171722; border-bottom: 3px solid; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .roulette-item .r-name { font-size: 0.6rem; font-weight: 700; text-align: center; margin-top: 4px; padding: 0 4px; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+    .roulette-item .r-price { font-size: 0.65rem; font-weight: 800; color: #22c55e; margin-top: 2px; }
+    .roulette-pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 4px; height: 100%; background: #22d3ee; z-index: 10; box-shadow: 0 0 10px #22d3ee; }
     .roulette-pointer::before { content: ''; position: absolute; top: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #22d3ee; }
     .roulette-pointer::after { content: ''; position: absolute; bottom: -10px; left: -6px; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #22d3ee; }
-    .upgrader-multiplier { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #22d3ee, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* Daily Cards */
+    .daily-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; max-width: 600px; margin: 0 auto; }
+    .daily-card { aspect-ratio: 1; background: linear-gradient(145deg, #1a1a24, #111117); border: 2px solid rgba(255,255,255,0.1); border-radius: 1rem; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+    .daily-card:hover { border-color: rgba(168, 85, 247, 0.5); transform: scale(1.02); }
+    .daily-card.flipped { pointer-events: none; background: #111117; border-color: transparent; }
+    .daily-card.flipped .card-content { display: flex; }
+    .card-content { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0.5rem; text-align: center; }
+    .card-content .name { font-size: 0.7rem; font-weight: 700; line-height: 1.1; }
+    .card-content .price { font-size: 0.8rem; font-weight: 800; color: #22c55e; margin-top: 4px; }
+
+    /* Upgrader Wheel */
+    .upgrade-wheel-container { position: relative; width: 250px; height: 250px; margin: 0 auto; }
+    .upgrade-wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #333; box-shadow: 0 0 20px rgba(168,85,247,0.3); transition: transform 4s cubic-bezier(0.1, 1, 0.1, 1); background: conic-gradient(#22c55e 0% 50%, #ef4444 50% 100%); }
+    .upgrade-wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #fff; z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
   </style>
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
@@ -505,7 +517,6 @@
       </button>
     </div>
 
-    <!-- Top 10 Games (Now full width and horizontal labels) -->
     <div class="glass-card rounded-2xl p-6 neon-border mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Top 10 Games by Hours</h3>
         <div class="chart-container">
@@ -513,7 +524,6 @@
         </div>
     </div>
 
-    <!-- Recent Activity (Now full width below) -->
     <div class="glass-card rounded-2xl p-6 neon-border mb-8">
         <h3 class="text-xl font-bold text-white mb-4">Recent Activity (2 Weeks)</h3>
         <div class="chart-container" style="height: 250px;">
@@ -521,9 +531,7 @@
         </div>
     </div>
 
-    <!-- Fun Facts & Value -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Text Stats -->
         <div class="glass-card rounded-2xl p-6 neon-border">
             <h3 class="text-xl font-bold text-white mb-4">Fun Facts</h3>
             <ul class="space-y-4">
@@ -551,7 +559,6 @@
             </ul>
         </div>
 
-        <!-- Library Value -->
         <div class="glass-card rounded-2xl p-6 neon-border relative overflow-hidden">
             <div class="absolute top-0 right-0 p-4 opacity-10">
                 <svg class="w-32 h-32 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"></path></svg>
@@ -581,28 +588,57 @@
     <div class="flex gap-4 mb-8">
       <button id="tab-cases" class="px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition">Open Cases</button>
       <button id="tab-upgrader" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Upgrader</button>
+      <button id="tab-inventory" class="px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition">Inventory</button>
     </div>
 
     <!-- Cases Section -->
     <div id="section-cases" class="glass-card rounded-2xl p-6 neon-border">
       <h3 class="text-xl font-bold text-white mb-6 text-center">Select a Case</h3>
       
-      <div class="flex justify-center gap-8 mb-10" id="case-selection">
-        <!-- Case 1 -->
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center w-48" data-case="budget">
-          <div class="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-900 rounded-lg flex items-center justify-center mb-4 shadow-lg">
-            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+        <!-- Case 1 (Free) -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-green-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="free">
+          <div class="w-16 h-16 bg-gradient-to-br from-green-700 to-green-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <svg class="w-8 h-8 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
           </div>
-          <h4 class="font-bold text-white">Budget Case</h4>
-          <p class="text-xs text-gray-400 mt-1">Free to open</p>
+          <h4 class="font-bold text-white text-sm">Free Case</h4>
+          <p class="text-xs text-green-400 mt-1 font-bold">FREE</p>
         </div>
-        <!-- Case 2 -->
-        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center w-48 opacity-50" data-case="premium">
-          <div class="w-24 h-24 bg-gradient-to-br from-purple-700 to-blue-900 rounded-lg flex items-center justify-center mb-4 shadow-lg">
-            <svg class="w-12 h-12 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+
+        <!-- Case 2 ($1) -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-blue-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case1">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-700 to-blue-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <svg class="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
           </div>
-          <h4 class="font-bold text-white">Premium Case</h4>
-          <p class="text-xs text-gray-400 mt-1">Coming soon</p>
+          <h4 class="font-bold text-white text-sm">Starter Case</h4>
+          <p class="text-xs text-blue-400 mt-1 font-bold">$1.00</p>
+        </div>
+
+        <!-- Case 3 ($5) -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-purple-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case2">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-700 to-purple-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <svg class="w-8 h-8 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          </div>
+          <h4 class="font-bold text-white text-sm">Advanced Case</h4>
+          <p class="text-xs text-purple-400 mt-1 font-bold">$5.00</p>
+        </div>
+
+        <!-- Case 4 ($20) -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-pink-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case3">
+          <div class="w-16 h-16 bg-gradient-to-br from-pink-700 to-pink-900 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <svg class="w-8 h-8 text-pink-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          </div>
+          <h4 class="font-bold text-white text-sm">Elite Case</h4>
+          <p class="text-xs text-pink-400 mt-1 font-bold">$20.00</p>
+        </div>
+
+        <!-- Case 5 ($100) -->
+        <div class="case-card cursor-pointer p-4 rounded-xl border border-white/10 hover:border-yellow-500/50 hover:bg-white/5 transition flex flex-col items-center" data-case="case4">
+          <div class="w-16 h-16 bg-gradient-to-br from-yellow-600 to-orange-700 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <svg class="w-8 h-8 text-yellow-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+          </div>
+          <h4 class="font-bold text-white text-sm">Legendary Case</h4>
+          <p class="text-xs text-yellow-400 mt-1 font-bold">$100.00</p>
         </div>
       </div>
 
@@ -613,7 +649,7 @@
           <div class="roulette-pointer"></div>
         </div>
         <div class="text-center">
-          <button id="open-case-btn" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Open Case (Free)</button>
+          <button id="open-case-btn" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1">Open Case</button>
           <p id="case-result-text" class="mt-4 text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 hidden"></p>
         </div>
       </div>
@@ -623,59 +659,67 @@
     <div id="section-upgrader" class="glass-card rounded-2xl p-6 neon-border hidden">
       <h3 class="text-xl font-bold text-white mb-6 text-center">Upgrade Your Skin</h3>
       
-      <div class="flex flex-col md:flex-row items-center justify-center gap-8">
-        <!-- Left: Your Item -->
-        <div class="flex flex-col items-center p-6 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs">
-          <p class="text-sm text-gray-400 mb-4">Your Item</p>
-          <div id="upgrader-current-item" class="w-32 h-32 bg-[#171722] rounded-xl flex flex-col items-center justify-center border-b-4 border-gray-500 relative">
-            <span class="text-4xl">🔫</span>
-            <span class="text-xs font-bold mt-2 text-white">AK-47 | Slate</span>
-            <span class="text-xs text-gray-400">$1.50</span>
+      <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
+        <div class="flex flex-col items-center p-4 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs text-center">
+          <p class="text-sm text-gray-400 mb-2">Selected Item</p>
+          <div id="upgrader-selected-item" class="flex flex-col items-center justify-center py-4">
+            <span class="text-gray-500 text-sm">No item selected</span>
           </div>
         </div>
 
-        <!-- Middle: Multiplier -->
         <div class="flex flex-col items-center gap-4">
-          <div class="text-center">
-            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Multiplier</p>
-            <p class="upgrader-multiplier" id="upgrader-multiplier">2.00x</p>
-          </div>
-          <div class="w-px h-16 bg-white/20"></div>
-          <div class="text-center">
-            <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Win Chance</p>
-            <p class="text-xl font-bold text-green-400" id="upgrader-chance">50.0%</p>
+          <div class="upgrade-wheel-container">
+            <div class="upgrade-wheel" id="upgrade-wheel"></div>
+            <div class="upgrade-wheel-pointer"></div>
           </div>
         </div>
 
-        <!-- Right: Target Item -->
-        <div class="flex flex-col items-center p-6 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs">
-          <p class="text-sm text-gray-400 mb-4">Target Item</p>
-          <div id="upgrader-target-item" class="w-32 h-32 bg-[#171722] rounded-xl flex flex-col items-center justify-center border-b-4 border-purple-500 relative shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-            <span class="text-4xl">🔪</span>
-            <span class="text-xs font-bold mt-2 text-white">Karambit | Doppler</span>
-            <span class="text-xs text-green-400 font-bold">$3.00</span>
+        <div class="flex flex-col items-center p-4 border border-white/10 rounded-xl bg-white/5 w-full max-w-xs text-center">
+          <p class="text-sm text-gray-400 mb-2">Target Item</p>
+          <div id="upgrader-target-item" class="flex flex-col items-center justify-center py-4">
+            <span class="text-gray-500 text-sm">—</span>
           </div>
         </div>
       </div>
 
-      <!-- Controls -->
-      <div class="mt-10 max-w-2xl mx-auto space-y-6">
-        <div>
-          <div class="flex justify-between text-sm text-gray-400 mb-2">
-            <span>Multiplier</span>
-            <span id="upgrader-mult-label">2.0x</span>
-          </div>
-          <input type="range" id="upgrader-slider" min="1.1" max="10" step="0.1" value="2" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500" />
+      <div class="mt-4 max-w-2xl mx-auto space-y-6">
+        <div class="flex justify-center gap-2">
+          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="1">1%</button>
+          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="10">10%</button>
+          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="20">20%</button>
+          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="50">50%</button>
+          <button class="upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition" data-chance="75">75%</button>
         </div>
+        
         <button id="upgrade-btn" class="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-xl shadow-lg transition transform hover:-translate-y-1 flex items-center justify-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
           Upgrade Now
         </button>
       </div>
       
-      <!-- Result -->
       <div id="upgrader-result" class="mt-6 text-center hidden">
         <p class="text-2xl font-bold"></p>
+      </div>
+    </div>
+
+    <!-- Inventory Section -->
+    <div id="section-inventory" class="glass-card rounded-2xl p-6 neon-border hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-white">Your Inventory</h3>
+        <button id="claim-daily-btn" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-lg shadow-lg transition text-sm">Claim Daily Reward</button>
+      </div>
+      
+      <div id="daily-reward-section" class="hidden mb-10 p-6 border border-cyan-500/30 rounded-xl bg-cyan-500/5">
+        <h4 class="text-lg font-bold text-cyan-400 mb-4 text-center">Choose Your Daily Reward</h4>
+        <div class="daily-grid" id="daily-grid"></div>
+        <p class="text-center text-sm text-gray-400 mt-4">Pick one card. You can do this once every 24 hours.</p>
+      </div>
+
+      <div id="inventory-grid" class="inventory-grid">
+        <!-- Items will be inserted here -->
+      </div>
+      <div id="inventory-empty" class="text-center py-10 text-gray-500">
+        Your inventory is empty. Open a case to get your first skin!
       </div>
     </div>
   </div>
@@ -692,7 +736,8 @@
       timeFormat: 'gt_time_format',
       theme: 'gt_theme',
       libraryHidden: 'gt_library_hidden',
-      demoMode: 'gt_demo_mode'
+      demoMode: 'gt_demo_mode',
+      inventoryLocal: 'gt_inventory_local' // Для неавторизованных
     };
 
     // 3. DOM Элементы
@@ -712,7 +757,7 @@
 
     // --- КАСТОМНЫЙ КУРСОР ---
     const cursor = document.getElementById('custom-cursor');
-    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame, .case-card');
+    const hoverElements = document.querySelectorAll('a, button, input, .glass-card, .podium-frame, .case-card, .inv-item');
     document.addEventListener('mousemove', (e) => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
     hoverElements.forEach(el => { el.addEventListener('mouseenter', () => cursor.classList.add('hover')); el.addEventListener('mouseleave', () => cursor.classList.remove('hover')); });
 
@@ -812,13 +857,14 @@
     document.addEventListener('click', (e) => { const container = document.getElementById('auth-btn-container'); if (container && !container.contains(e.target)) { authDropdown.classList.add('hidden'); } });
 
     // 6. Обработка состояния авторизации (Auth State)
+    let currentUser = null;
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      const user = session?.user ?? null;
-      if (user) {
-        authBtnText.textContent = user.email || 'Account'; closeAuthModal();
-        setMemberSince(user.created_at);
+      currentUser = session?.user ?? null;
+      if (currentUser) {
+        authBtnText.textContent = currentUser.email || 'Account'; closeAuthModal();
+        setMemberSince(currentUser.created_at);
         try {
-          const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
+          const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
           if (profile && !error) {
              if (profile.username) applyUsername(profile.username);
              if (profile.avatar_url) {
@@ -829,18 +875,19 @@
                  }
              }
           } else if (error && error.code === 'PGRST116') {
-             await supabaseClient.from('profiles').insert({ id: user.id, username: user.email || 'User' });
+             await supabaseClient.from('profiles').insert({ id: currentUser.id, username: currentUser.email || 'User' });
           }
         } catch (err) { console.error('Error fetching profile:', err); }
         autoLoadSteamGames();
+        loadInventoryFromDB();
       } else {
         authBtnText.textContent = 'Login'; authDropdown.classList.add('hidden'); applyUsername('Guest');
         setMemberSince(null);
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') enterDemoMode();
+        loadInventoryLocal();
       }
     });
 
-    // Хелпер для Member since
     function setMemberSince(dateStr) {
       const el = document.getElementById('stat-member-since');
       if (!el) return;
@@ -850,7 +897,6 @@
       el.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
-    // 7. Вспомогательные функции
     function applyUsername(name) {
       const welcomeEl = document.getElementById('welcome-username'); const profileNameEl = document.getElementById('profile-username'); const avatarEl = document.getElementById('profile-avatar');
       if (welcomeEl) welcomeEl.textContent = name; if (profileNameEl) profileNameEl.textContent = name;
@@ -862,7 +908,6 @@
     const usernameModal = document.getElementById('username-modal'); const usernameBackdrop = document.getElementById('username-modal-backdrop');
     const usernameInput = document.getElementById('username-input');
     
-    // Элементы для аватарки в модалке
     const modalAvatarPreview = document.getElementById('modal-avatar-preview');
     const avatarUploadInput = document.getElementById('avatar-upload');
     const uploadAvatarBtn = document.getElementById('upload-avatar-btn');
@@ -890,7 +935,6 @@
     usernameBackdrop.addEventListener('click', closeUsernameModal);
     document.querySelectorAll('.username-close').forEach(btn => btn.addEventListener('click', closeUsernameModal));
 
-    // Обработка загрузки аватарки
     uploadAvatarBtn.addEventListener('click', () => { avatarUploadInput.click(); });
     
     avatarUploadInput.addEventListener('change', (e) => {
@@ -905,7 +949,6 @@
         reader.readAsDataURL(file);
     });
 
-    // Сохранение Никнейма и Аватарки
     document.getElementById('username-save').addEventListener('click', async () => {
       const newName = usernameInput.value.trim();
       if (!newName) return;
@@ -920,36 +963,30 @@
 
       closeUsernameModal();
       
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
-        const updates = { id: session.user.id, username: newName };
+      if (currentUser) {
+        const updates = { id: currentUser.id, username: newName };
         if (newAvatarBase64) updates.avatar_url = newAvatarBase64;
         await supabaseClient.from('profiles').upsert(updates);
       }
     });
 
-    // 8. Steam логика
+    // 8. Steam логика (сокращено для читаемости, без изменений)
     const steamAutoLoadEl = document.getElementById('steam-auto-load'); const steamBtnText = document.getElementById('steam-btn-text');
     const gamesTbody = document.getElementById('games-tbody'); const totalGamesEl = document.getElementById('stat-total-games'); const totalHoursEl = document.getElementById('stat-total-hours');
 
     function renderSteamGames(data) {
       toggleEmptyStates(!!(data && data.response && data.response.games && data.response.games.length));
-
       if (!data || !data.response || !data.response.games) {
         if (gamesTbody) gamesTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>'; return;
       }
-
       const games = data.response.games; const totalGames = games.length;
       const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
       const totalHours = Math.round(totalMinutes / 60);
-      
       const formatTime = (hours) => { return currentFormat === 'days' ? Math.round(hours / 24) + 'd' : hours + 'h'; };
-
       if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
       if (totalHoursEl) { totalHoursEl.classList.remove('stat-number'); animateValue(totalHoursEl, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => totalHoursEl.classList.add('stat-number'), 1500); }
       const hoursCard = document.getElementById('hours-card');
       if (hoursCard) { hoursCard.classList.remove('stat-number'); animateValue(hoursCard, 0, totalHours, 1500, currentFormat === 'days' ? 'd' : 'h'); setTimeout(() => hoursCard.classList.add('stat-number'), 1500); }
-      
       if (totalGames > 0) {
           const avgHours = totalHours / totalGames; let playstyleLabel = '—'; let playstyleDesc = '—';
           if (avgHours > 20) { playstyleLabel = 'Devoted'; playstyleDesc = 'Dedicated player'; } 
@@ -958,8 +995,6 @@
           const playstyleLabelEl = document.getElementById('stat-playstyle-label'); const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
           if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel; if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
       }
-
-      // Топ-1 игра в карточке
       const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
       if (sortedGames.length > 0) {
           const topGame = sortedGames[0]; const topNameEl = document.getElementById('top-game-name'); const topHoursEl = document.getElementById('top-game-hours'); const topIconEl = document.getElementById('top-game-icon');
@@ -967,8 +1002,6 @@
           if (topHoursEl) { const topHours = Math.round((topGame.playtime_forever || 0) / 60); topHoursEl.textContent = `${formatTime(topHours)} played`; }
           if (topIconEl && topGame.img_icon_url) { topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`; topIconEl.classList.remove('hidden'); }
       }
-
-      // ТОП-3 ПОДИУМ
       for (let i = 0; i < 3; i++) {
           const game = sortedGames[i]; const rank = i + 1;
           const imgEl = document.getElementById(`podium-img-${rank}`); const nameEl = document.getElementById(`podium-name-${rank}`);
@@ -979,34 +1012,27 @@
               if (nameEl) nameEl.textContent = '—'; if (imgEl) imgEl.style.display = 'none';
           }
       }
-     
-      // ПЕРЕКРАСКА
       let themeColor = '#a855f7'; let themeGradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
       if (totalHours < 500) { themeColor = currentTheme === 'light' ? '#92400e' : '#cd7f32'; themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #92400e 0%, #78350f 100%)' : 'linear-gradient(135deg, #cd7f32 0%, #a0522d 100%)'; } 
       else if (totalHours < 1000) { themeColor = currentTheme === 'light' ? '#4b5563' : '#c0c0c0'; themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #4b5563 0%, #1f2937 100%)' : 'linear-gradient(135deg, #c0c0c0 0%, #94a3b8 100%)'; } 
       else if (totalHours < 5000) { themeColor = currentTheme === 'light' ? '#b45309' : '#ffd700'; themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #b45309 0%, #78350f 100%)' : 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)'; } 
       else { themeColor = currentTheme === 'light' ? '#0891b2' : '#22d3ee'; themeGradient = currentTheme === 'light' ? 'linear-gradient(135deg, #0891b2 0%, #164e63 100%)' : 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)'; }
-
       const allBtns = document.querySelectorAll('.btn-gradient, .bg-purple-600'); allBtns.forEach(btn => btn.style.background = themeGradient);
       const textElements = document.querySelectorAll('.text-purple-400'); textElements.forEach(el => el.style.color = themeColor);
       const allCards = document.querySelectorAll('.glass-card'); allCards.forEach(card => { card.style.boxShadow = currentTheme === 'light' ? '0 4px 6px rgba(0,0,0,0.05)' : `0 0 15px ${themeColor}40`; card.style.borderColor = currentTheme === 'light' ? 'rgba(0,0,0,0.1)' : themeColor; });
       const totalHoursEl2 = document.getElementById('stat-total-hours'); if (totalHoursEl2) totalHoursEl2.style.color = themeColor;
       const avatarEl = document.getElementById('profile-avatar'); if (avatarEl) { avatarEl.style.borderColor = themeColor; avatarEl.style.boxShadow = currentTheme === 'light' ? 'none' : `0 0 20px ${themeColor}`; }
-
       window.lastSteamData = data;
-
       if (gamesTbody) {
         gamesTbody.innerHTML = '';
         sortedGames.forEach((game, idx) => {
           const iconUrl = game.img_icon_url ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg` : null;
           const hours = Math.round((game.playtime_forever || 0) / 60);
-          
           let lastPlayedText = '—';
           if (game.rtime_last_played && game.rtime_last_played > 0) {
               const date = new Date(game.rtime_last_played * 1000);
               lastPlayedText = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
           }
-
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-white/3 transition group row-animate';
           tr.style.animationDelay = `${Math.min(idx * 40, 800)}ms`;
@@ -1041,12 +1067,10 @@
       const { data: { user }, error: authError } = await supabaseClient.auth.getUser(); if (authError || !user) return;
       const { data: profile, error: dbError } = await supabaseClient.from('profiles').select('steam_id').eq('id', user.id).single();
       if (dbError || !profile || !profile.steam_id) return;
-      
       const steamBtn = document.getElementById('connect-steam-btn'); 
       const steamBtnText = document.getElementById('steam-btn-text');
       const instructionText = document.getElementById('steam-instruction-text');
       const connectTitle = document.getElementById('connect-platform-title');
-      
       if (steamBtn && steamBtnText) { 
           steamBtnText.textContent = 'Steam Connected'; 
           steamBtn.removeAttribute('href'); 
@@ -1055,13 +1079,8 @@
           const svgIcon = steamBtn.querySelector('svg'); 
           if (svgIcon) svgIcon.style.display = 'none'; 
       }
-      if (instructionText) {
-          instructionText.classList.add('hidden');
-      }
-      if (connectTitle) {
-          connectTitle.classList.add('hidden');
-      }
-
+      if (instructionText) instructionText.classList.add('hidden');
+      if (connectTitle) connectTitle.classList.add('hidden');
       if (steamAutoLoadEl) steamAutoLoadEl.classList.remove('hidden');
       try {
         const { data, error } = await supabaseClient.functions.invoke('steam-api', { body: { steamid: profile.steam_id } });
@@ -1088,9 +1107,7 @@
         { appid: 400,     name: 'Portal 2',                   playtime_forever: 480,   img_icon_url: '', rtime_last_played: now - day * 60 },
         { appid: 620,     name: 'Portal 2 (Beta)',            playtime_forever: 120,   img_icon_url: '', rtime_last_played: now - day * 90 }
       ];
-      demoGames.forEach(g => {
-        g.img_icon_url = `${g.appid}/demo_icon`;
-      });
+      demoGames.forEach(g => { g.img_icon_url = `${g.appid}/demo_icon`; });
       return { response: { games: demoGames } };
     }
 
@@ -1115,7 +1132,6 @@
       }
       if (instructionText) instructionText.textContent = 'This is a demo profile with fake data. Sign in and connect Steam to see your real stats.';
       if (connectTitle) connectTitle.classList.add('hidden');
-
       renderSteamGames(demoData);
       updateAnalytics(demoData.response.games);
       document.getElementById('demo-badge').classList.remove('hidden');
@@ -1149,87 +1165,37 @@
 
     function updateAnalytics(games) {
         if (!games || games.length === 0) return;
-
         const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
         const top10 = sortedGames.slice(0, 10);
-
         const barGames = [...top10].reverse();
         const labels = barGames.map(g => g.name);
         const dataHours = barGames.map(g => Math.round((g.playtime_forever || 0) / 60));
-
         const barCtx = document.getElementById('barChart');
         if (barCtx) {
             if (barChartInstance) barChartInstance.destroy();
             barChartInstance = new Chart(barCtx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Hours Played',
-                        data: dataHours,
-                        backgroundColor: 'rgba(168, 85, 247, 0.7)',
-                        borderColor: 'rgba(168, 85, 247, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        animation: { duration: 1200, easing: 'easeOutQuart' }
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { type: 'logarithmic', beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                        y: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } }
-                    },
-                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.x} h` } } }
-                }
+                data: { labels: labels, datasets: [{ label: 'Hours Played', data: dataHours, backgroundColor: 'rgba(168, 85, 247, 0.7)', borderColor: 'rgba(168, 85, 247, 1)', borderWidth: 1, borderRadius: 5, animation: { duration: 1200, easing: 'easeOutQuart' } }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { type: 'logarithmic', beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }, y: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 11 } } } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.x} h` } } } }
             });
         }
-
         const lineCtx = document.getElementById('lineChart');
         if (lineCtx) {
             if (lineChartInstance) lineChartInstance.destroy();
             const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            const randomData = days.map(() => Math.floor(Math.random() * 5)); // Временная заглушка
-
+            const randomData = days.map(() => Math.floor(Math.random() * 5));
             lineChartInstance = new Chart(lineCtx, {
                 type: 'line',
-                data: {
-                    labels: days,
-                    datasets: [{
-                        label: 'Hours per Day',
-                        data: randomData,
-                        borderColor: 'rgba(34, 211, 238, 1)',
-                        backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#0a0a0f',
-                        pointBorderColor: 'rgba(34, 211, 238, 1)',
-                        pointBorderWidth: 2,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: days, datasets: [{ label: 'Hours per Day', data: randomData, borderColor: 'rgba(34, 211, 238, 1)', backgroundColor: 'rgba(34, 211, 238, 0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#0a0a0f', pointBorderColor: 'rgba(34, 211, 238, 1)', pointBorderWidth: 2, pointRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } }, x: { grid: { display: false }, ticks: { color: '#9ca3af' } } }, plugins: { legend: { display: false } } }
             });
         }
-
         const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
         const totalHours = Math.round(totalMinutes / 60);
-
         const avgTimeEl = document.getElementById('analytics-avg-time');
         const topGameEl = document.getElementById('analytics-top-game');
         const totalGamesEl = document.getElementById('analytics-total-games');
         const valueEl = document.getElementById('analytics-value');
-
         if (avgTimeEl) avgTimeEl.textContent = `${Math.round(totalHours / games.length)} hours/game`;
         if (topGameEl) topGameEl.textContent = top10[0].name;
         if (totalGamesEl) totalGamesEl.textContent = games.length;
@@ -1241,225 +1207,576 @@
         document.getElementById('dashboard-page').classList.add('hidden');
         document.getElementById('analytics-page').classList.remove('hidden');
     });
-
     document.getElementById('back-to-dashboard-btn')?.addEventListener('click', () => {
         document.getElementById('analytics-page').classList.add('hidden');
         document.getElementById('dashboard-page').classList.remove('hidden');
     });
 
-    // --- CASES GAME LOGIC ---
-    const csItems = [
-      { name: 'P250 | Sand Dune', price: 0.05, rarity: 'Consumer', color: '#b0c3d9' },
-      { name: 'MP9 | Hot Rod', price: 0.12, rarity: 'Industrial', color: '#5e98d9' },
-      { name: 'MAC-10 | Candy Apple', price: 0.35, rarity: 'Mil-Spec', color: '#4b69ff' },
-      { name: 'AK-47 | Slate', price: 1.50, rarity: 'Restricted', color: '#8847ff' },
-      { name: 'AWP | Atheris', price: 3.20, rarity: 'Classified', color: '#d32ce6' },
-      { name: 'Desert Eagle | Printstream', price: 45.00, rarity: 'Covert', color: '#eb4b4b' },
-      { name: 'Karambit | Doppler', price: 850.00, rarity: 'Rare Special', color: '#ffd700' }
-    ];
+    // --- CS2 SKINS DATA & LOGIC ---
+    const skinsDB = {
+      'Consumer': { color: '#b0c3d9' },
+      'Industrial': { color: '#5e98d9' },
+      'Mil-Spec': { color: '#4b69ff' },
+      'Restricted': { color: '#8847ff' },
+      'Classified': { color: '#d32ce6' },
+      'Covert': { color: '#eb4b4b' },
+      'Rare Special': { color: '#ffd700' }
+    };
 
-    function getRandomCaseItem() {
-      const rand = Math.random() * 100;
-      if (rand < 40) return csItems[0];
-      if (rand < 65) return csItems[1];
-      if (rand < 82) return csItems[2];
-      if (rand < 93) return csItems[3];
-      if (rand < 98) return csItems[4];
-      if (rand < 99.5) return csItems[5];
-      return csItems[6];
-    }
+    const cases = {
+      free: { price: 0, items: [
+        { name: 'P250 | Sand Dune', price: 0.05, rarity: 'Consumer' },
+        { name: 'MP9 | Hot Rod', price: 0.12, rarity: 'Industrial' },
+        { name: 'MAC-10 | Candy Apple', price: 0.35, rarity: 'Mil-Spec' },
+        { name: 'AK-47 | Slate', price: 0.80, rarity: 'Restricted' },
+        { name: 'AWP | Atheris', price: 1.00, rarity: 'Classified' }
+      ]},
+      case1: { price: 1, items: [
+        { name: 'Glock-18 | Fade', price: 0.40, rarity: 'Industrial' },
+        { name: 'USP-S | Cortex', price: 0.90, rarity: 'Mil-Spec' },
+        { name: 'AK-47 | Redline', price: 1.50, rarity: 'Restricted' },
+        { name: 'M4A4 | Asiimov', price: 2.50, rarity: 'Classified' },
+        { name: 'Desert Eagle | Printstream', price: 3.00, rarity: 'Covert' }
+      ]},
+      case2: { price: 5, items: [
+        { name: 'AWP | Neo-Noir', price: 2.00, rarity: 'Mil-Spec' },
+        { name: 'AK-47 | Vulcan', price: 5.50, rarity: 'Restricted' },
+        { name: 'M4A1-S | Hyper Beast', price: 8.00, rarity: 'Classified' },
+        { name: 'Butterfly Knife | Slaughter', price: 12.00, rarity: 'Covert' },
+        { name: 'Karambit | Doppler', price: 15.00, rarity: 'Rare Special' }
+      ]},
+      case3: { price: 20, items: [
+        { name: 'AK-47 | Bloodsport', price: 5.00, rarity: 'Mil-Spec' },
+        { name: 'AWP | Dragon Lore (FT)', price: 25.00, rarity: 'Restricted' },
+        { name: 'M4A4 | Howl (MW)', price: 45.00, rarity: 'Classified' },
+        { name: 'Glock-18 | Fade (FN)', price: 75.00, rarity: 'Covert' },
+        { name: 'Karambit | Fade (FN)', price: 100.00, rarity: 'Rare Special' }
+      ]},
+      case4: { price: 100, items: [
+        { name: 'AWP | Gungnir (MW)', price: 20.00, rarity: 'Mil-Spec' },
+        { name: 'M4A4 | Howl (FN)', price: 60.00, rarity: 'Restricted' },
+        { name: 'Butterfly Knife | Emerald (FN)', price: 150.00, rarity: 'Classified' },
+        { name: 'Karambit | Case Hardened (FN)', price: 300.00, rarity: 'Covert' },
+        { name: 'M4A4 | Howl (FN) StatTrak', price: 500.00, rarity: 'Rare Special' }
+      ]}
+    };
+
+    // DOM Elements for Cases
+    const navCasesBtn = document.getElementById('nav-cases-btn');
+    const backFromCasesBtn = document.getElementById('back-from-cases-btn');
+    const casesPage = document.getElementById('cases-page');
+    const dashboardPage = document.getElementById('dashboard-page');
+    const analyticsPage = document.getElementById('analytics-page');
+
+    const tabCases = document.getElementById('tab-cases');
+    const tabUpgrader = document.getElementById('tab-upgrader');
+    const tabInventory = document.getElementById('tab-inventory');
+    const sectionCases = document.getElementById('section-cases');
+    const sectionUpgrader = document.getElementById('section-upgrader');
+    const sectionInventory = document.getElementById('section-inventory');
 
     // Navigation
-    document.getElementById('nav-cases-btn')?.addEventListener('click', () => {
-      document.getElementById('dashboard-page').classList.add('hidden');
-      document.getElementById('analytics-page').classList.add('hidden');
-      document.getElementById('cases-page').classList.remove('hidden');
+    navCasesBtn?.addEventListener('click', () => {
+      dashboardPage.classList.add('hidden');
+      analyticsPage.classList.add('hidden');
+      casesPage.classList.remove('hidden');
     });
-    document.getElementById('back-from-cases-btn')?.addEventListener('click', () => {
-      document.getElementById('cases-page').classList.add('hidden');
-      document.getElementById('dashboard-page').classList.remove('hidden');
+    backFromCasesBtn?.addEventListener('click', () => {
+      casesPage.classList.add('hidden');
+      dashboardPage.classList.remove('hidden');
     });
 
     // Tabs
-    const tabCases = document.getElementById('tab-cases');
-    const tabUpgrader = document.getElementById('tab-upgrader');
-    const sectionCases = document.getElementById('section-cases');
-    const sectionUpgrader = document.getElementById('section-upgrader');
+    function setActiveTab(activeTab) {
+      [tabCases, tabUpgrader, tabInventory].forEach(t => {
+        t.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
+      });
+      [sectionCases, sectionUpgrader, sectionInventory].forEach(s => s.classList.add('hidden'));
+      
+      activeTab.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
+      if (activeTab === tabCases) sectionCases.classList.remove('hidden');
+      if (activeTab === tabUpgrader) sectionUpgrader.classList.remove('hidden');
+      if (activeTab === tabInventory) sectionInventory.classList.remove('hidden');
+    }
 
-    tabCases?.addEventListener('click', () => {
-      tabCases.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
-      tabUpgrader.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
-      sectionCases.classList.remove('hidden');
-      sectionUpgrader.classList.add('hidden');
-    });
+    tabCases?.addEventListener('click', () => setActiveTab(tabCases));
+    tabUpgrader?.addEventListener('click', () => setActiveTab(tabUpgrader));
+    tabInventory?.addEventListener('click', () => setActiveTab(tabInventory));
 
-    tabUpgrader?.addEventListener('click', () => {
-      tabUpgrader.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-purple-600 text-white shadow-lg transition';
-      tabCases.className = 'px-6 py-3 rounded-xl font-bold text-sm bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10 transition';
-      sectionUpgrader.classList.remove('hidden');
-      sectionCases.classList.add('hidden');
-    });
+    // --- INVENTORY LOGIC ---
+    let inventory = []; // { id, name, price, rarity, color }
 
-    // Case Selection
+    async function loadInventoryFromDB() {
+      if (!currentUser) return;
+      const { data, error } = await supabaseClient.from('inventory').select('*').order('obtained_at', { ascending: false });
+      if (error) { console.error('Error loading inventory:', error); return; }
+      inventory = data.map(item => ({
+        id: item.id,
+        name: item.item_name,
+        price: item.item_price,
+        rarity: item.rarity,
+        color: item.color
+      }));
+      renderInventory();
+    }
+
+    function loadInventoryLocal() {
+      const stored = localStorage.getItem(STORAGE_KEYS.inventoryLocal);
+      inventory = stored ? JSON.parse(stored) : [];
+      renderInventory();
+    }
+
+    function saveInventoryLocal() {
+      localStorage.setItem(STORAGE_KEYS.inventoryLocal, JSON.stringify(inventory));
+    }
+
+    async function addItemToInventory(item) {
+      if (currentUser) {
+        const { data, error } = await supabaseClient.from('inventory').insert({
+          user_id: currentUser.id,
+          item_name: item.name,
+          item_price: item.price,
+          rarity: item.rarity,
+          color: skinsDB[item.rarity].color
+        }).select().single();
+        if (error) { console.error('Error adding item:', error); return; }
+        inventory.unshift({
+          id: data.id,
+          name: data.item_name,
+          price: data.item_price,
+          rarity: data.rarity,
+          color: data.color
+        });
+      } else {
+        const newItem = {
+          id: Date.now().toString(),
+          name: item.name,
+          price: item.price,
+          rarity: item.rarity,
+          color: skinsDB[item.rarity].color
+        };
+        inventory.unshift(newItem);
+        saveInventoryLocal();
+      }
+      renderInventory();
+    }
+
+    async function sellItem(itemId) {
+      const itemIndex = inventory.findIndex(i => i.id === itemId);
+      if (itemIndex === -1) return;
+      const item = inventory[itemIndex];
+      
+      if (currentUser) {
+        const { error } = await supabaseClient.from('inventory').delete().eq('id', itemId);
+        if (error) { console.error('Error selling item:', error); return; }
+      }
+      
+      inventory.splice(itemIndex, 1);
+      if (!currentUser) saveInventoryLocal();
+      renderInventory();
+    }
+
+    function renderInventory() {
+      const grid = document.getElementById('inventory-grid');
+      const emptyState = document.getElementById('inventory-empty');
+      if (!grid || !emptyState) return;
+
+      if (inventory.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = '';
+      inventory.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'inv-item';
+        el.innerHTML = `
+          <button class="sell-btn" onclick="window.sellItem('${item.id}')" title="Sell for $${item.price}">✕</button>
+          <div class="rarity-bar" style="background: ${item.color}"></div>
+          <span class="name" style="color: ${item.color}">${item.name}</span>
+          <span class="price">$${item.price.toFixed(2)}</span>
+        `;
+        grid.appendChild(el);
+      });
+    }
+
+    // Expose sellItem for inline onclick
+    window.sellItem = sellItem;
+
+    // --- CASES LOGIC ---
     let selectedCase = null;
     const rouletteTrack = document.getElementById('roulette-track');
     const openCaseBtn = document.getElementById('open-case-btn');
     const caseResultText = document.getElementById('case-result-text');
+    const rouletteArea = document.getElementById('roulette-area');
 
     document.querySelectorAll('.case-card').forEach(card => {
       card.addEventListener('click', () => {
-        if (card.dataset.case === 'premium') return; // Disabled
+        if (card.classList.contains('disabled')) return;
         selectedCase = card.dataset.case;
-        document.getElementById('roulette-area').classList.remove('hidden');
+        rouletteArea.classList.remove('hidden');
         caseResultText.classList.add('hidden');
         caseResultText.textContent = '';
         
-        // Highlight selected
         document.querySelectorAll('.case-card').forEach(c => c.classList.remove('border-purple-500', 'bg-white/5'));
         card.classList.add('border-purple-500', 'bg-white/5');
       });
     });
 
-    function buildRoulette() {
-      rouletteTrack.innerHTML = '';
-      // 50 items
-      for (let i = 0; i < 50; i++) {
-        const item = getRandomCaseItem();
-        const el = document.createElement('div');
-        el.className = 'roulette-item';
-        el.style.borderBottomColor = item.color;
-        el.innerHTML = `
-          <div class="w-12 h-12 rounded bg-gray-800 flex items-center justify-center text-2xl">🔫</div>
-          <span style="color: ${item.color}">${item.name}</span>
-        `;
-        rouletteTrack.appendChild(el);
+    function getRandomItemFromCase(caseKey) {
+      const caseData = cases[caseKey];
+      if (!caseData) return null;
+      // Взвешенный рандом: более дорогие предметы выпадают реже
+      const items = caseData.items;
+      const weights = items.map((item, index) => {
+        // Инвертируем индекс: чем выше индекс (дороже), тем меньше вес
+        return 100 / (index + 1); 
+      });
+      const totalWeight = weights.reduce((a, b) => a + b, 0);
+      let random = Math.random() * totalWeight;
+      for (let i = 0; i < items.length; i++) {
+        if (random < weights[i]) return items[i];
+        random -= weights[i];
       }
+      return items[items.length - 1];
     }
 
-    openCaseBtn?.addEventListener('click', () => {
+    openCaseBtn?.addEventListener('click', async () => {
       if (!selectedCase) return;
       
       openCaseBtn.disabled = true;
       openCaseBtn.textContent = 'Opening...';
       caseResultText.classList.add('hidden');
 
-      buildRoulette();
+      const caseData = cases[selectedCase];
+      const winner = getRandomItemFromCase(selectedCase);
+      
+      if (!winner) { openCaseBtn.disabled = false; openCaseBtn.textContent = 'Open Case'; return; }
+
+      // Build visual roulette
+      rouletteTrack.innerHTML = '';
+      const winnerIndex = 40;
+      for (let i = 0; i < 50; i++) {
+        let item = (i === winnerIndex) ? winner : caseData.items[Math.floor(Math.random() * caseData.items.length)];
+        const el = document.createElement('div');
+        el.className = 'roulette-item';
+        el.style.borderBottomColor = skinsDB[item.rarity].color;
+        el.innerHTML = `
+          <div class="w-10 h-10 rounded bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-500">GT</div>
+          <span class="r-name" style="color: ${skinsDB[item.rarity].color}">${item.name}</span>
+          <span class="r-price">$${item.price.toFixed(2)}</span>
+        `;
+        rouletteTrack.appendChild(el);
+      }
 
       // Reset position
       rouletteTrack.style.transition = 'none';
       rouletteTrack.style.transform = 'translateX(0)';
-      
-      // Force reflow
       void rouletteTrack.offsetWidth;
 
       // Animate
-      const winnerIndex = 40; // Land on 40th item
-      const itemWidth = 110; // 100px + 10px margin
+      const itemWidth = 110;
       const containerWidth = document.getElementById('roulette-container').offsetWidth;
       const centerOffset = containerWidth / 2 - itemWidth / 2;
       const finalPosition = -(winnerIndex * itemWidth) + centerOffset;
 
-      rouletteTrack.style.transition = 'transform 5s cubic-bezier(0.1, 1, 0.1, 1)';
+      rouletteTrack.style.transition = 'transform 6s cubic-bezier(0.1, 1, 0.1, 1)';
       rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
 
-      // Determine winner (we cheat here and just read the item at the winning index)
-      // Actually, for a real game, the server determines the winner.
-      // Here, we'll just pick a random item and insert it at the winning index.
-      
-      // Let's re-build the track with a guaranteed winner at index 40
-      const actualWinner = getRandomCaseItem();
-      
-      // Rebuild to ensure visual matches the result
-      rouletteTrack.innerHTML = '';
-      for (let i = 0; i < 50; i++) {
-        let item = (i === winnerIndex) ? actualWinner : getRandomCaseItem();
-        const el = document.createElement('div');
-        el.className = 'roulette-item';
-        el.style.borderBottomColor = item.color;
-        el.innerHTML = `
-          <div class="w-12 h-12 rounded bg-gray-800 flex items-center justify-center text-2xl">🔫</div>
-          <span style="color: ${item.color}">${item.name}</span>
-        `;
-        rouletteTrack.appendChild(el);
-      }
-      
-      // Trigger animation after rebuild
-      void rouletteTrack.offsetWidth;
-      rouletteTrack.style.transform = `translateX(${finalPosition}px)`;
-
-      setTimeout(() => {
+      setTimeout(async () => {
         openCaseBtn.disabled = false;
-        openCaseBtn.textContent = 'Open Case (Free)';
-        caseResultText.textContent = `You unboxed: ${actualWinner.name} ($${actualWinner.price})`;
-        caseResultText.style.color = actualWinner.color;
+        openCaseBtn.textContent = 'Open Case';
+        caseResultText.textContent = `You unboxed: ${winner.name} ($${winner.price.toFixed(2)})`;
+        caseResultText.style.color = skinsDB[winner.rarity].color;
         caseResultText.classList.remove('hidden');
 
-        if (actualWinner.price > 10) {
+        await addItemToInventory(winner);
+
+        if (winner.price > 10) {
           confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#ffd700', '#ff0000', '#a855f7'] });
         }
-      }, 5100);
+      }, 6100);
     });
 
-    // Upgrader Logic
-    const upgraderSlider = document.getElementById('upgrader-slider');
-    const upgraderMultLabel = document.getElementById('upgrader-mult-label');
-    const upgraderMultiplier = document.getElementById('upgrader-multiplier');
-    const upgraderChance = document.getElementById('upgrader-chance');
+    // --- UPGRADER LOGIC ---
+    let selectedUpgradeChance = 50;
+    const upgradeWheel = document.getElementById('upgrade-wheel');
     const upgradeBtn = document.getElementById('upgrade-btn');
     const upgraderResult = document.getElementById('upgrader-result');
-    
-    // Base item value
-    const baseValue = 1.50;
-    
-    function updateUpgraderUI() {
-      const mult = parseFloat(upgraderSlider.value);
-      const chance = (100 / mult).toFixed(1);
-      
-      upgraderMultLabel.textContent = `${mult.toFixed(1)}x`;
-      upgraderMultiplier.textContent = `${mult.toFixed(2)}x`;
-      upgraderChance.textContent = `${chance}%`;
-      
-      // Update target item price
-      const targetValue = baseValue * mult;
-      document.querySelector('#upgrader-target-item .text-green-400').textContent = `$${targetValue.toFixed(2)}`;
-      
-      // Color chance
-      if (chance < 10) upgraderChance.className = 'text-xl font-bold text-red-500';
-      else if (chance < 30) upgraderChance.className = 'text-xl font-bold text-orange-500';
-      else upgraderChance.className = 'text-xl font-bold text-green-400';
+    const upgraderSelectedItemEl = document.getElementById('upgrader-selected-item');
+    const upgraderTargetItemEl = document.getElementById('upgrader-target-item');
+    let selectedUpgradeItem = null;
+
+    // Update wheel visual based on chance
+    function updateUpgradeWheel() {
+      const greenPercent = selectedUpgradeChance;
+      const redPercent = 100 - greenPercent;
+      upgradeWheel.style.background = `conic-gradient(#22c55e 0% ${greenPercent}%, #ef4444 ${greenPercent}% 100%)`;
     }
 
-    upgraderSlider?.addEventListener('input', updateUpgraderUI);
-    updateUpgraderUI();
+    document.querySelectorAll('.upgrade-chance-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedUpgradeChance = parseInt(btn.dataset.chance);
+        document.querySelectorAll('.upgrade-chance-btn').forEach(b => {
+          b.className = 'upgrade-chance-btn px-4 py-2 rounded-lg border border-white/20 text-gray-400 hover:bg-white/5 transition';
+        });
+        btn.className = 'upgrade-chance-btn px-4 py-2 rounded-lg border border-purple-500 text-purple-400 bg-purple-500/10 transition';
+        updateUpgradeWheel();
+        updateUpgradeTarget();
+      });
+    });
 
-    upgradeBtn?.addEventListener('click', () => {
-      const mult = parseFloat(upgraderSlider.value);
-      const chance = 100 / mult;
+    function updateUpgradeTarget() {
+      if (!selectedUpgradeItem) {
+        upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
+        return;
+      }
+      const targetPrice = selectedUpgradeItem.price * (100 / selectedUpgradeChance);
+      upgraderTargetItemEl.innerHTML = `
+        <span class="text-sm font-bold text-purple-400 mb-1">Upgrade Target</span>
+        <span class="text-xs font-bold text-white text-center">${selectedUpgradeItem.name} (Upgraded)</span>
+        <span class="text-sm font-extrabold text-green-400 mt-2">$${targetPrice.toFixed(2)}</span>
+      `;
+    }
+
+    // Populate inventory selector for upgrader
+    // Note: To keep UI simple, clicking an inventory item selects it for upgrade.
+    // We'll attach this logic in renderInventory.
+    
+    // Override renderInventory to add click-to-select for upgrader
+    const originalRenderInventory = renderInventory;
+    renderInventory = function() {
+      originalRenderInventory();
+      // Add click handlers to inventory items for upgrader selection
+      document.querySelectorAll('.inv-item').forEach(el => {
+        // We need to find the item data. Since we only have innerHTML, let's re-render with data attributes.
+        // For simplicity, let's just re-write the grid generation to include data-id.
+      });
+    };
+
+    // Let's just rewrite renderInventory cleanly
+    function renderInventoryWithSelection() {
+      const grid = document.getElementById('inventory-grid');
+      const emptyState = document.getElementById('inventory-empty');
+      if (!grid || !emptyState) return;
+
+      if (inventory.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = '';
+      inventory.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'inv-item cursor-pointer';
+        el.dataset.id = item.id;
+        el.innerHTML = `
+          <button class="sell-btn" onclick="event.stopPropagation(); window.sellItem('${item.id}')" title="Sell for $${item.price}">✕</button>
+          <div class="rarity-bar" style="background: ${item.color}"></div>
+          <span class="name" style="color: ${item.color}">${item.name}</span>
+          <span class="price">$${item.price.toFixed(2)}</span>
+        `;
+        el.addEventListener('click', () => {
+          // Set for upgrader
+          selectedUpgradeItem = item;
+          upgraderSelectedItemEl.innerHTML = `
+            <span class="text-sm font-bold text-purple-400 mb-1">Your Item</span>
+            <span class="text-xs font-bold text-white text-center">${item.name}</span>
+            <span class="text-sm font-extrabold text-green-400 mt-2">$${item.price.toFixed(2)}</span>
+          `;
+          updateUpgradeTarget();
+          // Switch to upgrader tab
+          setActiveTab(tabUpgrader);
+        });
+        grid.appendChild(el);
+      });
+    }
+
+    // Replace the renderInventory function pointer
+    renderInventory = renderInventoryWithSelection;
+
+    upgradeBtn?.addEventListener('click', async () => {
+      if (!selectedUpgradeItem) {
+        alert('Please select an item from your inventory first (click on it in the Inventory tab).');
+        return;
+      }
+      
+      const chance = selectedUpgradeChance;
+      const targetPrice = selectedUpgradeItem.price * (100 / chance);
       
       upgradeBtn.disabled = true;
       upgradeBtn.textContent = 'Rolling...';
       upgraderResult.classList.add('hidden');
       
-      const targetItem = document.getElementById('upgrader-target-item');
-      targetItem.classList.add('animate-pulse');
+      // Animate wheel
+      const randomRotation = 360 * 5 + Math.random() * 360; // 5 full spins + random
+      upgradeWheel.style.transition = 'transform 4s cubic-bezier(0.1, 1, 0.1, 1)';
+      upgradeWheel.style.transform = `rotate(${randomRotation}deg)`;
       
-      setTimeout(() => {
+      setTimeout(async () => {
         const win = Math.random() * 100 < chance;
         
-        targetItem.classList.remove('animate-pulse');
-        
         if (win) {
-          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-green-400">Success! You won $${(baseValue * mult).toFixed(2)}</p>`;
+          // Success
+          // Remove old item
+          await sellItem(selectedUpgradeItem.id); // Reuse sell to delete from DB/Local
+          
+          // Add new upgraded item
+          const newItem = {
+            name: `${selectedUpgradeItem.name} (Upgraded)`,
+            price: targetPrice,
+            rarity: selectedUpgradeItem.rarity, // Keep same rarity for simplicity
+          };
+          await addItemToInventory(newItem);
+          
+          upgraderResult.innerHTML = `<p class="text-2xl font-bold text-green-400">Success! You won $${targetPrice.toFixed(2)}</p>`;
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          
+          // Reset selection
+          selectedUpgradeItem = null;
+          upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
+          upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
+          
         } else {
+          // Fail
+          await sellItem(selectedUpgradeItem.id);
+          
           upgraderResult.innerHTML = `<p class="text-2xl font-bold text-red-500">Failed! You lost your item.</p>`;
+          
+          // Reset selection
+          selectedUpgradeItem = null;
+          upgraderSelectedItemEl.innerHTML = '<span class="text-gray-500 text-sm">No item selected</span>';
+          upgraderTargetItemEl.innerHTML = '<span class="text-gray-500 text-sm">—</span>';
         }
         
         upgraderResult.classList.remove('hidden');
         upgradeBtn.disabled = false;
         upgradeBtn.textContent = 'Upgrade Now';
-      }, 1500);
+        
+        // Reset wheel rotation for next time
+        setTimeout(() => {
+          upgradeWheel.style.transition = 'none';
+          upgradeWheel.style.transform = 'rotate(0deg)';
+        }, 500);
+        
+      }, 4100);
     });
+
+    // Initial wheel visual
+    updateUpgradeWheel();
+
+    // --- DAILY REWARD LOGIC ---
+    const dailyGrid = document.getElementById('daily-grid');
+    const dailySection = document.getElementById('daily-reward-section');
+    const claimDailyBtn = document.getElementById('claim-daily-btn');
+    let dailyClaimed = false;
+
+    async function checkDailyReward() {
+      if (!currentUser) return; // Only for logged in users for now
+      
+      const { data, error } = await supabaseClient.from('daily_rewards').select('last_claimed_at').eq('user_id', currentUser.id).single();
+      
+      if (error && error.code !== 'PGRST116') { console.error(error); return; }
+      
+      const now = new Date();
+      const lastClaimed = data ? new Date(data.last_claimed_at) : null;
+      
+      if (!lastClaimed || (now - lastClaimed) > 24 * 60 * 60 * 1000) {
+        // Can claim
+        dailyClaimed = false;
+        claimDailyBtn.textContent = 'Claim Daily Reward';
+        claimDailyBtn.disabled = false;
+        claimDailyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        // Cannot claim yet
+        dailyClaimed = true;
+        claimDailyBtn.textContent = 'Come back tomorrow!';
+        claimDailyBtn.disabled = true;
+        claimDailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+    }
+
+    claimDailyBtn?.addEventListener('click', async () => {
+      if (dailyClaimed) return;
+      
+      // Generate 9 random items
+      const allPossibleItems = [
+        ...cases.free.items,
+        ...cases.case1.items,
+        ...cases.case2.items,
+        ...cases.case3.items,
+        ...cases.case4.items
+      ].filter(i => i.price >= 0.1 && i.price <= 100);
+      
+      // Shuffle and pick 9
+      const shuffled = allPossibleItems.sort(() => 0.5 - Math.random());
+      const rewardItems = shuffled.slice(0, 9);
+      
+      dailyGrid.innerHTML = '';
+      rewardItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'daily-card';
+        card.innerHTML = `
+          <span style="color: ${skinsDB[item.rarity].color}; opacity: 0.3;">?</span>
+          <div class="card-content">
+            <span class="name" style="color: ${skinsDB[item.rarity].color}">${item.name}</span>
+            <span class="price">$${item.price.toFixed(2)}</span>
+          </div>
+        `;
+        
+        card.addEventListener('click', async () => {
+          if (card.classList.contains('flipped')) return;
+          
+          // Flip all cards to reveal
+          document.querySelectorAll('.daily-card').forEach(c => {
+            c.classList.add('flipped');
+            // Reveal content
+            c.querySelector('span').style.display = 'none';
+            c.querySelector('.card-content').style.display = 'flex';
+          });
+          
+          await addItemToInventory(item);
+          
+          // Update DB
+          if (currentUser) {
+            await supabaseClient.from('daily_rewards').upsert({
+              user_id: currentUser.id,
+              last_claimed_at: new Date().toISOString()
+            });
+          }
+          
+          dailyClaimed = true;
+          claimDailyBtn.textContent = 'Come back tomorrow!';
+          claimDailyBtn.disabled = true;
+          claimDailyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          
+          confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+          
+          setTimeout(() => {
+            dailySection.classList.add('hidden');
+          }, 3000);
+        });
+        
+        dailyGrid.appendChild(card);
+      });
+      
+      dailySection.classList.remove('hidden');
+      claimDailyBtn.style.display = 'none'; // Hide button while picking
+    });
+
+    // Add event listener to show daily section when entering inventory
+    tabInventory?.addEventListener('click', () => {
+      if (!dailyClaimed) {
+        checkDailyReward();
+      }
+    });
+
+    // Run check on load
+    checkDailyReward();
 
     // 9. ПЕРЕХВАТ ВОЗВРАТА ОТ STEAM
     (async function handleSteamReturn() {
@@ -1486,6 +1803,10 @@
         toggleEmptyStates(false);
         if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
           enterDemoMode();
+        }
+        // Load initial inventory
+        if (!currentUser) {
+          loadInventoryLocal();
         }
     })();
 
