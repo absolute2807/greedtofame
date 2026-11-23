@@ -4,6 +4,8 @@ import {
   renderFilteredGamesTable,
   autoLoadSteamGames,
   loadSteamStatsForId,
+  syncFromSteamProfile,
+  unlinkSteamAccount,
   buildDemoData,
   getLastSteamData,
   toggleEmptyStates,
@@ -306,7 +308,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   }
 });
 
-// --- 5. ПРОФИЛЬ И НАСТРОЙКИ ---
+// --- 5. ПРОФИЛЬ, СИНХРОНИЗАЦИЯ И ОТВЯЗКА STEAM ---
 const settingsModal = document.getElementById('settings-modal');
 const settingsBackdrop = document.getElementById('settings-modal-backdrop');
 const usernameModal = document.getElementById('username-modal');
@@ -395,6 +397,46 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   }
 });
 
+// Ручная синхронизация из Steam
+const syncSteamBtn = document.getElementById('sync-steam-btn');
+const syncSteamText = document.getElementById('sync-steam-text');
+const syncSteamIcon = document.getElementById('sync-steam-icon');
+
+syncSteamBtn?.addEventListener('click', async () => {
+  if (syncSteamBtn.disabled) return;
+  syncSteamBtn.disabled = true;
+  if (syncSteamText) syncSteamText.textContent = 'Syncing...';
+  syncSteamIcon?.classList.add('animate-spin');
+
+  try {
+    await syncFromSteamProfile();
+    if (syncSteamText) syncSteamText.textContent = 'Synced!';
+  } catch (err) {
+    console.error('Steam sync error:', err);
+    if (syncSteamText) syncSteamText.textContent = 'Sync failed';
+  } finally {
+    syncSteamIcon?.classList.remove('animate-spin');
+    setTimeout(() => {
+      syncSteamBtn.disabled = false;
+      if (syncSteamText) syncSteamText.textContent = 'Sync from Steam';
+    }, 1800);
+  }
+});
+
+// Отвязка Steam в настройках
+const unlinkSteamBtn = document.getElementById('unlink-steam-btn');
+unlinkSteamBtn?.addEventListener('click', async () => {
+  if (!confirm('Are you sure you want to unlink your Steam account?')) return;
+  unlinkSteamBtn.disabled = true;
+  const ok = await unlinkSteamAccount();
+  if (ok) {
+    window.location.reload();
+  } else {
+    alert('Failed to unlink Steam account.');
+    unlinkSteamBtn.disabled = false;
+  }
+});
+
 // --- 6. COMMUNITY (ПОИСК И ПРОСМОТР ПРОФИЛЕЙ) ---
 const communityResultsEl = document.getElementById('community-results');
 const communitySearchEl = document.getElementById('community-search');
@@ -469,6 +511,7 @@ async function openCommunityProfile(profile) {
       `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
   }
   setMemberSince(profile.created_at || null);
+  syncSteamBtn?.classList.add('hidden');
   backToMyProfileBtn?.classList.remove('hidden');
 
   if (profile.steam_id) {
@@ -483,7 +526,7 @@ async function openCommunityProfile(profile) {
   document.getElementById('main-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-backToMyProfileBtn?.addEventListener('click', async () => {
+backToMyProfileBtn?.addEventListener('click', () => {
   viewingOtherUser = false;
   backToMyProfileBtn.classList.add('hidden');
   loadedUserId = null;
