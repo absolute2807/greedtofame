@@ -3,6 +3,7 @@ import { getLastSteamData } from './steam.js';
 
 let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
+let currentGameStatsPayload = null;
 
 function isRu() {
   return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
@@ -19,7 +20,202 @@ export function refreshDynamicTranslations() {
   if (cachedWishlistItems.length > 0) {
     renderWishlistItems();
   }
+  if (currentGameStatsPayload) {
+    renderGameDetailsStats(currentGameStatsPayload);
+  }
 }
+
+// --- 0. ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ (ОНЛАЙН + GetUserStatsForGame) ---
+export async function openGameDetailsModal(game) {
+  if (!game || !game.appid) return;
+
+  const modal = document.getElementById('game-details-modal');
+  const backdrop = document.getElementById('game-details-modal-backdrop');
+  const bannerEl = document.getElementById('gd-banner');
+  const appidEl = document.getElementById('gd-appid');
+  const titleEl = document.getElementById('gd-title');
+  const storeLinkEl = document.getElementById('gd-store-link');
+  const launchLinkEl = document.getElementById('gd-launch-link');
+  const liveOnlineEl = document.getElementById('gd-live-online');
+  const playtimeEl = document.getElementById('gd-playtime');
+  const recentEl = document.getElementById('gd-recent');
+  const achEl = document.getElementById('gd-achievements');
+  const statsBodyEl = document.getElementById('gd-stats-body');
+  const rawSearchEl = document.getElementById('gd-raw-search');
+
+  const appid = Number(game.appid);
+  const totalHours = Math.round((Number(game.playtime_forever) || 0) / 60);
+  const recentHours = ((Number(game.playtime_2weeks) || 0) / 60).toFixed(1);
+
+  if (bannerEl) {
+    bannerEl.style.display = 'block';
+    bannerEl.src = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appid}/header.jpg`;
+  }
+  if (appidEl) appidEl.textContent = `AppID: ${appid}`;
+  if (titleEl) titleEl.textContent = game.name || `App ${appid}`;
+  if (storeLinkEl) storeLinkEl.href = `https://store.steampowered.com/app/${appid}`;
+  if (launchLinkEl) launchLinkEl.href = `steam://run/${appid}`;
+  if (playtimeEl) playtimeEl.textContent = formatPlaytime(totalHours);
+  if (recentEl) recentEl.textContent = `${recentHours}h`;
+  if (liveOnlineEl) liveOnlineEl.textContent = '...';
+  if (achEl) achEl.textContent = '—';
+  if (rawSearchEl) {
+    rawSearchEl.value = '';
+    rawSearchEl.classList.add('hidden');
+  }
+
+  currentGameStatsPayload = null;
+  if (statsBodyEl) {
+    statsBodyEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+      isRu() ? 'Загружаем живой онлайн и статистику игрока...' : 'Fetching live player count & in-game stats...'
+    }</p>`;
+  }
+
+  modal?.classList.remove('hidden');
+  backdrop?.classList.remove('hidden');
+
+  let steamId = activeSteamIdForWishlist || '';
+  if (!steamId) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('steam_id')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (profile?.steam_id) {
+        steamId = String(profile.steam_id);
+        activeSteamIdForWishlist = steamId;
+      }
+    }
+  }
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('steam-game-stats', {
+      body: { appid, steamid: steamId },
+    });
+
+    if (error || !data) {
+      if (liveOnlineEl) liveOnlineEl.textContent = 'N/A';
+      if (statsBodyEl) {
+        statsBodyEl.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${
+          isRu() ? 'Не удалось получить данные из Steam.' : 'Failed to load game statistics from Steam.'
+        }</p>`;
+      }
+      return;
+    }
+
+    currentGameStatsPayload = data;
+
+    if (liveOnlineEl) {
+      liveOnlineEl.textContent =
+        typeof data.current_players === 'number'
+          ? data.current_players.toLocaleString(isRu() ? 'ru-RU' : 'en-US')
+          : '—';
+    }
+
+    if (achEl) {
+      const unlocked = Number(data.achievements?.unlocked) || 0;
+      const total = Number(data.achievements?.total) || 0;
+      if (total > 0) {
+        const pct = Math.round((unlocked / total) * 100);
+        achEl.textContent = `${unlocked}/${total} (${pct}%)`;
+      } else {
+        achEl.textContent = '—';
+      }
+    }
+
+    renderGameDetailsStats(data);
+  } catch (err) {
+    console.error('Game details error:', err);
+    if (liveOnlineEl) liveOnlineEl.textContent = '—';
+    if (statsBodyEl) {
+      statsBodyEl.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${
+        isRu() ? 'Ошибка при загрузке статистики.' : 'Error loading game stats.'
+      }</p>`;
+    }
+  }
+}
+
+function renderGameDetailsStats(data) {
+  const statsBodyEl = document.getElementById('gd-stats-body');
+  const rawSearchEl = document.getElementById('gd-raw-search');
+  if (!statsBodyEl) return;
+
+  const ru = isRu();
+  const highlights = Array.isArray(data.highlights) ? data.highlights : [];
+  const rawStats = Array.isArray(data.raw_stats) ? data.raw_stats : [];
+
+  if (highlights.length === 0 && rawStats.length === 0) {
+    rawSearchEl?.classList.add('hidden');
+    statsBodyEl.innerHTML = `
+      <div class="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-center">
+        <p class="text-xs text-gray-400">${
+          ru
+            ? 'Для этой игры разработчик не отдаёт детальную боевую статистику через GetUserStatsForGame (либо игровой профиль скрыт).'
+            : 'Detailed raw stats via GetUserStatsForGame are not exposed for this title (or game details are private).'
+        }</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+
+  if (highlights.length > 0) {
+    html += `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-4">`;
+    for (const h of highlights) {
+      const label = ru ? h.ru : h.en;
+      html += `
+        <div class="p-3 rounded-xl bg-purple-500/[0.06] border border-purple-500/20">
+          <p class="text-[11px] text-gray-400 truncate">${escapeHtml(label)}</p>
+          <p class="text-base font-extrabold text-white font-mono mt-0.5 truncate">${escapeHtml(h.value)}</p>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+
+  if (rawStats.length > 0) {
+    rawSearchEl?.classList.remove('hidden');
+    const filterTerm = (rawSearchEl?.value || '').trim().toLowerCase();
+    const filteredRaw = filterTerm
+      ? rawStats.filter((s) => String(s.name || '').toLowerCase().includes(filterTerm))
+      : rawStats;
+
+    html += `
+      <details ${highlights.length === 0 ? 'open' : ''} class="rounded-xl border border-white/10 bg-white/[0.02] p-3">
+        <summary class="text-xs font-semibold text-gray-300 cursor-pointer select-none">
+          ${ru ? `Все параметры Steam API (${filteredRaw.length})` : `All Steam API Raw Stats (${filteredRaw.length})`}
+        </summary>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+          ${filteredRaw
+            .slice(0, 120)
+            .map(
+              (s) => `
+              <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/30 border border-white/5">
+                <span class="text-[11px] font-mono text-gray-400 truncate">${escapeHtml(s.name)}</span>
+                <span class="text-xs font-mono font-bold text-white shrink-0">${escapeHtml(
+                  Number(s.value).toLocaleString(ru ? 'ru-RU' : 'en-US')
+                )}</span>
+              </div>
+            `
+            )
+            .join('')}
+        </div>
+      </details>
+    `;
+  }
+
+  statsBodyEl.innerHTML = html;
+}
+
+export function closeGameDetailsModal() {
+  document.getElementById('game-details-modal')?.classList.add('hidden');
+  document.getElementById('game-details-modal-backdrop')?.classList.add('hidden');
+}
+
+window.__gtf_openGameDetails = openGameDetailsModal;
 
 // --- 1. МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
 export function openLeaderboardModal() {
@@ -543,6 +739,12 @@ export function generateFlexCard() {
 }
 
 export function initFeatures() {
+  document.getElementById('close-game-details-btn')?.addEventListener('click', closeGameDetailsModal);
+  document.getElementById('game-details-modal-backdrop')?.addEventListener('click', closeGameDetailsModal);
+  document.getElementById('gd-raw-search')?.addEventListener('input', () => {
+    if (currentGameStatsPayload) renderGameDetailsStats(currentGameStatsPayload);
+  });
+
   document.getElementById('open-leaderboard-btn')?.addEventListener('click', openLeaderboardModal);
   document.getElementById('close-leaderboard-btn')?.addEventListener('click', closeLeaderboardModal);
   document.getElementById('leaderboard-modal-backdrop')?.addEventListener('click', closeLeaderboardModal);
