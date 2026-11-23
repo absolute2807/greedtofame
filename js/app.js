@@ -407,7 +407,7 @@ async function fetchProfiles(searchTerm = '', limit = 10) {
 
   let query = supabaseClient
     .from('profiles')
-    .select('id, username, avatar_url, steam_id, created_at')
+    .select('id, username, avatar_url, steam_id')
     .limit(limit);
 
   if (searchTerm.trim()) {
@@ -468,7 +468,7 @@ async function openCommunityProfile(profile) {
       profile.avatar_url ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
   }
-  setMemberSince(profile.created_at);
+  setMemberSince(profile.created_at || null);
   backToMyProfileBtn?.classList.remove('hidden');
 
   if (profile.steam_id) {
