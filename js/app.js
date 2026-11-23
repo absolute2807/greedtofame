@@ -254,6 +254,12 @@ let currentUser = null;
 let loadedUserId = null;
 let newAvatarBase64 = null;
 let viewingOtherUser = false;
+let activeSteamIdForWishlist = null;
+
+function closeGameDetailsModal() {
+  document.getElementById('game-details-modal')?.classList.add('hidden');
+  document.getElementById('game-details-modal-backdrop')?.classList.add('hidden');
+}
 
 function updateLanguageButtonsUI() {
   const lang = getCurrentLang();
@@ -514,7 +520,8 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
 
       if (profile && !error) {
         if (profile.steam_id) {
-          setActiveWishlistSteamId(String(profile.steam_id));
+          activeSteamIdForWishlist = String(profile.steam_id);
+          setActiveWishlistSteamId(activeSteamIdForWishlist);
         }
         if (profile.username) {
           displayName = profile.username;
@@ -537,6 +544,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     await autoLoadSteamGames();
   } else {
     loadedUserId = null;
+    activeSteamIdForWishlist = null;
     setActiveWishlistSteamId(null);
     if (authBtnText) authBtnText.textContent = t('sign_in_steam');
     authBtnChevron?.classList.add('hidden');
@@ -910,6 +918,23 @@ async function handleSteamCallbackToken() {
   updateLibraryVisibility();
   toggleEmptyStates(false);
   initFeatures();
+
+  // Надёжное закрытие окна детальной статистики игры
+  document.getElementById('close-game-details-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    closeGameDetailsModal();
+  });
+
+  document.getElementById('game-details-modal-backdrop')?.addEventListener('click', () => {
+    closeGameDetailsModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeGameDetailsModal();
+    }
+  });
 
   await handleSteamCallbackToken();
 
