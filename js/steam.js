@@ -17,6 +17,53 @@ export function toggleEmptyStates(hasGames) {
   podiumWrapper?.classList.toggle('hidden', !hasGames);
 }
 
+// Смена оформления в зависимости от общего количества часов:
+// < 500h -> Bronze | 500–999h -> Silver | 1000–4999h -> Gold | 5000h+ -> Cyan
+export function applyPlaytimeTier(totalHours) {
+  const root = document.documentElement;
+  const badgeEl = document.getElementById('playtime-tier-badge');
+
+  let color = '#a855f7';
+  let gradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
+  let tierName = 'Standard';
+
+  if (totalHours > 0 && totalHours < 500) {
+    color = prefs.theme === 'light' ? '#b45309' : '#cd7f32';
+    gradient = 'linear-gradient(135deg, #cd7f32 0%, #78350f 100%)';
+    tierName = 'Bronze • <500h';
+  } else if (totalHours >= 500 && totalHours < 1000) {
+    color = prefs.theme === 'light' ? '#475569' : '#cbd5e1';
+    gradient = 'linear-gradient(135deg, #cbd5e1 0%, #64748b 100%)';
+    tierName = 'Silver • 500h+';
+  } else if (totalHours >= 1000 && totalHours < 5000) {
+    color = prefs.theme === 'light' ? '#b45309' : '#facc15';
+    gradient = 'linear-gradient(135deg, #facc15 0%, #d97706 100%)';
+    tierName = 'Gold • 1000h+';
+  } else if (totalHours >= 5000) {
+    color = prefs.theme === 'light' ? '#0284c7' : '#22d3ee';
+    gradient = 'linear-gradient(135deg, #22d3ee 0%, #2563eb 100%)';
+    tierName = 'Apex • 5000h+';
+  }
+
+  root.style.setProperty('--tier-color', color);
+  root.style.setProperty('--tier-gradient', gradient);
+
+  if (badgeEl) {
+    badgeEl.textContent = tierName;
+    badgeEl.style.color = color;
+    badgeEl.style.borderColor = `${color}66`;
+  }
+
+  const totalHoursEl = document.getElementById('stat-total-hours');
+  if (totalHoursEl) totalHoursEl.style.color = color;
+
+  const avatarEl = document.getElementById('profile-avatar');
+  if (avatarEl) {
+    avatarEl.style.borderColor = color;
+    avatarEl.style.boxShadow = prefs.theme === 'light' ? 'none' : `0 0 20px ${color}66`;
+  }
+}
+
 export function renderSteamGames(data) {
   const games = data?.response?.games ?? data?.games?.games;
   const hasGames = Array.isArray(games) && games.length > 0;
@@ -24,9 +71,10 @@ export function renderSteamGames(data) {
 
   const gamesTbody = document.getElementById('games-tbody');
   if (!hasGames) {
+    applyPlaytimeTier(0);
     if (gamesTbody) {
       gamesTbody.innerHTML =
-        '<tr><td colspan="3" class="px-5 py-8 text-center text-sm text-gray-500">No games found in this Steam library. Make sure Steam Game Details privacy is set to Public.</td></tr>';
+        '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library. Check if Steam Game Details privacy is set to Public.</td></tr>';
     }
     return;
   }
@@ -40,6 +88,8 @@ export function renderSteamGames(data) {
   const recentMinutes = games.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
   const recentHours = Math.round(recentMinutes / 60);
 
+  applyPlaytimeTier(totalHours);
+
   const suffix = prefs.timeFormat === 'days' ? 'd' : 'h';
   const targetValue = prefs.timeFormat === 'days' ? Math.round(totalHours / 24) : totalHours;
 
@@ -49,10 +99,10 @@ export function renderSteamGames(data) {
   const recentHoursEl = document.getElementById('stat-recent-hours');
 
   if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-  if (recentHoursEl) recentHoursEl.textContent = `${formatPlaytime(recentHours)} in last 2 weeks`;
+  if (recentHoursEl) recentHoursEl.textContent = `${recentHours}hrs in last 2 weeks`;
 
-  if (totalHoursEl) animateValue(totalHoursEl, 0, targetValue, 1000, suffix);
-  if (hoursCard) animateValue(hoursCard, 0, targetValue, 1000, suffix);
+  if (totalHoursEl) animateValue(totalHoursEl, 0, targetValue, 1200, suffix);
+  if (hoursCard) animateValue(hoursCard, 0, targetValue, 1200, suffix);
 
   const avgHours = totalHours / totalGames;
   let playstyleLabel = 'Collector';
@@ -72,6 +122,7 @@ export function renderSteamGames(data) {
 
   const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
 
+  // Top Game Card
   const topGame = sortedGames[0];
   const topNameEl = document.getElementById('top-game-name');
   const topHoursEl = document.getElementById('top-game-hours');
@@ -91,42 +142,44 @@ export function renderSteamGames(data) {
     }
   }
 
+  // Top 3 / Hall of Fame
   for (let i = 0; i < 3; i++) {
     const game = sortedGames[i];
     const rank = i + 1;
     const imgEl = document.getElementById(`podium-img-${rank}`);
-    const coverEl = document.getElementById(`podium-cover-${rank}`);
+    const bannerEl = document.getElementById(`podium-banner-${rank}`);
     const nameEl = document.getElementById(`podium-name-${rank}`);
     const hoursEl = document.getElementById(`podium-hours-${rank}`);
 
     if (game) {
+      const gHours = Math.round((game.playtime_forever || 0) / 60);
       if (nameEl) nameEl.textContent = game.name;
-      if (hoursEl) {
-        const gHours = Math.round((game.playtime_forever || 0) / 60);
-        hoursEl.textContent = formatPlaytime(gHours);
-      }
-      if (coverEl) {
-        coverEl.src = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg`;
-        coverEl.alt = game.name || '';
-        coverEl.onerror = () => {
-          coverEl.style.display = 'none';
+      if (hoursEl) hoursEl.textContent = formatPlaytime(gHours);
+
+      if (bannerEl) {
+        bannerEl.src = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg`;
+        bannerEl.alt = game.name || '';
+        bannerEl.onerror = () => {
+          bannerEl.classList.add('hidden');
         };
-        coverEl.style.display = 'block';
+        bannerEl.classList.remove('hidden');
       }
+
       if (imgEl && game.img_icon_url) {
         imgEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
-        imgEl.classList.remove('hidden');
+        imgEl.style.display = 'block';
       } else if (imgEl) {
-        imgEl.classList.add('hidden');
+        imgEl.style.display = 'none';
       }
     } else {
       if (nameEl) nameEl.textContent = '—';
       if (hoursEl) hoursEl.textContent = '0h';
-      if (imgEl) imgEl.classList.add('hidden');
-      if (coverEl) coverEl.style.display = 'none';
+      if (imgEl) imgEl.style.display = 'none';
+      if (bannerEl) bannerEl.classList.add('hidden');
     }
   }
 
+  // Games Table
   if (gamesTbody) {
     gamesTbody.innerHTML = '';
     sortedGames.forEach((game, idx) => {
@@ -149,26 +202,22 @@ export function renderSteamGames(data) {
       const firstLetter = escapeHtml((game.name || 'G').charAt(0).toUpperCase());
 
       const tr = document.createElement('tr');
-      tr.className = 'hover:bg-white/[0.02] transition row-animate';
-      tr.style.animationDelay = `${Math.min(idx * 25, 600)}ms`;
+      tr.className = 'hover:bg-white/[0.03] transition group row-animate';
+      tr.style.animationDelay = `${Math.min(idx * 30, 700)}ms`;
       tr.innerHTML = `
-        <td class="px-5 py-3.5" data-label="Title">
+        <td class="px-6 py-4" data-label="Game">
           <div class="flex items-center gap-3">
             ${iconUrl
-              ? `<img src="${escapeHtml(iconUrl)}" class="w-9 h-9 rounded-lg object-cover border border-white/10" alt="${safeName}" />`
-              : `<div class="w-9 h-9 rounded-lg bg-[#1c1f27] border border-white/10 flex items-center justify-center text-xs font-bold text-gray-300">${firstLetter}</div>`}
-            <div class="text-left min-w-0">
-              <p class="font-medium text-sm text-white truncate">${safeName}</p>
-              <p class="font-mono-num text-[11px] text-gray-500">Steam • ${escapeHtml(game.appid)}</p>
+              ? `<img src="${escapeHtml(iconUrl)}" class="w-10 h-10 rounded-lg object-cover" alt="${safeName}" />`
+              : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${firstLetter}</div>`}
+            <div class="text-left">
+              <p class="font-medium text-white">${safeName}</p>
+              <p class="text-xs text-gray-500">Steam • App ${escapeHtml(game.appid)}</p>
             </div>
           </div>
         </td>
-        <td class="px-5 py-3.5" data-label="Playtime">
-          <span class="font-mono-num text-sm text-white">${escapeHtml(formatPlaytime(hours))}</span>
-        </td>
-        <td class="px-5 py-3.5 font-mono-num text-xs text-gray-400" data-label="Last Session">
-          ${escapeHtml(lastPlayedText)}
-        </td>
+        <td class="px-6 py-4" data-label="Playtime"><span class="text-white font-mono text-sm">${escapeHtml(formatPlaytime(hours))}</span></td>
+        <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${escapeHtml(lastPlayedText)}</td>
       `;
       gamesTbody.appendChild(tr);
     });
@@ -194,16 +243,10 @@ export async function autoLoadSteamGames() {
   const connectTitle = document.getElementById('connect-platform-title');
 
   if (steamBtn && steamBtnText) {
-    steamBtnText.textContent = 'Steam Linked';
+    steamBtnText.textContent = 'Steam Connected';
     steamBtn.removeAttribute('href');
-    steamBtn.classList.remove('btn-primary');
-    steamBtn.classList.add(
-      'bg-emerald-500/10',
-      'text-emerald-300',
-      'border',
-      'border-emerald-500/30',
-      'cursor-default'
-    );
+    steamBtn.classList.remove('btn-gradient');
+    steamBtn.classList.add('bg-green-600/20', 'border', 'border-green-500/50', 'cursor-default');
     const svgIcon = steamBtn.querySelector('svg');
     if (svgIcon) svgIcon.style.display = 'none';
   }
