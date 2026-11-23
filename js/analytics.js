@@ -3,6 +3,11 @@ import { formatPlaytime } from './config.js';
 let barChartInstance = null;
 let lineChartInstance = null;
 
+function getTierColorHex() {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue('--tier-color').trim();
+  return raw || '#a855f7';
+}
+
 export function updateAnalytics(games) {
   if (!Array.isArray(games) || games.length === 0) return;
 
@@ -70,6 +75,7 @@ export function updateAnalytics(games) {
   }
 
   // --- 3. ГРАФИК TOP 10 GAMES BY HOURS ---
+  const tierColor = getTierColorHex();
   const top10 = sortedByTotal.slice(0, 10);
   const barCtx = document.getElementById('barChart')?.getContext('2d');
   if (barCtx) {
@@ -82,9 +88,9 @@ export function updateAnalytics(games) {
           {
             label: 'Hours Played',
             data: top10.map((g) => Math.round((g.playtime_forever || 0) / 60)),
-            backgroundColor: 'rgba(168, 85, 247, 0.65)',
-            borderColor: '#a855f7',
-            borderWidth: 1,
+            backgroundColor: `${tierColor}99`,
+            borderColor: tierColor,
+            borderWidth: 1.5,
             borderRadius: 6,
           },
         ],
@@ -199,4 +205,3 @@ export function updateAnalytics(games) {
     }
   }
 }
-
