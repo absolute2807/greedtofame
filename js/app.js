@@ -1,18 +1,27 @@
-import { supabaseClient, STORAGE_KEYS, prefs, setPref } from './config.js';
-import { renderSteamGames, autoLoadSteamGames, buildDemoData, getLastSteamData, toggleEmptyStates } from './steam.js';
+import { supabaseClient, STORAGE_KEYS, prefs, setPref, escapeHtml } from './config.js';
+import {
+  renderSteamGames,
+  renderFilteredGamesTable,
+  autoLoadSteamGames,
+  loadSteamStatsForId,
+  buildDemoData,
+  getLastSteamData,
+  toggleEmptyStates,
+} from './steam.js';
 import { updateAnalytics } from './analytics.js';
 
 let currentUser = null;
 let loadedUserId = null;
 let newAvatarBase64 = null;
+let viewingOtherUser = false;
 
-// --- 1. БАЗОВЫЙ UI (КУРСОР И МОДАЛКИ) ---
+// --- 1. КУРСОР И КНОПКИ ---
 const cursor = document.getElementById('custom-cursor');
 document.addEventListener('mousemove', (e) => {
   if (!cursor) return;
   cursor.style.left = `${e.clientX}px`;
   cursor.style.top = `${e.clientY}px`;
-  const interactive = e.target.closest('a, button, input, .glass-card, .podium-frame');
+  const interactive = e.target.closest('a, button, input, select, .glass-card, .podium-slot');
   cursor.classList.toggle('hover', Boolean(interactive));
 });
 
@@ -21,13 +30,14 @@ document.querySelectorAll('.magnetic-btn').forEach((btn) => {
     const rect = btn.getBoundingClientRect();
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
-    btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+    btn.style.transform = `translate(${x * 0.25}px, ${y * 0.25}px)`;
   });
   btn.addEventListener('mouseleave', () => {
     btn.style.transform = 'translate(0px, 0px)';
   });
 });
 
+// --- 2. АВТОРИЗАЦИЯ ---
 const authBtn = document.getElementById('auth-btn');
 const authModal = document.getElementById('auth-modal');
 const authBackdrop = document.getElementById('auth-modal-backdrop');
@@ -75,7 +85,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// --- 2. ТЕМА, ВРЕМЯ, ПРИВАТНОСТЬ ---
+// --- 3. ТЕМА, ВРЕМЯ, ПРИВАТНОСТЬ ---
 function applyTheme() {
   const btnDark = document.getElementById('theme-dark');
   const btnLight = document.getElementById('theme-light');
@@ -150,7 +160,11 @@ document.getElementById('toggle-library')?.addEventListener('click', () => {
   updateLibraryVisibility();
 });
 
-// --- 3. ПРОФИЛЬ И АВТОРИЗАЦИЯ SUPABASE ---
+// Поиск и сортировка по библиотеке игр
+document.getElementById('game-search-input')?.addEventListener('input', renderFilteredGamesTable);
+document.getElementById('game-sort-select')?.addEventListener('change', renderFilteredGamesTable);
+
+// --- 4. ВХОД / РЕГИСТРАЦИЯ ---
 btnSignin?.addEventListener('click', async (e) => {
   e.preventDefault();
   const email = authEmail?.value.trim() || '';
@@ -232,7 +246,7 @@ function applyUsername(name) {
   const avatarEl = document.getElementById('profile-avatar');
   if (welcomeEl) welcomeEl.textContent = name;
   if (profileNameEl) profileNameEl.textContent = name;
-  if (avatarEl && !avatarEl.dataset.custom) {
+  if (avatarEl && !avatarEl.dataset.custom && !avatarEl.dataset.steamAvatar) {
     avatarEl.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
   }
 }
@@ -256,7 +270,10 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         .single();
 
       if (profile && !error) {
-        if (profile.username) applyUsername(profile.username);
+        if (profile.username) {
+          applyUsername(profile.username);
+          localStorage.setItem('greedtofame_custom_name', profile.username);
+        }
         if (profile.avatar_url) {
           const avatarImg = document.getElementById('profile-avatar');
           if (avatarImg) {
@@ -289,7 +306,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   }
 });
 
-// --- 4. МОДАЛКИ НАСТРОЕК И ПРОФИЛЯ ---
+// --- 5. ПРОФИЛЬ И НАСТРОЙКИ ---
 const settingsModal = document.getElementById('settings-modal');
 const settingsBackdrop = document.getElementById('settings-modal-backdrop');
 const usernameModal = document.getElementById('username-modal');
@@ -312,7 +329,7 @@ function closeSettingsModal() {
 
 function openUsernameModal() {
   if (usernameInput) {
-    usernameInput.value = document.getElementById('welcome-username')?.textContent || '';
+    usernameInput.value = document.getElementById('profile-username')?.textContent || '';
   }
   const currentAvatar = document.getElementById('profile-avatar')?.src;
   if (modalAvatarPreview && currentAvatar) modalAvatarPreview.src = currentAvatar;
@@ -358,6 +375,7 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   if (!newName) return;
 
   localStorage.setItem(STORAGE_KEYS.username, newName);
+  localStorage.setItem('greedtofame_custom_name', newName);
   applyUsername(newName);
 
   if (newAvatarBase64) {
@@ -377,7 +395,119 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   }
 });
 
-// --- 5. ДЕМО-РЕЖИМ ---
+// --- 6. COMMUNITY (ПОИСК И ПРОСМОТР ПРОФИЛЕЙ) ---
+const communityResultsEl = document.getElementById('community-results');
+const communitySearchEl = document.getElementById('community-search');
+const backToMyProfileBtn = document.getElementById('back-to-my-profile-btn');
+
+async function fetchProfiles(searchTerm = '', limit = 10) {
+  if (!communityResultsEl) return;
+  communityResultsEl.classList.remove('hidden');
+  communityResultsEl.innerHTML = '<p class="text-xs text-gray-400 py-2">Searching players...</p>';
+
+  let query = supabaseClient
+    .from('profiles')
+    .select('id, username, avatar_url, steam_id, created_at')
+    .limit(limit);
+
+  if (searchTerm.trim()) {
+    query = query.ilike('username', `%${searchTerm.trim()}%`);
+  }
+
+  const { data: profiles, error } = await query;
+
+  if (error) {
+    console.error('Community search error:', error);
+    communityResultsEl.innerHTML = '<p class="text-xs text-red-400 py-2">Failed to load profiles.</p>';
+    return;
+  }
+
+  if (!profiles || profiles.length === 0) {
+    communityResultsEl.innerHTML = '<p class="text-xs text-gray-500 py-2">No players found.</p>';
+    return;
+  }
+
+  communityResultsEl.innerHTML = '';
+  profiles.forEach((p) => {
+    const name = p.username || 'Player';
+    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=128`;
+    const avatarSrc = p.avatar_url || fallbackAvatar;
+
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className =
+      'w-full flex items-center justify-between gap-2.5 p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 transition text-left';
+    item.innerHTML = `
+      <div class="flex items-center gap-2.5 min-w-0">
+        <img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(name)}" class="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0" />
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-white truncate">${escapeHtml(name)}</p>
+          <p class="text-[11px] text-gray-500">${p.steam_id ? 'Steam linked' : 'No Steam ID'}</p>
+        </div>
+      </div>
+      <span class="text-xs text-purple-400 font-semibold shrink-0">View →</span>
+    `;
+    item.addEventListener('click', () => openCommunityProfile(p));
+    communityResultsEl.appendChild(item);
+  });
+}
+
+async function openCommunityProfile(profile) {
+  viewingOtherUser = true;
+  const name = profile.username || 'Player';
+  const welcomeEl = document.getElementById('welcome-username');
+  const profileNameEl = document.getElementById('profile-username');
+  const avatarEl = document.getElementById('profile-avatar');
+
+  if (welcomeEl) welcomeEl.textContent = name;
+  if (profileNameEl) profileNameEl.textContent = name;
+  if (avatarEl) {
+    delete avatarEl.dataset.custom;
+    delete avatarEl.dataset.steamAvatar;
+    avatarEl.src =
+      profile.avatar_url ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=512`;
+  }
+  setMemberSince(profile.created_at);
+  backToMyProfileBtn?.classList.remove('hidden');
+
+  if (profile.steam_id) {
+    await loadSteamStatsForId(profile.steam_id, {
+      applyPlayer: !profile.avatar_url,
+      updateOwnAnalytics: false,
+    });
+  } else {
+    renderSteamGames({ response: { games: [] } });
+  }
+
+  document.getElementById('main-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+backToMyProfileBtn?.addEventListener('click', async () => {
+  viewingOtherUser = false;
+  backToMyProfileBtn.classList.add('hidden');
+  loadedUserId = null;
+  window.location.reload();
+});
+
+let searchDebounce = null;
+communitySearchEl?.addEventListener('input', (e) => {
+  clearTimeout(searchDebounce);
+  const val = e.target.value;
+  searchDebounce = setTimeout(() => {
+    if (!val.trim()) {
+      communityResultsEl?.classList.add('hidden');
+      return;
+    }
+    fetchProfiles(val, 8);
+  }, 250);
+});
+
+document.getElementById('view-all-profiles')?.addEventListener('click', () => {
+  fetchProfiles(communitySearchEl?.value || '', 20);
+});
+
+// --- 7. ДЕМО-РЕЖИМ ---
 function enterDemoMode() {
   localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
   const demoData = buildDemoData();
@@ -440,7 +570,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// --- 6. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ И SHARE ---
+// --- 8. ЭКРАНЫ И SHARE ---
 document.getElementById('show-analytics-btn')?.addEventListener('click', () => {
   document.getElementById('dashboard-page')?.classList.add('hidden');
   document.getElementById('analytics-page')?.classList.remove('hidden');
@@ -460,7 +590,7 @@ shareBtn?.addEventListener('click', () => {
   });
 });
 
-// --- 7. ВОЗВРАТ ИЗ STEAM OPENID ---
+// --- 9. ВОЗВРАТ ИЗ STEAM OPENID ---
 async function handleSteamReturn() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('openid.mode') !== 'id_res') return;
@@ -485,10 +615,10 @@ async function handleSteamReturn() {
   else console.error('Ошибка сохранения в базу:', error);
 }
 
-// --- 8. СТАРТ ---
+// --- 10. СТАРТ ---
 (async function init() {
   const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
-  if (savedUsername) applyUsername(savedUsername);
+  if (savedUsername && !viewingOtherUser) applyUsername(savedUsername);
 
   updateTimeFormatUI();
   applyTheme();
