@@ -1,4 +1,11 @@
-import { supabaseClient, STORAGE_KEYS, prefs, formatPlaytime, escapeHtml } from './config.js';
+import {
+  supabaseClient,
+  STORAGE_KEYS,
+  prefs,
+  formatPlaytime,
+  escapeHtml,
+  applyPlaytimeTier,
+} from './config.js';
 import { updateAnalytics } from './analytics.js';
 
 let lastSteamData = null;
@@ -9,15 +16,6 @@ function isRu() {
 
 export function getLastSteamData() {
   return lastSteamData;
-}
-
-function getPlaytimeTier(totalHours) {
-  const ru = isRu();
-  if (totalHours >= 3000) return { label: ru ? 'Легенда' : 'Legend', color: '#facc15' };
-  if (totalHours >= 1500) return { label: ru ? 'Хардкор' : 'Hardcore', color: '#a855f7' };
-  if (totalHours >= 500) return { label: ru ? 'Ветеран' : 'Veteran', color: '#38bdf8' };
-  if (totalHours >= 100) return { label: ru ? 'Активный' : 'Active', color: '#4ade80' };
-  return { label: ru ? 'Новичок' : 'Standard', color: '#9ca3af' };
 }
 
 function getPlaystyleSummary(games) {
@@ -222,7 +220,7 @@ export function renderFilteredGamesTable() {
           <span class="font-semibold text-white truncate">${escapeHtml(game.name || `App ${game.appid}`)}</span>
         </div>
       </td>
-      <td class="px-6 py-4 font-mono text-sm text-purple-300" data-label="${escapeHtml(colPlaytimeLabel)}">${escapeHtml(formattedTime)}</td>
+      <td class="px-6 py-4 font-mono text-sm text-gray-200" data-label="${escapeHtml(colPlaytimeLabel)}">${escapeHtml(formattedTime)}</td>
       <td class="px-6 py-4 text-sm text-gray-400" data-label="${escapeHtml(colLastPlayedLabel)}">${escapeHtml(lastPlayed)}</td>
     `;
 
@@ -245,13 +243,14 @@ export function renderSteamGames(steamData) {
   toggleEmptyStates(hasGames);
 
   if (!hasGames) {
+    applyPlaytimeTier(0, isRu());
+
     const totalGamesEl = document.getElementById('stat-total-games');
     const totalHoursEl = document.getElementById('stat-total-hours');
     const hoursCardEl = document.getElementById('hours-card');
     const recentEl = document.getElementById('stat-recent-hours');
     const styleLabelEl = document.getElementById('stat-playstyle-label');
     const styleAvgEl = document.getElementById('stat-playstyle-avg');
-    const tierBadge = document.getElementById('playtime-tier-badge');
 
     if (totalGamesEl) totalGamesEl.textContent = '0';
     if (totalHoursEl) totalHoursEl.textContent = formatPlaytime(0);
@@ -261,12 +260,6 @@ export function renderSteamGames(steamData) {
     }
     if (styleLabelEl) styleLabelEl.textContent = '—';
     if (styleAvgEl) styleAvgEl.textContent = '—';
-    if (tierBadge) {
-      const defaultTier = getPlaytimeTier(0);
-      tierBadge.textContent = defaultTier.label;
-      tierBadge.style.color = defaultTier.color;
-      tierBadge.style.borderColor = `${defaultTier.color}66`;
-    }
 
     updateHallOfFame([]);
     renderFilteredGamesTable();
@@ -277,6 +270,8 @@ export function renderSteamGames(steamData) {
   const recentMinutes = games.reduce((sum, g) => sum + (Number(g.playtime_2weeks) || 0), 0);
   const totalHours = Math.round(totalMinutes / 60);
   const recentHours = (recentMinutes / 60).toFixed(1);
+
+  applyPlaytimeTier(totalHours, isRu());
 
   const totalGamesEl = document.getElementById('stat-total-games');
   const totalHoursEl = document.getElementById('stat-total-hours');
@@ -290,14 +285,6 @@ export function renderSteamGames(steamData) {
     recentEl.textContent = isRu()
       ? `${recentHours}ч за последние 2 недели`
       : `${recentHours}hrs in last 2 weeks`;
-  }
-
-  const tier = getPlaytimeTier(totalHours);
-  const tierBadge = document.getElementById('playtime-tier-badge');
-  if (tierBadge) {
-    tierBadge.textContent = tier.label;
-    tierBadge.style.color = tier.color;
-    tierBadge.style.borderColor = `${tier.color}66`;
   }
 
   const playstyle = getPlaystyleSummary(games);
