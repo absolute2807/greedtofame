@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=15" />
+  <link rel="stylesheet" href="./styles.css?v=16" />
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
@@ -19,7 +19,7 @@
   <div class="custom-cursor" id="custom-cursor"></div>
 
   <!-- Demo badge -->
-  <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
+  <div id="demo-badge" class="demo-badge hidden" data-i18n="demo_badge">DEMO MODE</div>
 
   <!-- Header -->
   <header class="sticky top-0 z-30 border-b border-white/5 header-bg bg-[#0a0a0f]/80 backdrop-blur-md transition-colors duration-300">
@@ -33,12 +33,12 @@
       </div>
       <div id="auth-btn-container" class="relative">
         <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white btn-gradient rounded-lg transition focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 shadow-lg">
-          <span id="auth-btn-text">Sign in with Steam</span>
+          <span id="auth-btn-text" data-i18n="sign_in_steam">Sign in with Steam</span>
           <svg id="auth-btn-chevron" class="w-4 h-4 text-white/80 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
         <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
-          <button id="auth-change-account" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Switch Steam Account</button>
-          <button id="auth-logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
+          <button id="auth-change-account" data-i18n="switch_steam" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Switch Steam Account</button>
+          <button id="auth-logout" data-i18n="logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
         </div>
       </div>
     </div>
@@ -49,11 +49,11 @@
   <div id="wishlist-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-3xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
-        <h3 class="text-lg font-bold text-white">Wishlist & Discount Tracker</h3>
-        <p id="wishlist-summary" class="text-xs text-gray-400">Public Steam Wishlist with live store discounts.</p>
+        <h3 class="text-lg font-bold text-white" data-i18n="wishlist_modal_title">Wishlist & Discount Tracker</h3>
+        <p id="wishlist-summary" class="text-xs text-gray-400" data-i18n="wishlist_modal_sub">Public Steam Wishlist with live store discounts.</p>
       </div>
       <div class="flex items-center gap-2">
-        <button id="refresh-wishlist-btn" type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
+        <button id="refresh-wishlist-btn" type="button" data-i18n="refresh" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
           Refresh
         </button>
         <button id="close-wishlist-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
@@ -63,14 +63,14 @@
     <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
       <label class="inline-flex items-center gap-2 text-xs font-semibold text-gray-200 cursor-pointer select-none">
         <input id="wishlist-sale-only" type="checkbox" class="rounded border-white/20 bg-white/5 text-purple-500 focus:ring-purple-500" />
-        <span>On Sale Only (Discounts)</span>
+        <span data-i18n="on_sale_only">On Sale Only (Discounts)</span>
       </label>
 
       <select id="wishlist-sort" class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
-        <option value="discount_desc">Discount: Highest First</option>
-        <option value="price_asc">Price: Low → High</option>
-        <option value="priority">Wishlist Priority</option>
-        <option value="name_asc">Name: A → Z</option>
+        <option value="discount_desc" data-i18n="sort_discount">Discount: Highest First</option>
+        <option value="price_asc" data-i18n="sort_price">Price: Low → High</option>
+        <option value="priority" data-i18n="sort_priority">Wishlist Priority</option>
+        <option value="name_asc" data-i18n="sort_name">Name: A → Z</option>
       </select>
     </div>
 
@@ -82,11 +82,11 @@
   <div id="leaderboard-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-lg font-bold text-white">Leaderboard</h3>
-        <p class="text-xs text-gray-400">Top players ranked by total Steam playtime.</p>
+        <h3 class="text-lg font-bold text-white" data-i18n="leaderboard_title">Leaderboard</h3>
+        <p class="text-xs text-gray-400" data-i18n="leaderboard_sub">Top players ranked by total Steam playtime.</p>
       </div>
       <div class="flex items-center gap-2">
-        <button id="refresh-leaderboard-btn" type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
+        <button id="refresh-leaderboard-btn" type="button" data-i18n="refresh" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
           Refresh
         </button>
         <button id="close-leaderboard-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
@@ -100,18 +100,18 @@
   <div id="flex-card-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-4xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-lg font-bold text-white">Your Flex Card</h3>
-        <p class="text-xs text-gray-400">Download your PNG gamer card and share it anywhere.</p>
+        <h3 class="text-lg font-bold text-white" data-i18n="flex_card_title">Your Flex Card</h3>
+        <p class="text-xs text-gray-400" data-i18n="flex_card_sub">Download your PNG gamer card and share it anywhere.</p>
       </div>
       <button id="close-flex-card-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
     </div>
     <div class="space-y-4">
       <canvas id="flex-card-canvas" width="900" height="320" class="w-full rounded-xl border border-white/10"></canvas>
       <div class="flex flex-wrap items-center justify-end gap-3">
-        <button id="flex-card-regenerate-btn" type="button" class="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
+        <button id="flex-card-regenerate-btn" type="button" data-i18n="redraw_card" class="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
           Redraw Card
         </button>
-        <a id="flex-card-download" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
+        <a id="flex-card-download" data-i18n="download_png" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
           Download PNG
         </a>
       </div>
@@ -122,23 +122,31 @@
   <div id="settings-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
   <div id="settings-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#0a0a0f] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
     <div class="flex justify-between items-center mb-6">
-      <h3 class="text-lg font-bold text-white">Settings</h3>
+      <h3 class="text-lg font-bold text-white" data-i18n="settings_title">Settings</h3>
       <button class="settings-close text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
     </div>
 
     <div>
-      <label class="block text-sm font-semibold text-gray-400 mb-3">Time Format</label>
+      <label class="block text-sm font-semibold text-gray-400 mb-3" data-i18n="time_format">Time Format</label>
       <div class="flex gap-2">
-        <button id="format-hours" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Hours</button>
-        <button id="format-days" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Days</button>
+        <button id="format-hours" data-i18n="hours" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Hours</button>
+        <button id="format-days" data-i18n="days" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Days</button>
       </div>
     </div>
 
     <div class="mt-6">
-      <label class="block text-sm font-semibold text-gray-400 mb-3">Appearance</label>
+      <label class="block text-sm font-semibold text-gray-400 mb-3" data-i18n="appearance">Appearance</label>
       <div class="flex gap-2">
-        <button id="theme-dark" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Dark</button>
-        <button id="theme-light" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Light</button>
+        <button id="theme-dark" data-i18n="dark" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Dark</button>
+        <button id="theme-light" data-i18n="light" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Light</button>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <label class="block text-sm font-semibold text-gray-400 mb-3" data-i18n="language">Language</label>
+      <div class="flex gap-2">
+        <button id="lang-en" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">English</button>
+        <button id="lang-ru" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Русский</button>
       </div>
     </div>
   </div>
@@ -147,7 +155,7 @@
   <div id="username-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
   <div id="username-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-md bg-[#0a0a0f] border border-white/10 rounded-2xl p-6 shadow-2xl transition-opacity duration-200">
     <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-bold text-white">Edit Profile</h3>
+      <h3 class="text-lg font-bold text-white" data-i18n="edit_profile_title">Edit Profile</h3>
       <button class="username-close text-gray-400 hover:text-white transition text-2xl leading-none">&times;</button>
     </div>
 
@@ -161,16 +169,16 @@
       <input type="file" id="avatar-upload" class="hidden" accept="image/png, image/jpeg, image/jpg" />
       <button id="upload-avatar-btn" class="mt-2 px-6 py-2.5 text-sm font-semibold text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-        Upload Avatar
+        <span data-i18n="upload_avatar">Upload Avatar</span>
       </button>
     </div>
 
-    <label class="block text-sm text-gray-400 mb-1">Username</label>
-    <input type="text" id="username-input" value="Guest" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+    <label class="block text-sm text-gray-400 mb-1" data-i18n="username_label">Username</label>
+    <input type="text" id="username-input" value="Guest" data-i18n-placeholder="username_placeholder" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
 
     <div class="flex gap-3">
-      <button id="username-save" class="flex-1 py-3 text-sm font-bold rounded-lg border transition bg-transparent border-white/20 text-white hover:bg-white/5">Save</button>
-      <button class="username-close flex-1 px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
+      <button id="username-save" data-i18n="save" class="flex-1 py-3 text-sm font-bold rounded-lg border transition bg-transparent border-white/20 text-white hover:bg-white/5">Save</button>
+      <button data-i18n="cancel" class="username-close flex-1 px-6 py-3 text-sm text-gray-400 bg-white/5 hover:bg-white/10 rounded-lg border border-white/5 transition">Cancel</button>
     </div>
   </div>
 
@@ -179,14 +187,14 @@
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
       <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Welcome back, <span id="welcome-username" class="text-purple-400 neon-text">Guest</span></h2>
-        <p class="mt-2 text-gray-400">Here's what you've been playing lately.</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight"><span data-i18n="welcome_back">Welcome back,</span> <span id="welcome-username" class="text-purple-400 neon-text">Guest</span></h2>
+        <p class="mt-2 text-gray-400" data-i18n="welcome_sub">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
-        <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
-        <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
-        <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
+        <button id="demo-btn" data-i18n="try_demo" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
+        <button id="share-profile-btn" data-i18n="flex_card_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
+        <button id="edit-profile" data-i18n="edit_profile_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
+        <button id="settings-btn" data-i18n="settings_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
     </div>
 
@@ -199,39 +207,39 @@
               <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/40 object-cover transition-all duration-500" />
             </div>
             <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
-            <p class="text-xs text-purple-400 font-medium mt-1">Player Profile</p>
+            <p class="text-xs text-purple-400 font-medium mt-1" data-i18n="player_profile">Player Profile</p>
           </div>
 
           <div class="mt-6 pt-6 border-t border-white/5">
-            <p id="connect-platform-title" class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Steam Account</p>
+            <p id="connect-platform-title" class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" data-i18n="steam_account">Steam Account</p>
             <a href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback" id="connect-steam-btn" class="w-full btn-gradient text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <span id="steam-btn-text">Sign in with Steam</span>
+              <span id="steam-btn-text" data-i18n="sign_in_steam">Sign in with Steam</span>
             </a>
             <button id="sync-steam-btn" type="button" class="hidden mt-2.5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition flex items-center justify-center gap-2">
               <svg id="sync-steam-icon" class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-              <span id="sync-steam-text">Sync from Steam</span>
+              <span id="sync-steam-text" data-i18n="sync_steam">Sync from Steam</span>
             </button>
-            <p id="steam-instruction-text" class="mt-3 text-xs text-gray-400 leading-relaxed text-center">One-click login via Steam. Your games and playtime load automatically.</p>
-            <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden items-center justify-center gap-2">Loading Steam games...</p>
+            <p id="steam-instruction-text" class="mt-3 text-xs text-gray-400 leading-relaxed text-center" data-i18n="steam_instruction">One-click login via Steam. Your games and playtime load automatically.</p>
+            <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden items-center justify-center gap-2" data-i18n="loading_steam">Loading Steam games...</p>
           </div>
 
           <div class="mt-6 pt-6 border-t border-white/5 space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Member since</span>
+              <span class="text-sm text-gray-400" data-i18n="member_since">Member since</span>
               <span id="stat-member-since" class="text-sm font-semibold text-white">—</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Total games</span>
+              <span class="text-sm text-gray-400" data-i18n="total_games">Total games</span>
               <span id="stat-total-games" class="text-sm font-semibold text-white">0</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-400">Total hours</span>
+              <span class="text-sm text-gray-400" data-i18n="total_hours">Total hours</span>
               <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">0h</span>
             </div>
           </div>
 
-          <button id="back-to-my-profile-btn" class="hidden mt-5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition">
+          <button id="back-to-my-profile-btn" data-i18n="back_my_profile" class="hidden mt-5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition">
             ← Back to My Profile
           </button>
         </div>
@@ -239,33 +247,33 @@
         <!-- Community + Leaderboard Button -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-2">
           <div class="flex items-center justify-between mb-4">
-            <h4 class="text-sm font-bold text-white">Community</h4>
-            <button id="open-leaderboard-btn" type="button" class="px-2.5 py-1 text-xs font-bold rounded-lg border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 transition">
+            <h4 class="text-sm font-bold text-white" data-i18n="community">Community</h4>
+            <button id="open-leaderboard-btn" type="button" data-i18n="leaderboard_btn" class="px-2.5 py-1 text-xs font-bold rounded-lg border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 transition">
               Leaderboard 🏆
             </button>
           </div>
           <div class="space-y-3">
             <div class="relative">
-              <input type="text" id="community-search" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+              <input type="text" id="community-search" data-i18n-placeholder="search_players" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
               <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-            <button id="view-all-profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
+            <button id="view-all-profiles" data-i18n="view_all_profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
             <div id="community-results" class="mt-3 space-y-2 hidden max-h-64 overflow-y-auto pr-1"></div>
           </div>
         </div>
 
         <!-- Randomizer: What to play tonight? -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-3">
-          <h4 class="text-sm font-bold text-white mb-1">What to play tonight?</h4>
-          <p class="text-xs text-gray-400 mb-3">Pick a random game from your library.</p>
+          <h4 class="text-sm font-bold text-white mb-1" data-i18n="randomizer_title">What to play tonight?</h4>
+          <p class="text-xs text-gray-400 mb-3" data-i18n="randomizer_sub">Pick a random game from your library.</p>
           <div class="space-y-2.5">
             <select id="randomizer-filter" class="w-full bg-[#111117] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
-              <option value="all">All Games</option>
-              <option value="unplayed">Never Played (0h)</option>
-              <option value="dusty">Not Played > 1 Year</option>
-              <option value="light">Short Sessions (≤ 15h)</option>
+              <option value="all" data-i18n="filter_all">All Games</option>
+              <option value="unplayed" data-i18n="filter_unplayed">Never Played (0h)</option>
+              <option value="dusty" data-i18n="filter_dusty">Not Played > 1 Year</option>
+              <option value="light" data-i18n="filter_light">Short Sessions (≤ 15h)</option>
             </select>
-            <button id="randomizer-pick-btn" type="button" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
+            <button id="randomizer-pick-btn" type="button" data-i18n="pick_random_btn" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
               Pick Random Game 🎲
             </button>
             <div id="randomizer-result" class="hidden pt-1"></div>
@@ -274,9 +282,9 @@
 
         <!-- Wishlist & Discount Tracker -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
-          <h4 class="text-sm font-bold text-white mb-1">Wishlist & Sales</h4>
-          <p class="text-xs text-gray-400 mb-3">Track prices and discounts from your public Steam Wishlist.</p>
-          <button id="open-wishlist-btn" type="button" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
+          <h4 class="text-sm font-bold text-white mb-1" data-i18n="wishlist_card_title">Wishlist & Sales</h4>
+          <p class="text-xs text-gray-400 mb-3" data-i18n="wishlist_card_sub">Track prices and discounts from your public Steam Wishlist.</p>
+          <button id="open-wishlist-btn" type="button" data-i18n="open_wishlist_btn" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
             Open Wishlist Tracker 🏷️
           </button>
         </div>
@@ -287,19 +295,19 @@
         <!-- Statistics -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card rounded-2xl p-6 relative overflow-hidden group animate-fade-in-up delay-1">
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Hours Played</p>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="hours_played">Hours Played</p>
             <p id="hours-card" class="text-4xl font-extrabold stat-number mt-2">0h</p>
             <p id="stat-recent-hours" class="text-xs text-green-400 mt-2 font-medium">0hrs in last 2 weeks</p>
           </div>
 
           <div class="glass-card rounded-2xl p-6 relative overflow-hidden group animate-fade-in-up delay-2">
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Playstyle</p>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="playstyle">Playstyle</p>
             <p id="stat-playstyle-label" class="text-4xl font-extrabold text-white mt-2 stat-number">—</p>
             <p id="stat-playstyle-avg" class="text-xs text-gray-400 mt-2 font-medium">—</p>
           </div>
 
           <div class="glass-card rounded-2xl p-6 relative overflow-hidden group animate-fade-in-up delay-3">
-            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Top Game</p>
+            <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="top_game">Top Game</p>
             <div class="flex items-center gap-3 mt-2">
               <img id="top-game-icon" src="" class="w-12 h-12 rounded-lg hidden object-cover" alt="Top Game" />
               <p id="top-game-name" class="text-2xl font-extrabold text-white truncate">—</p>
@@ -307,8 +315,8 @@
             <p id="top-game-hours" class="text-xs text-gray-400 mt-2 font-medium">—</p>
             <div id="top-game-empty" class="empty-state mt-2">
               <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-              <p class="text-xs text-gray-500">No games yet</p>
-              <button class="empty-cta" data-connect-steam>Sign in with Steam</button>
+              <p class="text-xs text-gray-500" data-i18n="no_games_yet">No games yet</p>
+              <button class="empty-cta" data-connect-steam data-i18n="sign_in_steam">Sign in with Steam</button>
             </div>
           </div>
         </section>
@@ -317,8 +325,8 @@
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-3">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <h3 class="text-xl font-bold text-white">Hall of Fame</h3>
-              <p class="text-sm text-gray-400">Your top 3 most played games.</p>
+              <h3 class="text-xl font-bold text-white" data-i18n="hall_of_fame">Hall of Fame</h3>
+              <p class="text-sm text-gray-400" data-i18n="hall_of_fame_sub">Your top 3 most played games.</p>
             </div>
           </div>
 
@@ -362,11 +370,11 @@
 
           <div id="podium-empty" class="empty-state">
             <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-            <p class="text-sm text-gray-400">Your Hall of Fame is empty.</p>
-            <p class="text-xs text-gray-500">Sign in with Steam or try the demo to see your top 3 games.</p>
+            <p class="text-sm text-gray-400" data-i18n="podium_empty_title">Your Hall of Fame is empty.</p>
+            <p class="text-xs text-gray-500" data-i18n="podium_empty_sub">Sign in with Steam or try the demo to see your top 3 games.</p>
             <div class="flex gap-2 mt-1">
-              <button class="empty-cta" data-connect-steam>Sign in with Steam</button>
-              <button class="empty-cta" data-demo>Try demo</button>
+              <button class="empty-cta" data-connect-steam data-i18n="sign_in_steam">Sign in with Steam</button>
+              <button class="empty-cta" data-demo data-i18n="try_demo_short">Try demo</button>
             </div>
           </div>
         </section>
@@ -375,14 +383,15 @@
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-4">
-              <h3 class="text-xl font-bold text-white">Your Games</h3>
-              <button id="show-analytics-btn" class="text-xs font-semibold px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full hover:bg-purple-500/30 transition">Analytics ↗</button>
+              <h3 class="text-xl font-bold text-white" data-i18n="your_games">Your Games</h3>
+              <button id="show-analytics-btn" data-i18n="analytics_btn" class="text-xs font-semibold px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full hover:bg-purple-500/30 transition">Analytics ↗</button>
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5">
               <input
                 type="text"
                 id="game-search-input"
+                data-i18n-placeholder="search_game"
                 placeholder="Search game..."
                 class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition w-40 sm:w-48"
               />
@@ -390,10 +399,10 @@
                 id="game-sort-select"
                 class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               >
-                <option value="playtime_desc">Hours: High → Low</option>
-                <option value="playtime_asc">Hours: Low → High</option>
-                <option value="name_asc">Name: A → Z</option>
-                <option value="last_played_desc">Last Played</option>
+                <option value="playtime_desc" data-i18n="sort_hours_desc">Hours: High → Low</option>
+                <option value="playtime_asc" data-i18n="sort_hours_asc">Hours: Low → High</option>
+                <option value="name_asc" data-i18n="sort_name_asc">Name: A → Z</option>
+                <option value="last_played_desc" data-i18n="sort_last_played">Last Played</option>
               </select>
               <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
                 <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
@@ -404,22 +413,22 @@
 
           <div id="library-hidden-placeholder" class="hidden py-12 text-center">
             <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-            <p class="text-gray-400 text-lg">Library is hidden for privacy.</p>
-            <p class="text-gray-500 text-sm mt-1">Click the eye icon to reveal.</p>
+            <p class="text-gray-400 text-lg" data-i18n="library_hidden_title">Library is hidden for privacy.</p>
+            <p class="text-gray-500 text-sm mt-1" data-i18n="library_hidden_sub">Click the eye icon to reveal.</p>
           </div>
 
           <div id="table-container" class="overflow-hidden rounded-xl border border-white/5">
             <table class="w-full text-left mobile-table">
               <thead>
                 <tr class="border-b border-white/5 bg-white/3">
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Game</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Playtime</th>
-                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Last Played</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_game">Game</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_playtime">Playtime</th>
+                  <th class="px-6 py-4 text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_last_played">Last Played</th>
                 </tr>
               </thead>
               <tbody id="games-tbody" class="divide-y divide-white/5">
                 <tr id="steam-placeholder">
-                  <td colspan="3" class="px-6 py-8 text-center text-gray-400">Sign in with Steam to see your games</td>
+                  <td colspan="3" class="px-6 py-8 text-center text-gray-400" data-i18n="table_placeholder">Sign in with Steam to see your games</td>
                 </tr>
               </tbody>
             </table>
@@ -433,24 +442,24 @@
   <div id="analytics-page" class="max-w-7xl mx-auto px-6 py-10 hidden">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
       <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Advanced Analytics</h2>
-        <p class="mt-2 text-gray-400">Deep dive into your gaming habits.</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight" data-i18n="analytics_title">Advanced Analytics</h2>
+        <p class="mt-2 text-gray-400" data-i18n="analytics_sub">Deep dive into your gaming habits.</p>
       </div>
       <button id="back-to-dashboard-btn" class="px-4 py-2 text-sm font-medium text-white bg-white/5 hover:bg-white/10 rounded-lg transition border border-white/10 flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-        Back to Dashboard
+        <span data-i18n="back_dashboard">Back to Dashboard</span>
       </button>
     </div>
 
     <div class="glass-card rounded-2xl p-6 mb-8">
-      <h3 class="text-xl font-bold text-white mb-4">Top 10 Games by Hours</h3>
+      <h3 class="text-xl font-bold text-white mb-4" data-i18n="top10_chart">Top 10 Games by Hours</h3>
       <div class="chart-container">
         <canvas id="barChart"></canvas>
       </div>
     </div>
 
     <div class="glass-card rounded-2xl p-6 mb-8">
-      <h3 class="text-xl font-bold text-white mb-4">Recent Activity (2 Weeks)</h3>
+      <h3 class="text-xl font-bold text-white mb-4" data-i18n="recent_chart">Recent Activity (2 Weeks)</h3>
       <div class="chart-container" style="height: 250px;">
         <canvas id="lineChart"></canvas>
       </div>
@@ -458,26 +467,26 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div class="glass-card rounded-2xl p-6">
-        <h3 class="text-xl font-bold text-white mb-4">Fun Facts</h3>
+        <h3 class="text-xl font-bold text-white mb-4" data-i18n="fun_facts">Fun Facts</h3>
         <ul class="space-y-4">
           <li class="flex items-center gap-3">
             <div class="p-2 bg-purple-500/20 rounded-lg text-purple-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
             <div>
-              <p class="text-sm text-gray-400">Average Playtime / Game</p>
+              <p class="text-sm text-gray-400" data-i18n="avg_playtime">Average Playtime / Game</p>
               <p id="analytics-avg-time" class="text-lg font-bold text-white">—</p>
             </div>
           </li>
           <li class="flex items-center gap-3">
             <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
             <div>
-              <p class="text-sm text-gray-400">Most Played Game</p>
+              <p class="text-sm text-gray-400" data-i18n="most_played_game">Most Played Game</p>
               <p id="analytics-top-game" class="text-lg font-bold text-white">—</p>
             </div>
           </li>
           <li class="flex items-center gap-3">
             <div class="p-2 bg-cyan-500/20 rounded-lg text-cyan-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div>
             <div>
-              <p class="text-sm text-gray-400">Total Games in Library</p>
+              <p class="text-sm text-gray-400" data-i18n="total_games_lib">Total Games in Library</p>
               <p id="analytics-total-games" class="text-lg font-bold text-white">—</p>
             </div>
           </li>
@@ -488,14 +497,14 @@
         <div class="absolute top-0 right-0 p-4 opacity-10">
           <svg class="w-32 h-32 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"></path></svg>
         </div>
-        <h3 class="text-xl font-bold text-white mb-4">Library Value</h3>
-        <p class="text-sm text-gray-400 mb-6">Estimated based on real Steam Store prices.</p>
+        <h3 class="text-xl font-bold text-white mb-4" data-i18n="library_value">Library Value</h3>
+        <p class="text-sm text-gray-400 mb-6" data-i18n="library_value_sub">Estimated based on real Steam Store prices.</p>
         <p class="text-5xl font-extrabold text-green-400 mb-2">$<span id="analytics-value">0</span></p>
-        <p class="text-xs text-gray-500">*Real-time Steam Store prices (F2P games = $0)</p>
+        <p class="text-xs text-gray-500" data-i18n="library_value_note">*Real-time Steam Store prices (F2P games = $0)</p>
       </div>
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=15"></script>
+  <script type="module" src="./js/app.js?v=16"></script>
 </body>
 </html>
