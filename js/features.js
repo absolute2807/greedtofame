@@ -4,6 +4,7 @@ import { getLastSteamData } from './steam.js';
 let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
 let currentGameStatsPayload = null;
+let cachedAllProfiles = [];
 
 function isRu() {
   return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
@@ -22,6 +23,9 @@ export function refreshDynamicTranslations() {
   }
   if (currentGameStatsPayload) {
     renderGameDetailsStats(currentGameStatsPayload);
+  }
+  if (cachedAllProfiles.length > 0) {
+    renderAllProfilesModal();
   }
 }
 
@@ -118,8 +122,11 @@ export async function openGameDetailsModal(game) {
       const unlocked = Number(data.achievements?.unlocked) || 0;
       const total = Number(data.achievements?.total) || 0;
       if (total > 0) {
-        const pct = Math.round((unlocked / total) * 100);
-        achEl.textContent = `${unlocked}/${total} (${pct}%)`;
+        const effectiveTotal = Math.max(total, unlocked);
+        const pct = Math.min(100, Math.round((unlocked / effectiveTotal) * 100));
+        achEl.textContent = `${unlocked}/${effectiveTotal} (${pct}%)`;
+      } else if (unlocked > 0) {
+        achEl.textContent = `${unlocked}`;
       } else {
         achEl.textContent = '—';
       }
@@ -167,7 +174,7 @@ function renderGameDetailsStats(data) {
     for (const h of highlights) {
       const label = ru ? h.ru : h.en;
       html += `
-        <div class="p-3 rounded-xl bg-purple-500/[0.06] border border-purple-500/20">
+        <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10">
           <p class="text-[11px] text-gray-400 truncate">${escapeHtml(label)}</p>
           <p class="text-base font-extrabold text-white font-mono mt-0.5 truncate">${escapeHtml(h.value)}</p>
         </div>
@@ -216,6 +223,134 @@ export function closeGameDetailsModal() {
 }
 
 window.__gtf_openGameDetails = openGameDetailsModal;
+
+// --- 0.5 МОДАЛЬНОЕ ОКНО ВСЕХ ПРОФИЛЕЙ ---
+export function openAllProfilesModal() {
+  const modal = document.getElementById('all-profiles-modal');
+  const backdrop = document.getElementById('all-profiles-modal-backdrop');
+  modal?.classList.remove('hidden');
+  backdrop?.classList.remove('hidden');
+  loadAllProfilesModal();
+}
+
+export function closeAllProfilesModal() {
+  document.getElementById('all-profiles-modal')?.classList.add('hidden');
+  document.getElementById('all-profiles-modal-backdrop')?.classList.add('hidden');
+}
+
+export async function loadAllProfilesModal() {
+  const listEl = document.getElementById('all-profiles-list');
+  const summaryEl = document.getElementById('all-profiles-summary');
+  if (!listEl) return;
+
+  if (summaryEl) {
+    summaryEl.textContent = isRu() ? 'Загрузка списка профилей...' : 'Loading community profiles...';
+  }
+  listEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+    isRu() ? 'Загрузка профилей...' : 'Loading profiles...'
+  }</p>`;
+
+  try {
+    const { data: profiles, error } = await supabaseClient
+      .from('profiles')
+      .select('id, username, avatar_url, steam_id')
+      .order('username', { ascending: true })
+      .limit(100);
+
+    if (error) {
+      console.error('All profiles modal error:', error);
+      if (summaryEl) summaryEl.textContent = isRu() ? 'Ошибка загрузки профилей.' : 'Failed to load profiles.';
+      listEl.innerHTML = `<p class="text-xs text-red-400 py-6 text-center">${
+        isRu() ? 'Не удалось загрузить профили.' : 'Could not load profiles.'
+      }</p>`;
+      return;
+    }
+
+    cachedAllProfiles = Array.isArray(profiles) ? profiles : [];
+    renderAllProfilesModal();
+  } catch (err) {
+    console.error('All profiles fatal error:', err);
+    if (summaryEl) summaryEl.textContent = isRu() ? 'Ошибка загрузки профилей.' : 'Error loading profiles.';
+    listEl.innerHTML = `<p class="text-xs text-red-400 py-6 text-center">${
+      isRu() ? 'Ошибка при загрузке профилей.' : 'Error loading profiles.'
+    }</p>`;
+  }
+}
+
+export function renderAllProfilesModal() {
+  const listEl = document.getElementById('all-profiles-list');
+  const summaryEl = document.getElementById('all-profiles-summary');
+  const searchEl = document.getElementById('all-profiles-search');
+  if (!listEl) return;
+
+  const ru = isRu();
+  const q = (searchEl?.value || '').trim().toLowerCase();
+
+  const filtered = q
+    ? cachedAllProfiles.filter(
+        (p) =>
+          String(p.username || '').toLowerCase().includes(q) ||
+          String(p.steam_id || '').toLowerCase().includes(q)
+      )
+    : cachedAllProfiles;
+
+  if (summaryEl) {
+    summaryEl.textContent = ru
+      ? `Найдено профилей: ${filtered.length} из ${cachedAllProfiles.length}`
+      : `Showing ${filtered.length} of ${cachedAllProfiles.length} profiles`;
+  }
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+      ru ? 'Профили не найдены.' : 'No matching profiles found.'
+    }</p>`;
+    return;
+  }
+
+  listEl.innerHTML = '';
+  filtered.forEach((p) => {
+    const name = p.username || 'Player';
+    const avatarSrc =
+      p.avatar_url ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=128`;
+    const steamStatus = p.steam_id
+      ? ru
+        ? 'Steam привязан'
+        : 'Steam linked'
+      : ru
+      ? 'Без Steam'
+      : 'No Steam';
+
+    const row = document.createElement('div');
+    row.className =
+      'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 transition';
+
+    row.innerHTML = `
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(name)}" class="w-10 h-10 rounded-full object-cover border border-white/10 shrink-0" />
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-white truncate">${escapeHtml(name)}</p>
+          <p class="text-[11px] text-gray-400 truncate">${escapeHtml(steamStatus)}</p>
+        </div>
+      </div>
+      <button type="button" class="px-3 py-1.5 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition shrink-0 view-profile-btn">
+        ${ru ? 'Открыть →' : 'View →'}
+      </button>
+    `;
+
+    row.querySelector('.view-profile-btn')?.addEventListener('click', () => {
+      closeAllProfilesModal();
+      if (typeof window.__gtf_viewCommunityProfile === 'function') {
+        window.__gtf_viewCommunityProfile(p);
+      } else {
+        const inlineResults = document.getElementById('community-results');
+        if (inlineResults) inlineResults.classList.remove('hidden');
+      }
+    });
+
+    listEl.appendChild(row);
+  });
+}
 
 // --- 1. МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
 export function openLeaderboardModal() {
@@ -320,7 +455,7 @@ export async function renderLeaderboard() {
             <p class="text-[11px] text-gray-400 truncate">${topWord}: ${escapeHtml(player.topGameName)} • ${player.gamesCount} ${gamesWord}</p>
           </div>
         </div>
-        <span class="text-sm font-mono font-bold text-purple-300 shrink-0">${escapeHtml(formatPlaytime(player.totalHours))}</span>
+        <span class="text-sm font-mono font-bold tier-text shrink-0">${escapeHtml(formatPlaytime(player.totalHours))}</span>
       `;
       container.appendChild(row);
     });
@@ -382,7 +517,7 @@ export function pickRandomGame() {
           <p class="text-xs font-bold text-white truncate">${escapeHtml(picked.name)}</p>
           <p class="text-[11px] text-gray-400">${escapeHtml(formatPlaytime(hours))} ${isRu() ? 'наиграно' : 'played'}</p>
         </div>
-        <a href="${escapeHtml(launchUrl)}" class="px-3 py-1.5 text-xs font-bold rounded-lg btn-gradient text-white shrink-0">
+        <a href="${escapeHtml(launchUrl)}" class="px-3 py-1.5 text-xs font-bold rounded-lg btn-gradient shrink-0">
           ${isRu() ? 'Играть ▶' : 'Launch ▶'}
         </a>
       </div>
@@ -629,7 +764,7 @@ export function renderWishlistItems() {
             ${escapeHtml(item.final_price_formatted || 'TBA')}
           </p>
         </div>
-        <a href="${escapeHtml(storeUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/10 bg-white/5 hover:bg-purple-500/20 hover:border-purple-500/40 text-gray-200 transition">
+        <a href="${escapeHtml(storeUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
           ${isRu() ? 'В Steam ↗' : 'Store ↗'}
         </a>
       </div>
@@ -674,27 +809,24 @@ export function generateFlexCard() {
   const p3 = document.getElementById('podium-name-3')?.textContent || '—';
   const p3h = document.getElementById('podium-hours-3')?.textContent || '0h';
 
+  const tierColor =
+    getComputedStyle(document.documentElement).getPropertyValue('--tier-color').trim() || '#cbd5e1';
+
   const w = canvas.width;
   const h = canvas.height;
 
   const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-  bgGrad.addColorStop(0, '#0d0b1a');
-  bgGrad.addColorStop(0.55, '#16112b');
-  bgGrad.addColorStop(1, '#090d18');
+  bgGrad.addColorStop(0, '#0d0d14');
+  bgGrad.addColorStop(0.55, '#151520');
+  bgGrad.addColorStop(1, '#0a0a0f');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, w, h);
 
-  const glow = ctx.createRadialGradient(w * 0.82, h * 0.2, 20, w * 0.82, h * 0.2, 340);
-  glow.addColorStop(0, 'rgba(168, 85, 247, 0.35)');
-  glow.addColorStop(1, 'rgba(168, 85, 247, 0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, w, h);
-
-  ctx.strokeStyle = 'rgba(168, 85, 247, 0.45)';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = tierColor;
+  ctx.lineWidth = 2.5;
   ctx.strokeRect(18, 18, w - 36, h - 36);
 
-  ctx.fillStyle = '#c084fc';
+  ctx.fillStyle = tierColor;
   ctx.font = '800 22px Outfit, sans-serif';
   ctx.fillText('GREEDTOFAME // GAMER CARD', 48, 66);
 
@@ -702,7 +834,7 @@ export function generateFlexCard() {
   ctx.font = '800 44px Outfit, sans-serif';
   ctx.fillText(username.slice(0, 22), 48, 124);
 
-  ctx.fillStyle = '#38bdf8';
+  ctx.fillStyle = '#9ca3af';
   ctx.font = '600 20px Outfit, sans-serif';
   ctx.fillText(`${isRu() ? 'Ранг' : 'Tier'}: ${tierText}`, 48, 160);
 
@@ -716,7 +848,7 @@ export function generateFlexCard() {
   ctx.fillText(totalHoursText, 48, 258);
   ctx.fillText(totalGamesText, 280, 258);
 
-  ctx.fillStyle = '#a855f7';
+  ctx.fillStyle = tierColor;
   ctx.font = '700 18px Outfit, sans-serif';
   ctx.fillText(isRu() ? 'ТОП-3 ИГРЫ' : 'TOP 3 GAMES', 490, 96);
 
@@ -744,6 +876,12 @@ export function initFeatures() {
   document.getElementById('gd-raw-search')?.addEventListener('input', () => {
     if (currentGameStatsPayload) renderGameDetailsStats(currentGameStatsPayload);
   });
+
+  document.getElementById('view-all-profiles')?.addEventListener('click', openAllProfilesModal);
+  document.getElementById('close-all-profiles-btn')?.addEventListener('click', closeAllProfilesModal);
+  document.getElementById('all-profiles-modal-backdrop')?.addEventListener('click', closeAllProfilesModal);
+  document.getElementById('refresh-all-profiles-btn')?.addEventListener('click', loadAllProfilesModal);
+  document.getElementById('all-profiles-search')?.addEventListener('input', renderAllProfilesModal);
 
   document.getElementById('open-leaderboard-btn')?.addEventListener('click', openLeaderboardModal);
   document.getElementById('close-leaderboard-btn')?.addEventListener('click', closeLeaderboardModal);
