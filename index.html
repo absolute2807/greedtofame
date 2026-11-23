@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=6" />
+  <link rel="stylesheet" href="./styles.css?v=8" />
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
@@ -66,6 +66,14 @@
         <button id="theme-dark" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Dark</button>
         <button id="theme-light" class="flex-1 py-3 text-sm font-bold rounded-lg border transition">Light</button>
       </div>
+    </div>
+
+    <div id="steam-settings-section" class="hidden mt-6 pt-6 border-t border-white/10">
+      <label class="block text-sm font-semibold text-gray-400 mb-3">Steam Integration</label>
+      <button id="unlink-steam-btn" type="button" class="w-full py-3 px-4 text-sm font-bold rounded-lg border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+        <span>Unlink Steam Account</span>
+      </button>
     </div>
   </div>
 
@@ -160,6 +168,10 @@
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span id="steam-btn-text">Connect Steam</span>
             </a>
+            <button id="sync-steam-btn" type="button" class="hidden mt-2.5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition flex items-center justify-center gap-2">
+              <svg id="sync-steam-icon" class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <span id="sync-steam-text">Sync from Steam</span>
+            </button>
             <p id="steam-instruction-text" class="mt-3 text-xs text-gray-400 leading-relaxed text-center">Link your Steam account to import playtime and games automatically.</p>
             <p id="steam-auto-load" class="mt-2 text-xs text-gray-400 hidden items-center justify-center gap-2">Loading Steam games...</p>
           </div>
@@ -412,6 +424,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=6"></script>
+  <script type="module" src="./js/app.js?v=8"></script>
 </body>
 </html>
