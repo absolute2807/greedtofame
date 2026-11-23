@@ -2,6 +2,7 @@ import { supabaseClient, prefs, formatPlaytime, escapeHtml, animateValue } from 
 import { updateAnalytics } from './analytics.js';
 
 let lastSteamData = null;
+let currentGamesList = [];
 
 export function getLastSteamData() {
   return lastSteamData;
@@ -17,8 +18,6 @@ export function toggleEmptyStates(hasGames) {
   podiumWrapper?.classList.toggle('hidden', !hasGames);
 }
 
-// Смена оформления в зависимости от общего количества часов:
-// < 500h -> Bronze | 500–999h -> Silver | 1000–4999h -> Gold | 5000h+ -> Cyan
 export function applyPlaytimeTier(totalHours) {
   const root = document.documentElement;
   const badgeEl = document.getElementById('playtime-tier-badge');
@@ -64,6 +63,98 @@ export function applyPlaytimeTier(totalHours) {
   }
 }
 
+export function applySteamPlayerProfile(player, options = { force: false }) {
+  if (!player) return;
+
+  const welcomeEl = document.getElementById('welcome-username');
+  const profileNameEl = document.getElementById('profile-username');
+  const avatarEl = document.getElementById('profile-avatar');
+
+  const hasCustomName = Boolean(localStorage.getItem('greedtofame_custom_name'));
+  if ((options.force || !hasCustomName) && player.personaname) {
+    if (welcomeEl) welcomeEl.textContent = player.personaname;
+    if (profileNameEl) profileNameEl.textContent = player.personaname;
+  }
+
+  if (avatarEl && (options.force || !avatarEl.dataset.custom) && player.avatarfull) {
+    avatarEl.src = player.avatarfull;
+    avatarEl.dataset.steamAvatar = 'true';
+  }
+}
+
+export function renderFilteredGamesTable() {
+  const gamesTbody = document.getElementById('games-tbody');
+  if (!gamesTbody) return;
+
+  const query = (document.getElementById('game-search-input')?.value || '').trim().toLowerCase();
+  const sortMode = document.getElementById('game-sort-select')?.value || 'playtime_desc';
+
+  let filtered = currentGamesList.filter((g) =>
+    String(g.name || '').toLowerCase().includes(query)
+  );
+
+  filtered = [...filtered].sort((a, b) => {
+    switch (sortMode) {
+      case 'playtime_asc':
+        return (a.playtime_forever || 0) - (b.playtime_forever || 0);
+      case 'name_asc':
+        return String(a.name || '').localeCompare(String(b.name || ''));
+      case 'last_played_desc':
+        return (b.rtime_last_played || 0) - (a.rtime_last_played || 0);
+      case 'playtime_desc':
+      default:
+        return (b.playtime_forever || 0) - (a.playtime_forever || 0);
+    }
+  });
+
+  if (filtered.length === 0) {
+    gamesTbody.innerHTML =
+      '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No matching games found.</td></tr>';
+    return;
+  }
+
+  gamesTbody.innerHTML = '';
+  filtered.forEach((game, idx) => {
+    const iconUrl = game.img_icon_url
+      ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+      : null;
+    const hours = Math.round((game.playtime_forever || 0) / 60);
+
+    let lastPlayedText = '—';
+    if (game.rtime_last_played && game.rtime_last_played > 0) {
+      const date = new Date(game.rtime_last_played * 1000);
+      lastPlayedText = date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+    }
+
+    const safeName = escapeHtml(game.name || 'Unknown Game');
+    const firstLetter = escapeHtml((game.name || 'G').charAt(0).toUpperCase());
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-white/[0.03] transition group row-animate';
+    tr.style.animationDelay = `${Math.min(idx * 25, 600)}ms`;
+    tr.innerHTML = `
+      <td class="px-6 py-4" data-label="Game">
+        <div class="flex items-center gap-3">
+          ${iconUrl
+            ? `<img src="${escapeHtml(iconUrl)}" class="w-10 h-10 rounded-lg object-cover" alt="${safeName}" />`
+            : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${firstLetter}</div>`}
+          <div class="text-left">
+            <p class="font-medium text-white">${safeName}</p>
+            <p class="text-xs text-gray-500">Steam • App ${escapeHtml(game.appid)}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-6 py-4" data-label="Playtime"><span class="text-white font-mono text-sm">${escapeHtml(formatPlaytime(hours))}</span></td>
+      <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${escapeHtml(lastPlayedText)}</td>
+    `;
+    gamesTbody.appendChild(tr);
+  });
+}
+
 export function renderSteamGames(data) {
   const games = data?.response?.games ?? data?.games?.games;
   const hasGames = Array.isArray(games) && games.length > 0;
@@ -71,15 +162,17 @@ export function renderSteamGames(data) {
 
   const gamesTbody = document.getElementById('games-tbody');
   if (!hasGames) {
+    currentGamesList = [];
     applyPlaytimeTier(0);
     if (gamesTbody) {
       gamesTbody.innerHTML =
-        '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library. Check if Steam Game Details privacy is set to Public.</td></tr>';
+        '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library. Check Steam privacy settings.</td></tr>';
     }
     return;
   }
 
   lastSteamData = { response: { games } };
+  currentGamesList = [...games];
 
   const totalGames = games.length;
   const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
@@ -122,7 +215,6 @@ export function renderSteamGames(data) {
 
   const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
 
-  // Top Game Card
   const topGame = sortedGames[0];
   const topNameEl = document.getElementById('top-game-name');
   const topHoursEl = document.getElementById('top-game-hours');
@@ -142,7 +234,6 @@ export function renderSteamGames(data) {
     }
   }
 
-  // Top 3 / Hall of Fame
   for (let i = 0; i < 3; i++) {
     const game = sortedGames[i];
     const rank = i + 1;
@@ -179,49 +270,35 @@ export function renderSteamGames(data) {
     }
   }
 
-  // Games Table
-  if (gamesTbody) {
-    gamesTbody.innerHTML = '';
-    sortedGames.forEach((game, idx) => {
-      const iconUrl = game.img_icon_url
-        ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-        : null;
-      const hours = Math.round((game.playtime_forever || 0) / 60);
+  renderFilteredGamesTable();
+}
 
-      let lastPlayedText = '—';
-      if (game.rtime_last_played && game.rtime_last_played > 0) {
-        const date = new Date(game.rtime_last_played * 1000);
-        lastPlayedText = date.toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        });
-      }
+export async function loadSteamStatsForId(steamId, options = { applyPlayer: true, updateOwnAnalytics: true }) {
+  if (!steamId) return null;
 
-      const safeName = escapeHtml(game.name || 'Unknown Game');
-      const firstLetter = escapeHtml((game.name || 'G').charAt(0).toUpperCase());
+  const { data, error } = await supabaseClient.functions.invoke('steam-api', {
+    body: { steamid: steamId },
+  });
 
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-white/[0.03] transition group row-animate';
-      tr.style.animationDelay = `${Math.min(idx * 30, 700)}ms`;
-      tr.innerHTML = `
-        <td class="px-6 py-4" data-label="Game">
-          <div class="flex items-center gap-3">
-            ${iconUrl
-              ? `<img src="${escapeHtml(iconUrl)}" class="w-10 h-10 rounded-lg object-cover" alt="${safeName}" />`
-              : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${firstLetter}</div>`}
-            <div class="text-left">
-              <p class="font-medium text-white">${safeName}</p>
-              <p class="text-xs text-gray-500">Steam • App ${escapeHtml(game.appid)}</p>
-            </div>
-          </div>
-        </td>
-        <td class="px-6 py-4" data-label="Playtime"><span class="text-white font-mono text-sm">${escapeHtml(formatPlaytime(hours))}</span></td>
-        <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${escapeHtml(lastPlayedText)}</td>
-      `;
-      gamesTbody.appendChild(tr);
-    });
+  if (error) {
+    console.error('steam-api invoke error:', error);
+    return null;
   }
+
+  if (options.applyPlayer && data?.player) {
+    applySteamPlayerProfile(data.player);
+  }
+
+  const gamesPayload = data?.games ?? data?.response ?? null;
+  if (gamesPayload) {
+    const normalizedData = { response: gamesPayload };
+    renderSteamGames(normalizedData);
+    if (options.updateOwnAnalytics && Array.isArray(gamesPayload.games)) {
+      updateAnalytics(gamesPayload.games);
+    }
+  }
+
+  return data;
 }
 
 export async function autoLoadSteamGames() {
@@ -256,23 +333,10 @@ export async function autoLoadSteamGames() {
   steamAutoLoadEl?.classList.remove('hidden');
 
   try {
-    const { data, error } = await supabaseClient.functions.invoke('steam-api', {
-      body: { steamid: profile.steam_id },
+    await loadSteamStatsForId(profile.steam_id, {
+      applyPlayer: true,
+      updateOwnAnalytics: true,
     });
-
-    if (error) {
-      console.error('steam-api invoke error:', error);
-      return;
-    }
-
-    const gamesPayload = data?.games ?? data?.response ?? null;
-    if (gamesPayload) {
-      const normalizedData = { response: gamesPayload };
-      renderSteamGames(normalizedData);
-      if (Array.isArray(gamesPayload.games)) {
-        updateAnalytics(gamesPayload.games);
-      }
-    }
   } catch (e) {
     console.error('Failed to auto-load Steam games:', e);
   } finally {
