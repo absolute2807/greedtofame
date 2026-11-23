@@ -10,7 +10,7 @@ import {
   toggleEmptyStates,
 } from './steam.js';
 import { updateAnalytics } from './analytics.js';
-import { initFeatures } from './features.js';
+import { initFeatures, setActiveWishlistSteamId } from './features.js';
 
 const STEAM_AUTH_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
 
@@ -204,6 +204,9 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         .single();
 
       if (profile && !error) {
+        if (profile.steam_id) {
+          setActiveWishlistSteamId(String(profile.steam_id));
+        }
         if (profile.username) {
           displayName = profile.username;
           applyUsername(profile.username);
@@ -225,6 +228,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     await autoLoadSteamGames();
   } else {
     loadedUserId = null;
+    setActiveWishlistSteamId(null);
     if (authBtnText) authBtnText.textContent = 'Sign in with Steam';
     authBtnChevron?.classList.add('hidden');
     authBtn?.classList.add('btn-gradient');
@@ -431,11 +435,13 @@ async function openCommunityProfile(profile) {
   backToMyProfileBtn?.classList.remove('hidden');
 
   if (profile.steam_id) {
+    setActiveWishlistSteamId(String(profile.steam_id));
     await loadSteamStatsForId(profile.steam_id, {
       applyPlayer: !profile.avatar_url,
       updateOwnAnalytics: false,
     });
   } else {
+    setActiveWishlistSteamId(null);
     renderSteamGames({ response: { games: [] } });
   }
 
@@ -469,6 +475,7 @@ document.getElementById('view-all-profiles')?.addEventListener('click', () => {
 // --- 7. ДЕМО-РЕЖИМ ---
 function enterDemoMode() {
   localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
+  setActiveWishlistSteamId(null);
   const demoData = buildDemoData();
   applyUsername('DemoPlayer');
 
