@@ -613,7 +613,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// --- 8. ЭКРАНЫ И SHARE ---
+// --- 8. ЭКРАНЫ ---
 document.getElementById('show-analytics-btn')?.addEventListener('click', () => {
   document.getElementById('dashboard-page')?.classList.add('hidden');
   document.getElementById('analytics-page')?.classList.remove('hidden');
@@ -622,17 +622,6 @@ document.getElementById('show-analytics-btn')?.addEventListener('click', () => {
 document.getElementById('back-to-dashboard-btn')?.addEventListener('click', () => {
   document.getElementById('analytics-page')?.classList.add('hidden');
   document.getElementById('dashboard-page')?.classList.remove('hidden');
-});
-
-const shareBtn = document.getElementById('share-profile-btn');
-shareBtn?.addEventListener('click', () => {
-  navigator.clipboard.writeText(window.location.href).then(() => {
-    const originalText = shareBtn.textContent;
-    shareBtn.textContent = 'Copied!';
-    setTimeout(() => {
-      shareBtn.textContent = originalText;
-    }, 2000);
-  });
 });
 
 // --- 9. ВОЗВРАТ ИЗ STEAM OPENID ---
