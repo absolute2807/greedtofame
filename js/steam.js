@@ -1,427 +1,529 @@
-import { supabaseClient, prefs, formatPlaytime, escapeHtml, animateValue } from './config.js';
+import { supabaseClient, STORAGE_KEYS, prefs, formatPlaytime, escapeHtml } from './config.js';
 import { updateAnalytics } from './analytics.js';
 
 let lastSteamData = null;
-let currentGamesList = [];
+
+function isRu() {
+  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+}
 
 export function getLastSteamData() {
   return lastSteamData;
 }
 
+function getPlaytimeTier(totalHours) {
+  const ru = isRu();
+  if (totalHours >= 3000) return { label: ru ? 'Легенда' : 'Legend', color: '#facc15' };
+  if (totalHours >= 1500) return { label: ru ? 'Хардкор' : 'Hardcore', color: '#a855f7' };
+  if (totalHours >= 500) return { label: ru ? 'Ветеран' : 'Veteran', color: '#38bdf8' };
+  if (totalHours >= 100) return { label: ru ? 'Активный' : 'Active', color: '#4ade80' };
+  return { label: ru ? 'Новичок' : 'Standard', color: '#9ca3af' };
+}
+
+function getPlaystyleSummary(games) {
+  const ru = isRu();
+  if (!Array.isArray(games) || games.length === 0) {
+    return { label: '—', avg: '—' };
+  }
+
+  const totalMins = games.reduce((sum, g) => sum + (Number(g.playtime_forever) || 0), 0);
+  const totalHours = totalMins / 60;
+  const avgHours = totalHours / games.length;
+
+  const sorted = [...games].sort(
+    (a, b) => (Number(b.playtime_forever) || 0) - (Number(a.playtime_forever) || 0)
+  );
+  const topMins = Number(sorted[0]?.playtime_forever) || 0;
+  const topShare = totalMins > 0 ? topMins / totalMins : 0;
+
+  let label = ru ? 'Баланс' : 'Balanced';
+  if (topShare >= 0.45 && totalHours >= 100) {
+    label = ru ? 'Однолюб' : 'Specialist';
+  } else if (games.length >= 25 && avgHours < 15) {
+    label = ru ? 'Коллекционер' : 'Explorer';
+  } else if (avgHours >= 40) {
+    label = ru ? 'Марафонец' : 'Grinder';
+  }
+
+  const avgText = ru
+    ? `Среднее: ${formatPlaytime(Math.round(avgHours))} / игра`
+    : `Avg: ${formatPlaytime(Math.round(avgHours))} / game`;
+
+  return { label, avg: avgText };
+}
+
 export function toggleEmptyStates(hasGames) {
-  const topEmpty = document.getElementById('top-game-empty');
-  const podiumEmpty = document.getElementById('podium-empty');
   const podiumWrapper = document.getElementById('podium-wrapper');
+  const podiumEmpty = document.getElementById('podium-empty');
+  const topGameEmpty = document.getElementById('top-game-empty');
+  const topGameIcon = document.getElementById('top-game-icon');
+  const topGameName = document.getElementById('top-game-name');
+  const topGameHours = document.getElementById('top-game-hours');
 
-  topEmpty?.classList.toggle('hidden', hasGames);
-  podiumEmpty?.classList.toggle('hidden', hasGames);
-  podiumWrapper?.classList.toggle('hidden', !hasGames);
+  if (podiumWrapper) podiumWrapper.classList.toggle('hidden', !hasGames);
+  if (podiumEmpty) podiumEmpty.classList.toggle('hidden', hasGames);
+  if (topGameEmpty) topGameEmpty.classList.toggle('hidden', hasGames);
+
+  if (!hasGames) {
+    if (topGameIcon) topGameIcon.classList.add('hidden');
+    if (topGameName) topGameName.textContent = '—';
+    if (topGameHours) topGameHours.textContent = '—';
+  }
 }
 
-export function applyPlaytimeTier(totalHours) {
-  const root = document.documentElement;
-  const badgeEl = document.getElementById('playtime-tier-badge');
+function formatLastPlayed(timestampSec) {
+  const ts = Number(timestampSec) || 0;
+  if (!ts) return isRu() ? 'Никогда' : 'Never';
+  const date = new Date(ts * 1000);
+  if (Number.isNaN(date.getTime())) return isRu() ? 'Никогда' : 'Never';
+  const locale = isRu() ? 'ru-RU' : 'en-GB';
+  return date.toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
 
-  let color = '#a855f7';
-  let gradient = 'linear-gradient(135deg, #a855f7 0%, #2563eb 100%)';
-  let tierName = 'Standard';
+function getGameIconUrl(game) {
+  if (game?.img_icon_url) {
+    return `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
+  }
+  return `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg`;
+}
 
-  if (totalHours > 0 && totalHours < 500) {
-    color = prefs.theme === 'light' ? '#b45309' : '#cd7f32';
-    gradient = 'linear-gradient(135deg, #cd7f32 0%, #78350f 100%)';
-    tierName = 'Bronze • <500h';
-  } else if (totalHours >= 500 && totalHours < 1000) {
-    color = prefs.theme === 'light' ? '#475569' : '#cbd5e1';
-    gradient = 'linear-gradient(135deg, #cbd5e1 0%, #64748b 100%)';
-    tierName = 'Silver • 500h+';
-  } else if (totalHours >= 1000 && totalHours < 5000) {
-    color = prefs.theme === 'light' ? '#b45309' : '#facc15';
-    gradient = 'linear-gradient(135deg, #facc15 0%, #d97706 100%)';
-    tierName = 'Gold • 1000h+';
-  } else if (totalHours >= 5000) {
-    color = prefs.theme === 'light' ? '#0284c7' : '#22d3ee';
-    gradient = 'linear-gradient(135deg, #22d3ee 0%, #2563eb 100%)';
-    tierName = 'Apex • 5000h+';
+function getGameBannerUrl(game) {
+  return `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg`;
+}
+
+function updateHallOfFame(sortedGames) {
+  const slots = [
+    {
+      idx: 0,
+      nameId: 'podium-name-1',
+      hoursId: 'podium-hours-1',
+      imgId: 'podium-img-1',
+      bannerId: 'podium-banner-1',
+    },
+    {
+      idx: 1,
+      nameId: 'podium-name-2',
+      hoursId: 'podium-hours-2',
+      imgId: 'podium-img-2',
+      bannerId: 'podium-banner-2',
+    },
+    {
+      idx: 2,
+      nameId: 'podium-name-3',
+      hoursId: 'podium-hours-3',
+      imgId: 'podium-img-3',
+      bannerId: 'podium-banner-3',
+    },
+  ];
+
+  slots.forEach(({ idx, nameId, hoursId, imgId, bannerId }) => {
+    const game = sortedGames[idx];
+    const nameEl = document.getElementById(nameId);
+    const hoursEl = document.getElementById(hoursId);
+    const imgEl = document.getElementById(imgId);
+    const bannerEl = document.getElementById(bannerId);
+
+    if (!game) {
+      if (nameEl) nameEl.textContent = '—';
+      if (hoursEl) hoursEl.textContent = formatPlaytime(0);
+      if (imgEl) imgEl.classList.add('hidden');
+      if (bannerEl) bannerEl.classList.add('hidden');
+      return;
+    }
+
+    const hrs = Math.round((Number(game.playtime_forever) || 0) / 60);
+    if (nameEl) nameEl.textContent = game.name || `App ${game.appid}`;
+    if (hoursEl) hoursEl.textContent = formatPlaytime(hrs);
+
+    if (imgEl) {
+      imgEl.src = getGameIconUrl(game);
+      imgEl.classList.remove('hidden');
+      imgEl.onerror = () => imgEl.classList.add('hidden');
+    }
+
+    if (bannerEl) {
+      bannerEl.src = getGameBannerUrl(game);
+      bannerEl.classList.remove('hidden');
+      bannerEl.onerror = () => bannerEl.classList.add('hidden');
+    }
+  });
+}
+
+export function renderFilteredGamesTable() {
+  const tbody = document.getElementById('games-tbody');
+  if (!tbody) return;
+
+  const games = lastSteamData?.response?.games;
+  if (!Array.isArray(games) || games.length === 0) {
+    tbody.innerHTML = `
+      <tr id="steam-placeholder">
+        <td colspan="3" class="px-6 py-8 text-center text-gray-400">
+          ${isRu() ? 'Войди через Steam, чтобы увидеть свои игры' : 'Sign in with Steam to see your games'}
+        </td>
+      </tr>
+    `;
+    return;
   }
 
-  root.style.setProperty('--tier-color', color);
-  root.style.setProperty('--tier-gradient', gradient);
+  const searchQuery = (document.getElementById('game-search-input')?.value || '').trim().toLowerCase();
+  const sortMode = document.getElementById('game-sort-select')?.value || 'playtime_desc';
 
-  if (badgeEl) {
-    badgeEl.textContent = tierName;
-    badgeEl.style.color = color;
-    badgeEl.style.borderColor = `${color}66`;
+  let list = [...games];
+  if (searchQuery) {
+    list = list.filter((g) => String(g.name || '').toLowerCase().includes(searchQuery));
   }
 
+  list.sort((a, b) => {
+    if (sortMode === 'playtime_asc') {
+      return (Number(a.playtime_forever) || 0) - (Number(b.playtime_forever) || 0);
+    }
+    if (sortMode === 'name_asc') {
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }
+    if (sortMode === 'last_played_desc') {
+      return (Number(b.rtime_last_played) || 0) - (Number(a.rtime_last_played) || 0);
+    }
+    return (Number(b.playtime_forever) || 0) - (Number(a.playtime_forever) || 0);
+  });
+
+  if (list.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" class="px-6 py-8 text-center text-gray-400">
+          ${isRu() ? 'По вашему запросу игры не найдены.' : 'No games match your search.'}
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  const ru = isRu();
+  const colGameLabel = ru ? 'Игра' : 'Game';
+  const colPlaytimeLabel = ru ? 'Время' : 'Playtime';
+  const colLastPlayedLabel = ru ? 'Последний запуск' : 'Last Played';
+
+  list.forEach((game) => {
+    const hours = Math.round((Number(game.playtime_forever) || 0) / 60);
+    const formattedTime = formatPlaytime(hours);
+    const lastPlayed = formatLastPlayed(game.rtime_last_played);
+    const iconUrl = getGameIconUrl(game);
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-white/[0.04] transition-colors cursor-pointer';
+    tr.innerHTML = `
+      <td class="px-6 py-4" data-label="${escapeHtml(colGameLabel)}">
+        <div class="flex items-center gap-3 min-w-0">
+          <img src="${escapeHtml(iconUrl)}" alt="${escapeHtml(game.name || '')}" class="w-8 h-8 rounded object-cover shrink-0 border border-white/10" onerror="this.style.display='none'" />
+          <span class="font-semibold text-white truncate">${escapeHtml(game.name || `App ${game.appid}`)}</span>
+        </div>
+      </td>
+      <td class="px-6 py-4 font-mono text-sm text-purple-300" data-label="${escapeHtml(colPlaytimeLabel)}">${escapeHtml(formattedTime)}</td>
+      <td class="px-6 py-4 text-sm text-gray-400" data-label="${escapeHtml(colLastPlayedLabel)}">${escapeHtml(lastPlayed)}</td>
+    `;
+
+    tr.addEventListener('click', () => {
+      if (typeof window.__gtf_openGameDetails === 'function') {
+        window.__gtf_openGameDetails(game);
+      }
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+export function renderSteamGames(steamData) {
+  lastSteamData = steamData;
+
+  const games = steamData?.response?.games;
+  const hasGames = Array.isArray(games) && games.length > 0;
+
+  toggleEmptyStates(hasGames);
+
+  if (!hasGames) {
+    const totalGamesEl = document.getElementById('stat-total-games');
+    const totalHoursEl = document.getElementById('stat-total-hours');
+    const hoursCardEl = document.getElementById('hours-card');
+    const recentEl = document.getElementById('stat-recent-hours');
+    const styleLabelEl = document.getElementById('stat-playstyle-label');
+    const styleAvgEl = document.getElementById('stat-playstyle-avg');
+    const tierBadge = document.getElementById('playtime-tier-badge');
+
+    if (totalGamesEl) totalGamesEl.textContent = '0';
+    if (totalHoursEl) totalHoursEl.textContent = formatPlaytime(0);
+    if (hoursCardEl) hoursCardEl.textContent = formatPlaytime(0);
+    if (recentEl) {
+      recentEl.textContent = isRu() ? '0ч за последние 2 недели' : '0hrs in last 2 weeks';
+    }
+    if (styleLabelEl) styleLabelEl.textContent = '—';
+    if (styleAvgEl) styleAvgEl.textContent = '—';
+    if (tierBadge) {
+      const defaultTier = getPlaytimeTier(0);
+      tierBadge.textContent = defaultTier.label;
+      tierBadge.style.color = defaultTier.color;
+      tierBadge.style.borderColor = `${defaultTier.color}66`;
+    }
+
+    updateHallOfFame([]);
+    renderFilteredGamesTable();
+    return;
+  }
+
+  const totalMinutes = games.reduce((sum, g) => sum + (Number(g.playtime_forever) || 0), 0);
+  const recentMinutes = games.reduce((sum, g) => sum + (Number(g.playtime_2weeks) || 0), 0);
+  const totalHours = Math.round(totalMinutes / 60);
+  const recentHours = (recentMinutes / 60).toFixed(1);
+
+  const totalGamesEl = document.getElementById('stat-total-games');
   const totalHoursEl = document.getElementById('stat-total-hours');
-  if (totalHoursEl) totalHoursEl.style.color = color;
+  const hoursCardEl = document.getElementById('hours-card');
+  const recentEl = document.getElementById('stat-recent-hours');
 
-  const avatarEl = document.getElementById('profile-avatar');
-  if (avatarEl) {
-    avatarEl.style.borderColor = color;
-    avatarEl.style.boxShadow = prefs.theme === 'light' ? 'none' : `0 0 20px ${color}66`;
+  if (totalGamesEl) totalGamesEl.textContent = String(games.length);
+  if (totalHoursEl) totalHoursEl.textContent = formatPlaytime(totalHours);
+  if (hoursCardEl) hoursCardEl.textContent = formatPlaytime(totalHours);
+  if (recentEl) {
+    recentEl.textContent = isRu()
+      ? `${recentHours}ч за последние 2 недели`
+      : `${recentHours}hrs in last 2 weeks`;
   }
+
+  const tier = getPlaytimeTier(totalHours);
+  const tierBadge = document.getElementById('playtime-tier-badge');
+  if (tierBadge) {
+    tierBadge.textContent = tier.label;
+    tierBadge.style.color = tier.color;
+    tierBadge.style.borderColor = `${tier.color}66`;
+  }
+
+  const playstyle = getPlaystyleSummary(games);
+  const styleLabelEl = document.getElementById('stat-playstyle-label');
+  const styleAvgEl = document.getElementById('stat-playstyle-avg');
+  if (styleLabelEl) styleLabelEl.textContent = playstyle.label;
+  if (styleAvgEl) styleAvgEl.textContent = playstyle.avg;
+
+  const sorted = [...games].sort(
+    (a, b) => (Number(b.playtime_forever) || 0) - (Number(a.playtime_forever) || 0)
+  );
+  const topGame = sorted[0];
+
+  const topGameIcon = document.getElementById('top-game-icon');
+  const topGameName = document.getElementById('top-game-name');
+  const topGameHours = document.getElementById('top-game-hours');
+
+  if (topGame) {
+    const topHours = Math.round((Number(topGame.playtime_forever) || 0) / 60);
+    if (topGameName) topGameName.textContent = topGame.name || `App ${topGame.appid}`;
+    if (topGameHours) {
+      topGameHours.textContent = isRu()
+        ? `${formatPlaytime(topHours)} наиграно`
+        : `${formatPlaytime(topHours)} played`;
+    }
+    if (topGameIcon) {
+      topGameIcon.src = getGameIconUrl(topGame);
+      topGameIcon.classList.remove('hidden');
+      topGameIcon.onerror = () => topGameIcon.classList.add('hidden');
+    }
+  }
+
+  updateHallOfFame(sorted);
+  renderFilteredGamesTable();
 }
 
-export function applySteamPlayerProfile(player, options = { force: false }) {
+function applySteamPlayerSummary(player) {
   if (!player) return;
 
-  const welcomeEl = document.getElementById('welcome-username');
-  const profileNameEl = document.getElementById('profile-username');
-  const avatarEl = document.getElementById('profile-avatar');
-
   const hasCustomName = Boolean(localStorage.getItem('greedtofame_custom_name'));
-  if ((options.force || !hasCustomName) && player.personaname) {
+  if (!hasCustomName && player.personaname) {
+    const welcomeEl = document.getElementById('welcome-username');
+    const profileNameEl = document.getElementById('profile-username');
+    const authBtnText = document.getElementById('auth-btn-text');
     if (welcomeEl) welcomeEl.textContent = player.personaname;
     if (profileNameEl) profileNameEl.textContent = player.personaname;
+    if (authBtnText) authBtnText.textContent = player.personaname;
   }
 
-  if (avatarEl && (options.force || !avatarEl.dataset.custom) && player.avatarfull) {
-    avatarEl.src = player.avatarfull;
+  const avatarUrl = player.avatarfull || player.avatarmedium || player.avatar;
+  const avatarEl = document.getElementById('profile-avatar');
+  if (avatarUrl && avatarEl && !avatarEl.dataset.custom) {
+    avatarEl.src = avatarUrl;
     avatarEl.dataset.steamAvatar = 'true';
   }
 }
 
-export function renderFilteredGamesTable() {
-  const gamesTbody = document.getElementById('games-tbody');
-  if (!gamesTbody) return;
+export async function loadSteamStatsForId(
+  steamId,
+  { applyPlayer = true, updateOwnAnalytics = true } = {}
+) {
+  const autoLoadEl = document.getElementById('steam-auto-load');
+  if (autoLoadEl) autoLoadEl.classList.remove('hidden');
 
-  const query = (document.getElementById('game-search-input')?.value || '').trim().toLowerCase();
-  const sortMode = document.getElementById('game-sort-select')?.value || 'playtime_desc';
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('steam-api', {
+      body: { steamid: String(steamId) },
+    });
 
-  let filtered = currentGamesList.filter((g) =>
-    String(g.name || '').toLowerCase().includes(query)
-  );
-
-  filtered = [...filtered].sort((a, b) => {
-    switch (sortMode) {
-      case 'playtime_asc':
-        return (a.playtime_forever || 0) - (b.playtime_forever || 0);
-      case 'name_asc':
-        return String(a.name || '').localeCompare(String(b.name || ''));
-      case 'last_played_desc':
-        return (b.rtime_last_played || 0) - (a.rtime_last_played || 0);
-      case 'playtime_desc':
-      default:
-        return (b.playtime_forever || 0) - (a.playtime_forever || 0);
-    }
-  });
-
-  if (filtered.length === 0) {
-    gamesTbody.innerHTML =
-      '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No matching games found.</td></tr>';
-    return;
-  }
-
-  gamesTbody.innerHTML = '';
-  filtered.forEach((game, idx) => {
-    const iconUrl = game.img_icon_url
-      ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
-      : null;
-    const hours = Math.round((game.playtime_forever || 0) / 60);
-
-    let lastPlayedText = '—';
-    if (game.rtime_last_played && game.rtime_last_played > 0) {
-      const date = new Date(game.rtime_last_played * 1000);
-      lastPlayedText = date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      });
+    if (error) {
+      console.error('Steam API function error:', error);
+      return null;
     }
 
-    const safeName = escapeHtml(game.name || 'Unknown Game');
-    const firstLetter = escapeHtml((game.name || 'G').charAt(0).toUpperCase());
-
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-white/[0.03] transition group row-animate';
-    tr.style.animationDelay = `${Math.min(idx * 25, 600)}ms`;
-    tr.innerHTML = `
-      <td class="px-6 py-4" data-label="Game">
-        <div class="flex items-center gap-3">
-          ${iconUrl
-            ? `<img src="${escapeHtml(iconUrl)}" class="w-10 h-10 rounded-lg object-cover" alt="${safeName}" />`
-            : `<div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center text-white font-bold">${firstLetter}</div>`}
-          <div class="text-left">
-            <p class="font-medium text-white">${safeName}</p>
-            <p class="text-xs text-gray-500">Steam • App ${escapeHtml(game.appid)}</p>
-          </div>
-        </div>
-      </td>
-      <td class="px-6 py-4" data-label="Playtime"><span class="text-white font-mono text-sm">${escapeHtml(formatPlaytime(hours))}</span></td>
-      <td class="px-6 py-4 text-gray-400 text-sm" data-label="Last Played">${escapeHtml(lastPlayedText)}</td>
-    `;
-    gamesTbody.appendChild(tr);
-  });
-}
-
-export function renderSteamGames(data) {
-  const games = data?.response?.games ?? data?.games?.games;
-  const hasGames = Array.isArray(games) && games.length > 0;
-  toggleEmptyStates(hasGames);
-
-  const gamesTbody = document.getElementById('games-tbody');
-  if (!hasGames) {
-    currentGamesList = [];
-    applyPlaytimeTier(0);
-    if (gamesTbody) {
-      gamesTbody.innerHTML =
-        '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library. Check Steam privacy settings.</td></tr>';
+    if (applyPlayer && data?.player) {
+      applySteamPlayerSummary(data.player);
     }
-    return;
-  }
 
-  lastSteamData = { response: { games } };
-  currentGamesList = [...games];
+    const rawGames = data?.games?.games ?? data?.response?.games ?? [];
+    const normalizedData = { response: { games: Array.isArray(rawGames) ? rawGames : [] } };
 
-  const totalGames = games.length;
-  const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-  const totalHours = Math.round(totalMinutes / 60);
-
-  const recentMinutes = games.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
-  const recentHours = Math.round(recentMinutes / 60);
-
-  applyPlaytimeTier(totalHours);
-
-  const suffix = prefs.timeFormat === 'days' ? 'd' : 'h';
-  const targetValue = prefs.timeFormat === 'days' ? Math.round(totalHours / 24) : totalHours;
-
-  const totalGamesEl = document.getElementById('stat-total-games');
-  const totalHoursEl = document.getElementById('stat-total-hours');
-  const hoursCard = document.getElementById('hours-card');
-  const recentHoursEl = document.getElementById('stat-recent-hours');
-
-  if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
-  if (recentHoursEl) recentHoursEl.textContent = `${recentHours}hrs in last 2 weeks`;
-
-  if (totalHoursEl) animateValue(totalHoursEl, 0, targetValue, 1200, suffix);
-  if (hoursCard) animateValue(hoursCard, 0, targetValue, 1200, suffix);
-
-  const avgHours = totalHours / totalGames;
-  let playstyleLabel = 'Collector';
-  let playstyleDesc = 'Game collector';
-  if (avgHours > 20) {
-    playstyleLabel = 'Devoted';
-    playstyleDesc = 'Dedicated player';
-  } else if (avgHours >= 5) {
-    playstyleLabel = 'Balanced';
-    playstyleDesc = 'Balanced player';
-  }
-
-  const playstyleLabelEl = document.getElementById('stat-playstyle-label');
-  const playstyleAvgEl = document.getElementById('stat-playstyle-avg');
-  if (playstyleLabelEl) playstyleLabelEl.textContent = playstyleLabel;
-  if (playstyleAvgEl) playstyleAvgEl.textContent = `${avgHours.toFixed(1)} h/game • ${playstyleDesc}`;
-
-  const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-
-  const topGame = sortedGames[0];
-  const topNameEl = document.getElementById('top-game-name');
-  const topHoursEl = document.getElementById('top-game-hours');
-  const topIconEl = document.getElementById('top-game-icon');
-
-  if (topNameEl) topNameEl.textContent = topGame.name;
-  if (topHoursEl) {
-    const topHours = Math.round((topGame.playtime_forever || 0) / 60);
-    topHoursEl.textContent = `${formatPlaytime(topHours)} played`;
-  }
-  if (topIconEl) {
-    if (topGame.img_icon_url) {
-      topIconEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${topGame.appid}/${topGame.img_icon_url}.jpg`;
-      topIconEl.classList.remove('hidden');
-    } else {
-      topIconEl.classList.add('hidden');
-    }
-  }
-
-  for (let i = 0; i < 3; i++) {
-    const game = sortedGames[i];
-    const rank = i + 1;
-    const imgEl = document.getElementById(`podium-img-${rank}`);
-    const bannerEl = document.getElementById(`podium-banner-${rank}`);
-    const nameEl = document.getElementById(`podium-name-${rank}`);
-    const hoursEl = document.getElementById(`podium-hours-${rank}`);
-
-    if (game) {
-      const gHours = Math.round((game.playtime_forever || 0) / 60);
-      if (nameEl) nameEl.textContent = game.name;
-      if (hoursEl) hoursEl.textContent = formatPlaytime(gHours);
-
-      if (bannerEl) {
-        bannerEl.src = `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${game.appid}/header.jpg`;
-        bannerEl.alt = game.name || '';
-        bannerEl.onerror = () => {
-          bannerEl.classList.add('hidden');
-        };
-        bannerEl.classList.remove('hidden');
-      }
-
-      if (imgEl && game.img_icon_url) {
-        imgEl.src = `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`;
-        imgEl.style.display = 'block';
-      } else if (imgEl) {
-        imgEl.style.display = 'none';
-      }
-    } else {
-      if (nameEl) nameEl.textContent = '—';
-      if (hoursEl) hoursEl.textContent = '0h';
-      if (imgEl) imgEl.style.display = 'none';
-      if (bannerEl) bannerEl.classList.add('hidden');
-    }
-  }
-
-  renderFilteredGamesTable();
-}
-
-export async function loadSteamStatsForId(steamId, options = { applyPlayer: true, updateOwnAnalytics: true }) {
-  if (!steamId) return null;
-
-  const { data, error } = await supabaseClient.functions.invoke('steam-api', {
-    body: { steamid: steamId },
-  });
-
-  if (error) {
-    console.error('steam-api invoke error:', error);
-    return null;
-  }
-
-  if (options.applyPlayer && data?.player) {
-    applySteamPlayerProfile(data.player);
-  }
-
-  const gamesPayload = data?.games ?? data?.response ?? null;
-  if (gamesPayload) {
-    const normalizedData = { response: gamesPayload };
     renderSteamGames(normalizedData);
-    if (options.updateOwnAnalytics && Array.isArray(gamesPayload.games)) {
-      updateAnalytics(gamesPayload.games);
+    if (updateOwnAnalytics) {
+      updateAnalytics(normalizedData.response.games);
     }
-  }
 
-  return data;
+    return normalizedData;
+  } catch (err) {
+    console.error('Failed to load Steam stats:', err);
+    return null;
+  } finally {
+    if (autoLoadEl) autoLoadEl.classList.add('hidden');
+  }
 }
 
 export async function autoLoadSteamGames() {
-  const steamAutoLoadEl = document.getElementById('steam-auto-load');
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-  if (authError || !user) return;
-
-  const { data: profile, error: dbError } = await supabaseClient
-    .from('profiles')
-    .select('steam_id')
-    .eq('id', user.id)
-    .single();
-
-  if (dbError || !profile?.steam_id) return;
-
-  const steamBtn = document.getElementById('connect-steam-btn');
+  const syncBtn = document.getElementById('sync-steam-btn');
   const steamBtnText = document.getElementById('steam-btn-text');
   const instructionText = document.getElementById('steam-instruction-text');
-  const connectTitle = document.getElementById('connect-platform-title');
-  const syncBtn = document.getElementById('sync-steam-btn');
-  const steamSettingsSection = document.getElementById('steam-settings-section');
-
-  if (steamBtn && steamBtnText) {
-    steamBtnText.textContent = 'Steam Connected';
-    steamBtn.removeAttribute('href');
-    steamBtn.classList.remove('btn-gradient');
-    steamBtn.classList.add('bg-green-600/20', 'border', 'border-green-500/50', 'cursor-default');
-    const svgIcon = steamBtn.querySelector('svg');
-    if (svgIcon) svgIcon.style.display = 'none';
-  }
-
-  syncBtn?.classList.remove('hidden');
-  steamSettingsSection?.classList.remove('hidden');
-  instructionText?.classList.add('hidden');
-  connectTitle?.classList.add('hidden');
-  steamAutoLoadEl?.classList.remove('hidden');
 
   try {
-    await loadSteamStatsForId(profile.steam_id, {
-      applyPlayer: true,
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('steam_id, username, avatar_url')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    const steamId = profile?.steam_id || user.user_metadata?.steam_id;
+    if (!steamId) {
+      syncBtn?.classList.add('hidden');
+      return;
+    }
+
+    syncBtn?.classList.remove('hidden');
+    if (steamBtnText) {
+      steamBtnText.textContent = isRu() ? `Steam привязан (${steamId})` : `Steam Linked (${steamId})`;
+    }
+    if (instructionText) {
+      instructionText.textContent = isRu()
+        ? 'Аккаунт Steam подключён. Статистика и игры синхронизируются автоматически.'
+        : 'Your Steam account is linked. Games and playtime sync automatically.';
+    }
+
+    await loadSteamStatsForId(String(steamId), {
+      applyPlayer: !profile?.avatar_url,
       updateOwnAnalytics: true,
     });
-  } catch (e) {
-    console.error('Failed to auto-load Steam games:', e);
-  } finally {
-    steamAutoLoadEl?.classList.add('hidden');
+  } catch (err) {
+    console.error('autoLoadSteamGames error:', err);
   }
 }
 
 export async function syncFromSteamProfile() {
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-  if (authError || !user) return null;
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) return;
 
-  const { data: profile, error: dbError } = await supabaseClient
+  const { data: profile } = await supabaseClient
     .from('profiles')
     .select('steam_id')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
-  if (dbError || !profile?.steam_id) return null;
+  const steamId = profile?.steam_id || user.user_metadata?.steam_id;
+  if (!steamId) return;
 
-  const data = await loadSteamStatsForId(profile.steam_id, {
-    applyPlayer: false,
+  await loadSteamStatsForId(String(steamId), {
+    applyPlayer: true,
     updateOwnAnalytics: true,
   });
-
-  if (data?.player) {
-    localStorage.removeItem('greedtofame_custom_name');
-    if (data.player.personaname) {
-      localStorage.setItem('greedtofame_username', data.player.personaname);
-    }
-
-    const avatarEl = document.getElementById('profile-avatar');
-    if (avatarEl) {
-      delete avatarEl.dataset.custom;
-    }
-
-    applySteamPlayerProfile(data.player, { force: true });
-
-    const updates = { id: user.id };
-    if (data.player.personaname) updates.username = data.player.personaname;
-    if (data.player.avatarfull) updates.avatar_url = data.player.avatarfull;
-    await supabaseClient.from('profiles').upsert(updates);
-  }
-
-  return data;
-}
-
-export async function unlinkSteamAccount() {
-  const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-  if (authError || !user) return false;
-
-  const { error } = await supabaseClient
-    .from('profiles')
-    .update({ steam_id: null })
-    .eq('id', user.id);
-
-  if (error) {
-    console.error('Failed to unlink Steam:', error);
-    return false;
-  }
-
-  return true;
 }
 
 export function buildDemoData() {
   const now = Math.floor(Date.now() / 1000);
   const day = 86400;
+
   return {
     response: {
       games: [
-        { appid: 730, name: 'Counter-Strike 2', playtime_forever: 18240, playtime_2weeks: 640, img_icon_url: '', rtime_last_played: now - day * 2 },
-        { appid: 570, name: 'Dota 2', playtime_forever: 14520, playtime_2weeks: 320, img_icon_url: '', rtime_last_played: now - day * 5 },
-        { appid: 1091500, name: 'Cyberpunk 2077', playtime_forever: 6210, playtime_2weeks: 120, img_icon_url: '', rtime_last_played: now - day * 10 },
-        { appid: 292030, name: 'The Witcher 3: Wild Hunt', playtime_forever: 4980, playtime_2weeks: 0, img_icon_url: '', rtime_last_played: now - day * 30 },
-        { appid: 1174180, name: 'Red Dead Redemption 2', playtime_forever: 3120, playtime_2weeks: 90, img_icon_url: '', rtime_last_played: now - day * 15 },
-        { appid: 271590, name: 'Grand Theft Auto V', playtime_forever: 2880, playtime_2weeks: 0, img_icon_url: '', rtime_last_played: now - day * 7 },
-        { appid: 413150, name: 'Stardew Valley', playtime_forever: 1740, playtime_2weeks: 180, img_icon_url: '', rtime_last_played: now - day * 3 },
-        { appid: 105600, name: 'Terraria', playtime_forever: 960, playtime_2weeks: 0, img_icon_url: '', rtime_last_played: now - day * 40 },
-        { appid: 400, name: 'Portal 2', playtime_forever: 480, playtime_2weeks: 0, img_icon_url: '', rtime_last_played: now - day * 60 },
-        { appid: 620, name: 'Portal 2 (Beta)', playtime_forever: 120, playtime_2weeks: 0, img_icon_url: '', rtime_last_played: now - day * 90 },
+        {
+          appid: 730,
+          name: 'Counter-Strike 2',
+          playtime_forever: 94200,
+          playtime_2weeks: 1260,
+          rtime_last_played: now - day * 1,
+          img_icon_url: '8dbc71957312bbd3baea65848b545be9cdd294f4',
+        },
+        {
+          appid: 1245620,
+          name: 'ELDEN RING',
+          playtime_forever: 28680,
+          playtime_2weeks: 420,
+          rtime_last_played: now - day * 3,
+          img_icon_url: 'b6f29907d8e067c94a36e2c26f14a562135a4397',
+        },
+        {
+          appid: 570,
+          name: 'Dota 2',
+          playtime_forever: 21420,
+          playtime_2weeks: 180,
+          rtime_last_played: now - day * 6,
+          img_icon_url: '07385eb55b5ba974aebbe74d3c99626eb792d5b7',
+        },
+        {
+          appid: 1091500,
+          name: 'Cyberpunk 2077',
+          playtime_forever: 9840,
+          playtime_2weeks: 0,
+          rtime_last_played: now - day * 28,
+          img_icon_url: '7a2466355683d9207b924998b7c0ca252f593267',
+        },
+        {
+          appid: 440,
+          name: 'Team Fortress 2',
+          playtime_forever: 6420,
+          playtime_2weeks: 240,
+          rtime_last_played: now - day * 9,
+          img_icon_url: 'e3f595a92552da3d664ad00277fad2107345f743',
+        },
+        {
+          appid: 1145360,
+          name: 'Hades',
+          playtime_forever: 3780,
+          playtime_2weeks: 0,
+          rtime_last_played: now - day * 75,
+          img_icon_url: '8f8c4f417c2f3f001d28df3b87bc09a6379f441f',
+        },
+        {
+          appid: 367520,
+          name: 'Hollow Knight',
+          playtime_forever: 2520,
+          playtime_2weeks: 0,
+          rtime_last_played: now - day * 120,
+          img_icon_url: 'f6368952e7e52256343d32b71c33eb2077b3f98f',
+        },
+        {
+          appid: 105600,
+          name: 'Terraria',
+          playtime_forever: 1680,
+          playtime_2weeks: 0,
+          rtime_last_played: now - day * 210,
+          img_icon_url: '858961e95ba468736db87615c00b1b3469d3b807',
+        },
       ],
     },
   };
 }
-
