@@ -213,6 +213,7 @@ body.light-theme .header-bg {
 }
 
 .podium-slot {
+  position: relative;
   border-radius: 1rem;
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 100%);
   border: 1.5px solid rgba(255, 255, 255, 0.12);
@@ -224,21 +225,21 @@ body.light-theme .header-bg {
 }
 
 .podium-slot.slot-1 {
-  border-color: rgba(250, 204, 21, 0.7);
-  background: linear-gradient(160deg, rgba(250, 204, 21, 0.11) 0%, rgba(17, 17, 23, 0.92) 70%);
+  border-color: rgba(250, 204, 21, 0.72);
+  background: linear-gradient(160deg, rgba(250, 204, 21, 0.13) 0%, rgba(17, 17, 23, 0.94) 72%);
   box-shadow: 0 0 28px rgba(250, 204, 21, 0.22);
   padding-bottom: 1.55rem;
 }
 .podium-slot.slot-2 {
-  border-color: rgba(203, 213, 225, 0.65);
-  background: linear-gradient(160deg, rgba(203, 213, 225, 0.09) 0%, rgba(17, 17, 23, 0.92) 70%);
-  box-shadow: 0 0 22px rgba(203, 213, 225, 0.16);
+  border-color: rgba(226, 232, 240, 0.75);
+  background: linear-gradient(160deg, rgba(203, 213, 225, 0.18) 0%, rgba(148, 163, 184, 0.07) 45%, rgba(17, 17, 23, 0.95) 85%);
+  box-shadow: 0 0 26px rgba(203, 213, 225, 0.22), inset 0 0 18px rgba(226, 232, 240, 0.06);
   padding-bottom: 1.15rem;
 }
 .podium-slot.slot-3 {
-  border-color: rgba(217, 119, 6, 0.65);
-  background: linear-gradient(160deg, rgba(217, 119, 6, 0.1) 0%, rgba(17, 17, 23, 0.92) 70%);
-  box-shadow: 0 0 22px rgba(217, 119, 6, 0.16);
+  border-color: rgba(217, 119, 6, 0.68);
+  background: linear-gradient(160deg, rgba(217, 119, 6, 0.12) 0%, rgba(17, 17, 23, 0.94) 72%);
+  box-shadow: 0 0 22px rgba(217, 119, 6, 0.18);
   padding-bottom: 0.95rem;
 }
 
