@@ -5,13 +5,14 @@ import {
   autoLoadSteamGames,
   loadSteamStatsForId,
   syncFromSteamProfile,
-  unlinkSteamAccount,
   buildDemoData,
   getLastSteamData,
   toggleEmptyStates,
 } from './steam.js';
 import { updateAnalytics } from './analytics.js';
 import { initFeatures } from './features.js';
+
+const STEAM_AUTH_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
 
 let currentUser = null;
 let loadedUserId = null;
@@ -40,52 +41,42 @@ document.querySelectorAll('.magnetic-btn').forEach((btn) => {
   });
 });
 
-// --- 2. АВТОРИЗАЦИЯ (ТОЛЬКО EMAIL + PASSWORD) ---
+// --- 2. ВХОД В ОДИН КЛИК ЧЕРЕЗ STEAM ---
 const authBtn = document.getElementById('auth-btn');
-const authModal = document.getElementById('auth-modal');
-const authBackdrop = document.getElementById('auth-modal-backdrop');
-const authEmail = document.getElementById('auth-email');
-const authPassword = document.getElementById('auth-password');
-const btnSignin = document.getElementById('btn-signin');
-const btnSignup = document.getElementById('btn-signup');
-const btnCloseModal = document.getElementById('btn-close-modal');
-const authMessage = document.getElementById('auth-message');
 const authBtnText = document.getElementById('auth-btn-text');
+const authBtnChevron = document.getElementById('auth-btn-chevron');
 const authDropdown = document.getElementById('auth-dropdown');
 const authLogoutBtn = document.getElementById('auth-logout');
 const authChangeAccountBtn = document.getElementById('auth-change-account');
 const demoBtn = document.getElementById('demo-btn');
 
-function openAuthModal() {
-  authModal?.classList.remove('hidden');
-  authBackdrop?.classList.remove('hidden');
-  if (authMessage) authMessage.textContent = '';
-  authEmail?.focus();
-}
-
-function closeAuthModal() {
-  authModal?.classList.add('hidden');
-  authBackdrop?.classList.add('hidden');
-  if (authMessage) authMessage.textContent = '';
-}
-
 authBtn?.addEventListener('click', (e) => {
   e.stopPropagation();
-  if ((authBtnText?.textContent || '').trim() === 'Login') {
-    openAuthModal();
+  if (!currentUser) {
+    window.location.href = STEAM_AUTH_URL;
   } else {
     authDropdown?.classList.toggle('hidden');
   }
 });
-
-btnCloseModal?.addEventListener('click', closeAuthModal);
-authBackdrop?.addEventListener('click', closeAuthModal);
 
 document.addEventListener('click', (e) => {
   const container = document.getElementById('auth-btn-container');
   if (container && !container.contains(e.target)) {
     authDropdown?.classList.add('hidden');
   }
+});
+
+async function handleSignOut() {
+  authDropdown?.classList.add('hidden');
+  await supabaseClient.auth.signOut();
+  window.location.reload();
+}
+
+authLogoutBtn?.addEventListener('click', handleSignOut);
+authChangeAccountBtn?.addEventListener('click', async () => {
+  authDropdown?.classList.add('hidden');
+  await supabaseClient.auth.signOut();
+  window.location.href = STEAM_AUTH_URL;
 });
 
 // --- 3. ТЕМА, ВРЕМЯ, ПРИВАТНОСТЬ ---
@@ -166,69 +157,7 @@ document.getElementById('toggle-library')?.addEventListener('click', () => {
 document.getElementById('game-search-input')?.addEventListener('input', renderFilteredGamesTable);
 document.getElementById('game-sort-select')?.addEventListener('change', renderFilteredGamesTable);
 
-// --- 4. ВХОД / РЕГИСТРАЦИЯ ---
-btnSignin?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = authEmail?.value.trim() || '';
-  const password = authPassword?.value.trim() || '';
-  if (!email || !password) {
-    if (authMessage) {
-      authMessage.textContent = 'Please enter email and password.';
-      authMessage.className = 'text-sm mt-4 text-center text-red-400';
-    }
-    return;
-  }
-  btnSignin.disabled = true;
-  btnSignin.textContent = 'Signing in...';
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) {
-    if (authMessage) {
-      authMessage.textContent = error.message;
-      authMessage.className = 'text-sm mt-4 text-center text-red-400';
-    }
-    btnSignin.disabled = false;
-    btnSignin.textContent = 'Sign In';
-  } else {
-    window.location.reload();
-  }
-});
-
-btnSignup?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  const email = authEmail?.value.trim() || '';
-  const password = authPassword?.value.trim() || '';
-  if (!email || !password) {
-    if (authMessage) {
-      authMessage.textContent = 'Please enter email and password.';
-      authMessage.className = 'text-sm mt-4 text-center text-red-400';
-    }
-    return;
-  }
-  btnSignup.disabled = true;
-  btnSignup.textContent = 'Creating...';
-  const { error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) {
-    if (authMessage) {
-      authMessage.textContent = error.message;
-      authMessage.className = 'text-sm mt-4 text-center text-red-400';
-    }
-  } else if (authMessage) {
-    authMessage.textContent = 'Account created! Check your email for confirmation.';
-    authMessage.className = 'text-sm mt-4 text-center text-green-400';
-  }
-  btnSignup.disabled = false;
-  btnSignup.textContent = 'Sign Up';
-});
-
-async function handleSignOut() {
-  authDropdown?.classList.add('hidden');
-  await supabaseClient.auth.signOut();
-  window.location.reload();
-}
-
-authLogoutBtn?.addEventListener('click', handleSignOut);
-authChangeAccountBtn?.addEventListener('click', handleSignOut);
-
+// --- 4. ПРОФИЛЬ И СОСТОЯНИЕ АВТОРИЗАЦИИ ---
 function setMemberSince(dateStr) {
   const el = document.getElementById('stat-member-since');
   if (!el) return;
@@ -259,10 +188,13 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     if (loadedUserId === currentUser.id) return;
     loadedUserId = currentUser.id;
 
-    if (authBtnText) authBtnText.textContent = currentUser.email || 'Account';
-    closeAuthModal();
+    authBtnChevron?.classList.remove('hidden');
+    authBtn?.classList.remove('btn-gradient');
+    authBtn?.classList.add('border', 'border-white/10', 'hover:bg-white/5');
     setMemberSince(currentUser.created_at);
     demoBtn?.classList.add('hidden');
+
+    let displayName = currentUser.user_metadata?.username || 'Player';
 
     try {
       const { data: profile, error } = await supabaseClient
@@ -273,6 +205,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
 
       if (profile && !error) {
         if (profile.username) {
+          displayName = profile.username;
           applyUsername(profile.username);
           localStorage.setItem('greedtofame_custom_name', profile.username);
         }
@@ -283,20 +216,18 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
             avatarImg.dataset.custom = 'true';
           }
         }
-      } else if (error?.code === 'PGRST116') {
-        await supabaseClient.from('profiles').insert({
-          id: currentUser.id,
-          username: currentUser.email?.split('@')[0] || 'User',
-        });
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
     }
 
+    if (authBtnText) authBtnText.textContent = displayName;
     await autoLoadSteamGames();
   } else {
     loadedUserId = null;
-    if (authBtnText) authBtnText.textContent = 'Login';
+    if (authBtnText) authBtnText.textContent = 'Sign in with Steam';
+    authBtnChevron?.classList.add('hidden');
+    authBtn?.classList.add('btn-gradient');
     authDropdown?.classList.add('hidden');
     applyUsername('Guest');
     setMemberSince(null);
@@ -308,7 +239,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   }
 });
 
-// --- 5. ПРОФИЛЬ, СИНХРОНИЗАЦИЯ И ОТВЯЗКА STEAM ---
+// --- 5. НАСТРОЙКИ И РЕДАКТИРОВАНИЕ ПРОФИЛЯ ---
 const settingsModal = document.getElementById('settings-modal');
 const settingsBackdrop = document.getElementById('settings-modal-backdrop');
 const usernameModal = document.getElementById('username-modal');
@@ -379,6 +310,7 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   localStorage.setItem(STORAGE_KEYS.username, newName);
   localStorage.setItem('greedtofame_custom_name', newName);
   applyUsername(newName);
+  if (currentUser && authBtnText) authBtnText.textContent = newName;
 
   if (newAvatarBase64) {
     const avatarImg = document.getElementById('profile-avatar');
@@ -422,19 +354,6 @@ syncSteamBtn?.addEventListener('click', async () => {
   }
 });
 
-const unlinkSteamBtn = document.getElementById('unlink-steam-btn');
-unlinkSteamBtn?.addEventListener('click', async () => {
-  if (!confirm('Are you sure you want to unlink your Steam account?')) return;
-  unlinkSteamBtn.disabled = true;
-  const ok = await unlinkSteamAccount();
-  if (ok) {
-    window.location.reload();
-  } else {
-    alert('Failed to unlink Steam account.');
-    unlinkSteamBtn.disabled = false;
-  }
-});
-
 // --- 6. COMMUNITY ---
 const communityResultsEl = document.getElementById('community-results');
 const communitySearchEl = document.getElementById('community-search');
@@ -457,7 +376,6 @@ async function fetchProfiles(searchTerm = '', limit = 10) {
   const { data: profiles, error } = await query;
 
   if (error) {
-    console.error('Community search error:', error);
     communityResultsEl.innerHTML = '<p class="text-xs text-red-400 py-2">Failed to load profiles.</p>';
     return;
   }
@@ -575,7 +493,7 @@ function enterDemoMode() {
     if (svgIcon) svgIcon.style.display = 'none';
   }
   if (instructionText) {
-    instructionText.textContent = 'This is a demo profile with fake data. Sign in and connect Steam to see your real stats.';
+    instructionText.textContent = 'This is a demo profile with fake data. Sign in with Steam to see your real stats.';
   }
   connectTitle?.classList.add('hidden');
 
@@ -601,10 +519,7 @@ demoBtn?.addEventListener('click', () => {
 
 document.addEventListener('click', (e) => {
   if (e.target.closest('[data-connect-steam]')) {
-    const steamBtn = document.getElementById('connect-steam-btn');
-    const href = steamBtn?.getAttribute('href');
-    if (href) window.location.href = href;
-    else steamBtn?.click();
+    window.location.href = STEAM_AUTH_URL;
     return;
   }
   if (e.target.closest('[data-demo]')) {
@@ -624,29 +539,32 @@ document.getElementById('back-to-dashboard-btn')?.addEventListener('click', () =
   document.getElementById('dashboard-page')?.classList.remove('hidden');
 });
 
-// --- 9. ВОЗВРАТ ИЗ STEAM OPENID ---
-async function handleSteamReturn() {
+// --- 9. ЗАВЕРШЕНИЕ ВХОДА ПО ТОКЕНУ ОТ STEAM ---
+async function handleSteamCallbackToken() {
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('openid.mode') !== 'id_res') return;
+  const tokenHash = urlParams.get('steam_token');
+  const steamError = urlParams.get('steam_error');
 
-  const claimedId = urlParams.get('openid.claimed_id');
-  if (!claimedId) return;
-
-  const steamId = claimedId.split('/').pop();
-  window.history.replaceState({}, document.title, window.location.pathname);
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    alert('Сначала войдите в аккаунт на сайте, чтобы привязать Steam.');
+  if (steamError) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+    alert(`Steam sign-in error: ${steamError}`);
     return;
   }
 
-  const { error } = await supabaseClient
-    .from('profiles')
-    .upsert({ id: user.id, steam_id: steamId }, { onConflict: 'id' });
+  if (!tokenHash) return;
 
-  if (!error) window.location.reload();
-  else console.error('Ошибка сохранения в базу:', error);
+  window.history.replaceState({}, document.title, window.location.pathname);
+  localStorage.removeItem(STORAGE_KEYS.demoMode);
+
+  const { error } = await supabaseClient.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: 'magiclink',
+  });
+
+  if (error) {
+    console.error('Steam OTP verify failed:', error);
+    alert('Failed to complete Steam login. Please try again.');
+  }
 }
 
 // --- 10. СТАРТ ---
@@ -660,9 +578,9 @@ async function handleSteamReturn() {
   toggleEmptyStates(false);
   initFeatures();
 
-  await handleSteamReturn();
+  await handleSteamCallbackToken();
 
-  if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
+  if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true' && !currentUser) {
     enterDemoMode();
   }
 })();
