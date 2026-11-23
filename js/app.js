@@ -265,7 +265,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     try {
       const { data: profile, error } = await supabaseClient
         .from('profiles')
-        .select('*')
+        .select('id, username, avatar_url, steam_id')
         .eq('id', currentUser.id)
         .single();
 
