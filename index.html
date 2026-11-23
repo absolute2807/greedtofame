@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=23" />
+  <link rel="stylesheet" href="./styles.css?v=24" />
 </head>
 <body class="min-h-screen selection:bg-white/20 selection:text-white">
 
@@ -37,12 +37,98 @@
           <svg id="auth-btn-chevron" class="w-4 h-4 opacity-80 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
         <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
-          <button id="auth-change-account" data-i18n="switch_steam" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Switch Steam Account</button>
-          <button id="auth-logout" data-i18n="logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
+          <button id="auth-change-account" type="button" data-i18n="switch_steam" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Switch Steam Account</button>
+          <button id="auth-logout" type="button" data-i18n="logout" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition border-t border-white/5">Logout</button>
         </div>
       </div>
     </div>
   </header>
+
+  <!-- Steam Accounts Manager Modal -->
+  <div id="steam-accounts-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="steam-accounts-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-white" data-i18n="steam_accounts_modal_title">Manage Steam Accounts</h3>
+        <p class="text-xs text-gray-400" data-i18n="steam_accounts_modal_sub">Add, switch, or remove linked Steam accounts.</p>
+      </div>
+      <button id="close-steam-accounts-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
+    </div>
+
+    <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10 mb-4 space-y-2.5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <input
+          type="text"
+          id="new-steam-id-input"
+          placeholder="SteamID64 (17 digits) or vanity"
+          class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white tier-ring"
+        />
+        <input
+          type="text"
+          id="new-steam-label-input"
+          placeholder="Label (optional, e.g. Main / Smurf)"
+          class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white tier-ring"
+        />
+      </div>
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <button id="add-steam-account-btn" type="button" class="px-4 py-2 text-xs font-bold rounded-lg btn-gradient shadow-lg transition">
+          + Add Steam Account
+        </button>
+        <a
+          href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback"
+          class="px-3 py-2 text-xs font-semibold rounded-lg border border-white/15 bg-white/5 hover:bg-white/10 text-gray-200 transition"
+        >
+          Login via Steam OpenID ↗
+        </a>
+      </div>
+      <p id="steam-accounts-feedback" class="text-xs text-gray-400 hidden"></p>
+    </div>
+
+    <div id="steam-accounts-list" class="space-y-2.5 max-h-[55vh] overflow-y-auto pr-1"></div>
+  </div>
+
+  <!-- All Games Modal -->
+  <div id="all-games-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="all-games-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-4xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-white" data-i18n="all_games_title">All Games Library</h3>
+        <p id="all-games-summary" class="text-xs text-gray-400">0 games</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <input
+          type="text"
+          id="all-games-search-input"
+          data-i18n-placeholder="search_game"
+          placeholder="Search game..."
+          class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white tier-ring w-44 sm:w-56"
+        />
+        <select
+          id="all-games-sort-select"
+          class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 tier-ring"
+        >
+          <option value="playtime_desc" data-i18n="sort_hours_desc">Hours: High → Low</option>
+          <option value="playtime_asc" data-i18n="sort_hours_asc">Hours: Low → High</option>
+          <option value="name_asc" data-i18n="sort_name_asc">Name: A → Z</option>
+          <option value="last_played_desc" data-i18n="sort_last_played">Last Played</option>
+        </select>
+        <button id="close-all-games-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
+      </div>
+    </div>
+
+    <div class="overflow-hidden rounded-xl border border-white/10 max-h-[65vh] overflow-y-auto">
+      <table class="w-full text-left mobile-table">
+        <thead class="sticky top-0 bg-[#12121b] z-10">
+          <tr class="border-b border-white/10">
+            <th class="px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_game">Game</th>
+            <th class="px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_playtime">Playtime</th>
+            <th class="px-5 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider" data-i18n="col_last_played">Last Played</th>
+          </tr>
+        </thead>
+        <tbody id="all-games-tbody" class="divide-y divide-white/5"></tbody>
+      </table>
+    </div>
+  </div>
 
   <!-- Game Details & Live Stats Modal -->
   <div id="game-details-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm transition-opacity duration-200"></div>
@@ -70,7 +156,6 @@
     </div>
 
     <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
-      <!-- Top Metrics Row -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10">
           <p class="text-[11px] font-semibold text-gray-400 uppercase" data-i18n="gd_online_now">Online Right Now</p>
@@ -96,7 +181,6 @@
         </div>
       </div>
 
-      <!-- In-Game Stats Content -->
       <div id="gd-stats-section">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <h4 class="text-sm font-bold text-white" data-i18n="gd_ingame_stats">In-Game Statistics</h4>
@@ -129,14 +213,15 @@
       </div>
     </div>
 
-    <div class="mb-4">
+    <div class="relative mb-4">
       <input
         type="text"
         id="all-profiles-search"
         data-i18n-placeholder="search_players"
         placeholder="Search players..."
-        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white tier-ring transition"
+        class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 pl-10 text-sm text-white tier-ring transition"
       />
+      <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
     </div>
 
     <div id="all-profiles-list" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1"></div>
@@ -342,23 +427,16 @@
           </button>
         </div>
 
-        <!-- Community Block -->
+        <!-- Community Block (без списка игроков и поля поиска на главной) -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-2">
           <div class="mb-4">
             <h4 class="text-sm font-bold text-white" data-i18n="community">Community</h4>
           </div>
-          <div class="space-y-3">
-            <div class="relative">
-              <input type="text" id="community-search" data-i18n-placeholder="search_players" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white tier-ring transition" />
-              <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button id="view-all-profiles" type="button" data-i18n="view_all_profiles" class="w-full btn-gradient font-semibold py-2.5 px-3 rounded-lg text-xs shadow-lg transition flex items-center justify-center text-center">View All Profiles</button>
-              <button id="open-leaderboard-btn" type="button" data-i18n="leaderboard_btn" class="w-full py-2.5 px-3 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition flex items-center justify-center text-center">
-                Leaderboard 🏆
-              </button>
-            </div>
-            <div id="community-results" class="mt-3 space-y-2 hidden max-h-64 overflow-y-auto pr-1"></div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="view-all-profiles" type="button" data-i18n="view_all_profiles" class="w-full btn-gradient font-semibold py-2.5 px-3 rounded-lg text-xs shadow-lg transition flex items-center justify-center text-center">View All Profiles</button>
+            <button id="open-leaderboard-btn" type="button" data-i18n="leaderboard_btn" class="w-full py-2.5 px-3 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition flex items-center justify-center text-center">
+              Leaderboard 🏆
+            </button>
           </div>
         </div>
 
@@ -431,7 +509,6 @@
           </div>
 
           <div class="podium-wrapper" id="podium-wrapper">
-            <!-- #2 -->
             <div class="podium-slot slot-2">
               <img id="podium-banner-2" class="podium-banner hidden" src="" alt="" />
               <div class="flex items-center justify-between gap-2">
@@ -443,7 +520,6 @@
               </div>
             </div>
 
-            <!-- #1 -->
             <div class="podium-slot slot-1">
               <img id="podium-banner-1" class="podium-banner hidden" src="" alt="" />
               <div class="flex items-center justify-between gap-2">
@@ -455,7 +531,6 @@
               </div>
             </div>
 
-            <!-- #3 -->
             <div class="podium-slot slot-3">
               <img id="podium-banner-3" class="podium-banner hidden" src="" alt="" />
               <div class="flex items-center justify-between gap-2">
@@ -479,7 +554,7 @@
           </div>
         </section>
 
-        <!-- Games List -->
+        <!-- Games List (ТОП-10 на главной + кнопка открытия всех игр рядом с глазом) -->
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-4">
@@ -507,6 +582,9 @@
                 <option value="name_asc" data-i18n="sort_name_asc">Name: A → Z</option>
                 <option value="last_played_desc" data-i18n="sort_last_played">Last Played</option>
               </select>
+              <button id="open-all-games-btn" type="button" class="px-3 py-1.5 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition">
+                All Games
+              </button>
               <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
                 <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                 <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
@@ -608,6 +686,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=23"></script>
+  <script type="module" src="./js/app.js?v=24"></script>
 </body>
 </html>
