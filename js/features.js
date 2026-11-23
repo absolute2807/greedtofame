@@ -4,10 +4,20 @@ import { getLastSteamData } from './steam.js';
 let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
 
+function isRu() {
+  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+}
+
 export function setActiveWishlistSteamId(steamId) {
   if (activeSteamIdForWishlist !== steamId) {
     activeSteamIdForWishlist = steamId || null;
     cachedWishlistItems = [];
+  }
+}
+
+export function refreshDynamicTranslations() {
+  if (cachedWishlistItems.length > 0) {
+    renderWishlistItems();
   }
 }
 
@@ -31,7 +41,7 @@ export async function renderLeaderboard() {
   const container = document.getElementById('leaderboard-list');
   if (!container) return;
 
-  container.innerHTML = '<p class="text-xs text-gray-400 py-4 text-center">Loading leaderboard...</p>';
+  container.innerHTML = `<p class="text-xs text-gray-400 py-4 text-center">${isRu() ? 'Загрузка таблицы лидеров...' : 'Loading leaderboard...'}</p>`;
 
   try {
     const { data: profiles, error } = await supabaseClient
@@ -41,12 +51,12 @@ export async function renderLeaderboard() {
 
     if (error) {
       console.error('Leaderboard profiles error:', error);
-      container.innerHTML = '<p class="text-xs text-red-400 py-4 text-center">Failed to load profiles.</p>';
+      container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${isRu() ? 'Ошибка загрузки профилей.' : 'Failed to load profiles.'}</p>`;
       return;
     }
 
     if (!Array.isArray(profiles) || profiles.length === 0) {
-      container.innerHTML = '<p class="text-xs text-gray-500 py-4 text-center">No players in leaderboard yet.</p>';
+      container.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">${isRu() ? 'В таблице лидеров пока нет игроков.' : 'No players in leaderboard yet.'}</p>`;
       return;
     }
 
@@ -99,6 +109,9 @@ export async function renderLeaderboard() {
           ? 'text-amber-500 border-amber-500/40 bg-amber-500/10'
           : 'text-gray-400 border-white/10 bg-white/5';
 
+      const gamesWord = isRu() ? 'игр' : 'games';
+      const topWord = isRu() ? 'Топ' : 'Top';
+
       const row = document.createElement('div');
       row.className =
         'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 transition';
@@ -108,7 +121,7 @@ export async function renderLeaderboard() {
           <img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(name)}" class="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
           <div class="min-w-0">
             <p class="text-sm font-bold text-white truncate">${escapeHtml(name)}</p>
-            <p class="text-[11px] text-gray-400 truncate">Top: ${escapeHtml(player.topGameName)} • ${player.gamesCount} games</p>
+            <p class="text-[11px] text-gray-400 truncate">${topWord}: ${escapeHtml(player.topGameName)} • ${player.gamesCount} ${gamesWord}</p>
           </div>
         </div>
         <span class="text-sm font-mono font-bold text-purple-300 shrink-0">${escapeHtml(formatPlaytime(player.totalHours))}</span>
@@ -117,7 +130,7 @@ export async function renderLeaderboard() {
     });
   } catch (err) {
     console.error('Leaderboard fatal error:', err);
-    container.innerHTML = '<p class="text-xs text-red-400 py-4 text-center">Error loading leaderboard.</p>';
+    container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${isRu() ? 'Ошибка загрузки лидерборда.' : 'Error loading leaderboard.'}</p>`;
   }
 }
 
@@ -131,8 +144,11 @@ export function pickRandomGame() {
   const games = steamData?.response?.games;
   if (!Array.isArray(games) || games.length === 0) {
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML =
-      '<p class="text-xs text-gray-400">Load or connect a Steam library (or enable Demo) first.</p>';
+    resultEl.innerHTML = `<p class="text-xs text-gray-400">${
+      isRu()
+        ? 'Сначала войди через Steam или включи демо-режим.'
+        : 'Load or connect a Steam library (or enable Demo) first.'
+    }</p>`;
     return;
   }
 
@@ -168,10 +184,10 @@ export function pickRandomGame() {
       <div class="p-3 flex items-center justify-between gap-2">
         <div class="min-w-0">
           <p class="text-xs font-bold text-white truncate">${escapeHtml(picked.name)}</p>
-          <p class="text-[11px] text-gray-400">${escapeHtml(formatPlaytime(hours))} played</p>
+          <p class="text-[11px] text-gray-400">${escapeHtml(formatPlaytime(hours))} ${isRu() ? 'наиграно' : 'played'}</p>
         </div>
         <a href="${escapeHtml(launchUrl)}" class="px-3 py-1.5 text-xs font-bold rounded-lg btn-gradient text-white shrink-0">
-          Launch ▶
+          ${isRu() ? 'Играть ▶' : 'Launch ▶'}
         </a>
       </div>
     </div>
@@ -276,14 +292,27 @@ export async function loadWishlistData() {
   }
 
   if (!steamId) {
-    if (summaryEl) summaryEl.textContent = 'Sign in with Steam to load your public Wishlist.';
-    listEl.innerHTML =
-      '<p class="text-xs text-gray-400 py-8 text-center">No Steam account linked. Sign in with Steam or enable Demo Mode.</p>';
+    if (summaryEl) {
+      summaryEl.textContent = isRu()
+        ? 'Войди через Steam, чтобы загрузить свой вишлист.'
+        : 'Sign in with Steam to load your public Wishlist.';
+    }
+    listEl.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center">${
+      isRu()
+        ? 'Аккаунт Steam не привязан. Войди через Steam или включи демо-режим.'
+        : 'No Steam account linked. Sign in with Steam or enable Demo Mode.'
+    }</p>`;
     return;
   }
 
-  if (summaryEl) summaryEl.textContent = 'Fetching wishlist & Steam Store discounts...';
-  listEl.innerHTML = '<p class="text-xs text-gray-400 py-8 text-center">Loading wishlist prices from Steam Store...</p>';
+  if (summaryEl) {
+    summaryEl.textContent = isRu()
+      ? 'Загрузка вишлиста и скидок из Steam Store...'
+      : 'Fetching wishlist & Steam Store discounts...';
+  }
+  listEl.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center">${
+    isRu() ? 'Проверяем актуальные цены в Steam...' : 'Loading wishlist prices from Steam Store...'
+  }</p>`;
 
   try {
     const { data, error } = await supabaseClient.functions.invoke('steam-wishlist', {
@@ -292,9 +321,12 @@ export async function loadWishlistData() {
 
     if (error) {
       console.error('Wishlist function error:', error);
-      if (summaryEl) summaryEl.textContent = 'Failed to fetch wishlist.';
-      listEl.innerHTML =
-        '<p class="text-xs text-red-400 py-6 text-center">Could not load Steam Wishlist. Make sure your Steam Game Details are set to Public.</p>';
+      if (summaryEl) summaryEl.textContent = isRu() ? 'Не удалось загрузить вишлист.' : 'Failed to fetch wishlist.';
+      listEl.innerHTML = `<p class="text-xs text-red-400 py-6 text-center">${
+        isRu()
+          ? 'Не удалось загрузить вишлист. Убедись, что «Доступ к игровой информации» в приватности Steam открыт для всех.'
+          : 'Could not load Steam Wishlist. Make sure your Steam Game Details are set to Public.'
+      }</p>`;
       return;
     }
 
@@ -302,17 +334,26 @@ export async function loadWishlistData() {
     cachedWishlistItems = items;
 
     if (items.length === 0) {
-      if (summaryEl) summaryEl.textContent = data?.message || 'Wishlist is empty or private.';
-      listEl.innerHTML =
-        '<p class="text-xs text-gray-400 py-6 text-center">No wishlist games found. Check that your Steam profile & Game Details are Public.</p>';
+      if (summaryEl) {
+        summaryEl.textContent = isRu()
+          ? 'Вишлист пуст или скрыт настройками приватности.'
+          : data?.message || 'Wishlist is empty or private.';
+      }
+      listEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+        isRu()
+          ? 'Игры в вишлисте не найдены. Проверь, что профиль и игровая информация Steam публичны.'
+          : 'No wishlist games found. Check that your Steam profile & Game Details are Public.'
+      }</p>`;
       return;
     }
 
     renderWishlistItems();
   } catch (err) {
     console.error('Wishlist load fatal error:', err);
-    if (summaryEl) summaryEl.textContent = 'Error loading wishlist.';
-    listEl.innerHTML = '<p class="text-xs text-red-400 py-6 text-center">Unexpected error loading wishlist.</p>';
+    if (summaryEl) summaryEl.textContent = isRu() ? 'Ошибка загрузки вишлиста.' : 'Error loading wishlist.';
+    listEl.innerHTML = `<p class="text-xs text-red-400 py-6 text-center">${
+      isRu() ? 'Непредвиденная ошибка при загрузке.' : 'Unexpected error loading wishlist.'
+    }</p>`;
   }
 }
 
@@ -325,7 +366,9 @@ export function renderWishlistItems() {
 
   const onSaleCount = cachedWishlistItems.filter((i) => (Number(i.discount_percent) || 0) > 0).length;
   if (summaryEl) {
-    summaryEl.textContent = `Showing ${cachedWishlistItems.length} games • ${onSaleCount} on sale right now`;
+    summaryEl.textContent = isRu()
+      ? `Показано игр: ${cachedWishlistItems.length} • Со скидкой сейчас: ${onSaleCount}`
+      : `Showing ${cachedWishlistItems.length} games • ${onSaleCount} on sale right now`;
   }
 
   let filtered = [...cachedWishlistItems];
@@ -349,7 +392,9 @@ export function renderWishlistItems() {
   });
 
   if (filtered.length === 0) {
-    listEl.innerHTML = '<p class="text-xs text-gray-400 py-6 text-center">No games match the selected filter.</p>';
+    listEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+      isRu() ? 'По выбранному фильтру игр не найдено.' : 'No games match the selected filter.'
+    }</p>`;
     return;
   }
 
@@ -389,7 +434,7 @@ export function renderWishlistItems() {
           </p>
         </div>
         <a href="${escapeHtml(storeUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/10 bg-white/5 hover:bg-purple-500/20 hover:border-purple-500/40 text-gray-200 transition">
-          Store ↗
+          ${isRu() ? 'В Steam ↗' : 'Store ↗'}
         </a>
       </div>
     `;
@@ -463,12 +508,12 @@ export function generateFlexCard() {
 
   ctx.fillStyle = '#38bdf8';
   ctx.font = '600 20px Outfit, sans-serif';
-  ctx.fillText(`Tier: ${tierText}`, 48, 160);
+  ctx.fillText(`${isRu() ? 'Ранг' : 'Tier'}: ${tierText}`, 48, 160);
 
   ctx.fillStyle = '#9ca3af';
   ctx.font = '600 16px Outfit, sans-serif';
-  ctx.fillText('TOTAL PLAYTIME', 48, 220);
-  ctx.fillText('TOTAL GAMES', 280, 220);
+  ctx.fillText(isRu() ? 'ВСЕГО ЧАСОВ' : 'TOTAL PLAYTIME', 48, 220);
+  ctx.fillText(isRu() ? 'ВСЕГО ИГР' : 'TOTAL GAMES', 280, 220);
 
   ctx.fillStyle = '#ffffff';
   ctx.font = '800 32px Outfit, sans-serif';
@@ -477,7 +522,7 @@ export function generateFlexCard() {
 
   ctx.fillStyle = '#a855f7';
   ctx.font = '700 18px Outfit, sans-serif';
-  ctx.fillText('TOP 3 GAMES', 490, 96);
+  ctx.fillText(isRu() ? 'ТОП-3 ИГРЫ' : 'TOP 3 GAMES', 490, 96);
 
   const podiumRows = [
     { label: `#1 ${p1}`, hrs: p1h, color: '#facc15', y: 142 },
