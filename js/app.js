@@ -40,7 +40,7 @@ document.querySelectorAll('.magnetic-btn').forEach((btn) => {
   });
 });
 
-// --- 2. АВТОРИЗАЦИЯ ---
+// --- 2. АВТОРИЗАЦИЯ (ТОЛЬКО EMAIL + PASSWORD) ---
 const authBtn = document.getElementById('auth-btn');
 const authModal = document.getElementById('auth-modal');
 const authBackdrop = document.getElementById('auth-modal-backdrop');
@@ -435,7 +435,7 @@ unlinkSteamBtn?.addEventListener('click', async () => {
   }
 });
 
-// --- 6. COMMUNITY (ПОИСК И ПРОСМОТР ПРОФИЛЕЙ) ---
+// --- 6. COMMUNITY ---
 const communityResultsEl = document.getElementById('community-results');
 const communitySearchEl = document.getElementById('community-search');
 const backToMyProfileBtn = document.getElementById('back-to-my-profile-btn');
