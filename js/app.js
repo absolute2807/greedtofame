@@ -21,6 +21,15 @@ const TRANSLATIONS = {
     sign_in_steam: 'Sign in with Steam',
     switch_steam: 'Switch Steam Account',
     logout: 'Logout',
+    click_game_hint: 'Click any game to view live online & in-game stats',
+    gd_store: 'Steam Store ↗',
+    gd_launch: 'Launch ▶',
+    gd_online_now: 'Online Right Now',
+    gd_your_playtime: 'Your Playtime',
+    gd_recent_2w: 'Last 2 Weeks',
+    gd_achievements: 'Achievements',
+    gd_ingame_stats: 'In-Game Statistics',
+    gd_search_stat: 'Filter raw stat keys...',
     wishlist_modal_title: 'Wishlist & Discount Tracker',
     wishlist_modal_sub: 'Public Steam Wishlist with live store discounts.',
     refresh: 'Refresh',
@@ -122,6 +131,15 @@ const TRANSLATIONS = {
     sign_in_steam: 'Войти через Steam',
     switch_steam: 'Сменить аккаунт Steam',
     logout: 'Выйти',
+    click_game_hint: 'Нажми на любую игру, чтобы увидеть онлайн и статистику',
+    gd_store: 'В Steam ↗',
+    gd_launch: 'Играть ▶',
+    gd_online_now: 'Онлайн прямо сейчас',
+    gd_your_playtime: 'Твоё время в игре',
+    gd_recent_2w: 'За 2 недели',
+    gd_achievements: 'Достижения',
+    gd_ingame_stats: 'Внутриигровая статистика',
+    gd_search_stat: 'Поиск по параметрам...',
     wishlist_modal_title: 'Список желаемого и скидки',
     wishlist_modal_sub: 'Публичный вишлист Steam с актуальными ценами и скидками.',
     refresh: 'Обновить',
@@ -281,9 +299,28 @@ export function applyLanguage(lang) {
           ? 'Это демо-профиль с тестовыми данными. Войди через Steam, чтобы увидеть реальную статистику.'
           : 'This is a demo profile with fake data. Sign in with Steam to see your real stats.';
     }
+  } else if (activeSteamIdForWishlist) {
+    const steamBtnText = document.getElementById('steam-btn-text');
+    const instructionText = document.getElementById('steam-instruction-text');
+    if (steamBtnText) {
+      steamBtnText.textContent =
+        normalized === 'ru'
+          ? `Steam привязан (${activeSteamIdForWishlist})`
+          : `Steam Linked (${activeSteamIdForWishlist})`;
+    }
+    if (instructionText) {
+      instructionText.textContent =
+        normalized === 'ru'
+          ? 'Аккаунт Steam подключён. Статистика и игры синхронизируются автоматически.'
+          : 'Your Steam account is linked. Games and playtime sync automatically.';
+    }
   }
 
   updateLanguageButtonsUI();
+
+  if (getLastSteamData()) {
+    renderSteamGames(getLastSteamData());
+  }
   refreshDynamicTranslations();
 }
 
@@ -296,7 +333,7 @@ document.addEventListener('mousemove', (e) => {
   if (!cursor) return;
   cursor.style.left = `${e.clientX}px`;
   cursor.style.top = `${e.clientY}px`;
-  const interactive = e.target.closest('a, button, input, select, .glass-card, .podium-slot');
+  const interactive = e.target.closest('a, button, input, select, .glass-card, .podium-slot, tr.cursor-pointer');
   cursor.classList.toggle('hover', Boolean(interactive));
 });
 
