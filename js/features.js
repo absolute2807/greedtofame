@@ -1,5 +1,15 @@
-import { supabaseClient, formatPlaytime, escapeHtml } from './config.js';
+import { supabaseClient, STORAGE_KEYS, formatPlaytime, escapeHtml } from './config.js';
 import { getLastSteamData } from './steam.js';
+
+let activeSteamIdForWishlist = null;
+let cachedWishlistItems = [];
+
+export function setActiveWishlistSteamId(steamId) {
+  if (activeSteamIdForWishlist !== steamId) {
+    activeSteamIdForWishlist = steamId || null;
+    cachedWishlistItems = [];
+  }
+}
 
 // --- 1. МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
 export function openLeaderboardModal() {
@@ -62,7 +72,7 @@ export async function renderLeaderboard() {
               topGameName = sorted[0]?.name || '—';
             }
           } catch (_err) {
-            // Если у конкретного игрока не удалось получить данные Steam — оставляем 0h
+            // Игнорируем ошибку отдельного профиля
           }
         }
 
@@ -168,7 +178,226 @@ export function pickRandomGame() {
   `;
 }
 
-// --- 3. FLEX CARD В МОДАЛЬНОМ ОКНЕ (ВМЕСТО SHARE PROFILE) ---
+// --- 3. WISHLIST & DISCOUNT TRACKER (МОДАЛЬНОЕ ОКНО) ---
+function getDemoWishlistItems() {
+  return [
+    {
+      appid: 1245620,
+      name: 'ELDEN RING',
+      header_image: 'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg',
+      discount_percent: 40,
+      final_price_formatted: '$35.99',
+      initial_price_formatted: '$59.99',
+      final_price_cents: 3599,
+      is_free: false,
+      priority: 1,
+    },
+    {
+      appid: 1091500,
+      name: 'Cyberpunk 2077',
+      header_image: 'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg',
+      discount_percent: 55,
+      final_price_formatted: '$26.99',
+      initial_price_formatted: '$59.99',
+      final_price_cents: 2699,
+      is_free: false,
+      priority: 2,
+    },
+    {
+      appid: 2358720,
+      name: 'Black Myth: Wukong',
+      header_image: 'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2358720/header.jpg',
+      discount_percent: 0,
+      final_price_formatted: '$59.99',
+      initial_price_formatted: '',
+      final_price_cents: 5999,
+      is_free: false,
+      priority: 3,
+    },
+    {
+      appid: 1145350,
+      name: 'Hades II',
+      header_image: 'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1145350/header.jpg',
+      discount_percent: 20,
+      final_price_formatted: '$23.99',
+      initial_price_formatted: '$29.99',
+      final_price_cents: 2399,
+      is_free: false,
+      priority: 4,
+    },
+  ];
+}
+
+export function openWishlistModal() {
+  const modal = document.getElementById('wishlist-modal');
+  const backdrop = document.getElementById('wishlist-modal-backdrop');
+  modal?.classList.remove('hidden');
+  backdrop?.classList.remove('hidden');
+
+  if (cachedWishlistItems.length > 0) {
+    renderWishlistItems();
+  } else {
+    loadWishlistData();
+  }
+}
+
+export function closeWishlistModal() {
+  const modal = document.getElementById('wishlist-modal');
+  const backdrop = document.getElementById('wishlist-modal-backdrop');
+  modal?.classList.add('hidden');
+  backdrop?.classList.add('hidden');
+}
+
+export async function loadWishlistData() {
+  const listEl = document.getElementById('wishlist-items-list');
+  const summaryEl = document.getElementById('wishlist-summary');
+  if (!listEl) return;
+
+  if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true' && !activeSteamIdForWishlist) {
+    cachedWishlistItems = getDemoWishlistItems();
+    renderWishlistItems();
+    return;
+  }
+
+  let steamId = activeSteamIdForWishlist;
+  if (!steamId) {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('steam_id')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (profile?.steam_id) {
+        steamId = String(profile.steam_id);
+        activeSteamIdForWishlist = steamId;
+      }
+    }
+  }
+
+  if (!steamId) {
+    if (summaryEl) summaryEl.textContent = 'Sign in with Steam to load your public Wishlist.';
+    listEl.innerHTML =
+      '<p class="text-xs text-gray-400 py-8 text-center">No Steam account linked. Sign in with Steam or enable Demo Mode.</p>';
+    return;
+  }
+
+  if (summaryEl) summaryEl.textContent = 'Fetching wishlist & Steam Store discounts...';
+  listEl.innerHTML = '<p class="text-xs text-gray-400 py-8 text-center">Loading wishlist prices from Steam Store...</p>';
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('steam-wishlist', {
+      body: { steamid: steamId },
+    });
+
+    if (error) {
+      console.error('Wishlist function error:', error);
+      if (summaryEl) summaryEl.textContent = 'Failed to fetch wishlist.';
+      listEl.innerHTML =
+        '<p class="text-xs text-red-400 py-6 text-center">Could not load Steam Wishlist. Make sure your Steam Game Details are set to Public.</p>';
+      return;
+    }
+
+    const items = Array.isArray(data?.items) ? data.items : [];
+    cachedWishlistItems = items;
+
+    if (items.length === 0) {
+      if (summaryEl) summaryEl.textContent = data?.message || 'Wishlist is empty or private.';
+      listEl.innerHTML =
+        '<p class="text-xs text-gray-400 py-6 text-center">No wishlist games found. Check that your Steam profile & Game Details are Public.</p>';
+      return;
+    }
+
+    renderWishlistItems();
+  } catch (err) {
+    console.error('Wishlist load fatal error:', err);
+    if (summaryEl) summaryEl.textContent = 'Error loading wishlist.';
+    listEl.innerHTML = '<p class="text-xs text-red-400 py-6 text-center">Unexpected error loading wishlist.</p>';
+  }
+}
+
+export function renderWishlistItems() {
+  const listEl = document.getElementById('wishlist-items-list');
+  const summaryEl = document.getElementById('wishlist-summary');
+  const onSaleOnly = Boolean(document.getElementById('wishlist-sale-only')?.checked);
+  const sortMode = document.getElementById('wishlist-sort')?.value || 'discount_desc';
+  if (!listEl) return;
+
+  const onSaleCount = cachedWishlistItems.filter((i) => (Number(i.discount_percent) || 0) > 0).length;
+  if (summaryEl) {
+    summaryEl.textContent = `Showing ${cachedWishlistItems.length} games • ${onSaleCount} on sale right now`;
+  }
+
+  let filtered = [...cachedWishlistItems];
+  if (onSaleOnly) {
+    filtered = filtered.filter((i) => (Number(i.discount_percent) || 0) > 0);
+  }
+
+  filtered.sort((a, b) => {
+    if (sortMode === 'discount_desc') {
+      return (Number(b.discount_percent) || 0) - (Number(a.discount_percent) || 0);
+    }
+    if (sortMode === 'price_asc') {
+      const pa = a.is_free ? 0 : Number(a.final_price_cents) || 9999999;
+      const pb = b.is_free ? 0 : Number(b.final_price_cents) || 9999999;
+      return pa - pb;
+    }
+    if (sortMode === 'name_asc') {
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }
+    return (Number(a.priority) || 999) - (Number(b.priority) || 999);
+  });
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = '<p class="text-xs text-gray-400 py-6 text-center">No games match the selected filter.</p>';
+    return;
+  }
+
+  listEl.innerHTML = '';
+  filtered.forEach((item) => {
+    const discount = Number(item.discount_percent) || 0;
+    const storeUrl = `https://store.steampowered.com/app/${item.appid}`;
+
+    const discountBadge =
+      discount > 0
+        ? `<span class="px-2 py-0.5 text-xs font-extrabold rounded-md bg-green-500/20 text-green-400 border border-green-500/40">-${discount}%</span>`
+        : '';
+
+    const oldPriceHtml =
+      discount > 0 && item.initial_price_formatted
+        ? `<span class="text-[11px] text-gray-500 line-through">${escapeHtml(item.initial_price_formatted)}</span>`
+        : '';
+
+    const card = document.createElement('div');
+    card.className =
+      'flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 transition';
+
+    card.innerHTML = `
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="${escapeHtml(item.header_image)}" alt="${escapeHtml(item.name)}" class="w-24 h-11 rounded-lg object-cover shrink-0 border border-white/10" onerror="this.style.display='none'" />
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-white truncate">${escapeHtml(item.name)}</p>
+          <p class="text-[11px] text-gray-400">AppID: ${escapeHtml(item.appid)}</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+        ${discountBadge}
+        <div class="text-right">
+          ${oldPriceHtml}
+          <p class="text-sm font-mono font-extrabold ${discount > 0 ? 'text-green-400' : 'text-white'}">
+            ${escapeHtml(item.final_price_formatted || 'TBA')}
+          </p>
+        </div>
+        <a href="${escapeHtml(storeUrl)}" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/10 bg-white/5 hover:bg-purple-500/20 hover:border-purple-500/40 text-gray-200 transition">
+          Store ↗
+        </a>
+      </div>
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+// --- 4. FLEX CARD В МОДАЛЬНОМ ОКНЕ ---
 export function openFlexCardModal() {
   const modal = document.getElementById('flex-card-modal');
   const backdrop = document.getElementById('flex-card-modal-backdrop');
@@ -275,6 +504,13 @@ export function initFeatures() {
   document.getElementById('refresh-leaderboard-btn')?.addEventListener('click', renderLeaderboard);
 
   document.getElementById('randomizer-pick-btn')?.addEventListener('click', pickRandomGame);
+
+  document.getElementById('open-wishlist-btn')?.addEventListener('click', openWishlistModal);
+  document.getElementById('close-wishlist-btn')?.addEventListener('click', closeWishlistModal);
+  document.getElementById('wishlist-modal-backdrop')?.addEventListener('click', closeWishlistModal);
+  document.getElementById('refresh-wishlist-btn')?.addEventListener('click', loadWishlistData);
+  document.getElementById('wishlist-sale-only')?.addEventListener('change', renderWishlistItems);
+  document.getElementById('wishlist-sort')?.addEventListener('change', renderWishlistItems);
 
   document.getElementById('share-profile-btn')?.addEventListener('click', openFlexCardModal);
   document.getElementById('close-flex-card-btn')?.addEventListener('click', closeFlexCardModal);
