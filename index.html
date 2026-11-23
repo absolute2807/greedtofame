@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=17" />
+  <link rel="stylesheet" href="./styles.css?v=18" />
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
@@ -48,11 +48,11 @@
   <div id="game-details-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/75 backdrop-blur-sm transition-opacity duration-200"></div>
   <div id="game-details-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-3xl bg-[#0d0d14] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
     <div class="relative h-36 sm:h-44 w-full bg-[#13131f]">
-      <img id="gd-banner" src="" alt="" class="w-full h-full object-cover opacity-55" onerror="this.style.display='none'" />
-      <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d14] via-[#0d0d14]/60 to-transparent"></div>
-      <button id="close-game-details-btn" type="button" class="absolute top-3 right-4 text-gray-300 hover:text-white transition text-3xl leading-none px-1.5">&times;</button>
+      <img id="gd-banner" src="" alt="" class="w-full h-full object-cover opacity-55 pointer-events-none" onerror="this.style.display='none'" />
+      <div class="absolute inset-0 bg-gradient-to-t from-[#0d0d14] via-[#0d0d14]/60 to-transparent pointer-events-none"></div>
+      <button id="close-game-details-btn" type="button" aria-label="Close" class="relative z-20 ml-auto mr-3 mt-3 w-9 h-9 rounded-lg bg-black/60 hover:bg-white/15 border border-white/15 text-gray-200 hover:text-white transition flex items-center justify-center text-2xl leading-none cursor-pointer">&times;</button>
 
-      <div class="absolute bottom-4 left-6 right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+      <div class="absolute bottom-4 left-6 right-6 z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div class="min-w-0">
           <p id="gd-appid" class="text-[11px] font-mono text-purple-300 uppercase tracking-wider">AppID: —</p>
           <h3 id="gd-title" class="text-2xl font-extrabold text-white truncate">—</h3>
@@ -576,6 +576,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=17"></script>
+  <script type="module" src="./js/app.js?v=18"></script>
 </body>
 </html>
