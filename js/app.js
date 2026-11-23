@@ -3,9 +3,10 @@ import { renderSteamGames, autoLoadSteamGames, buildDemoData, getLastSteamData, 
 import { updateAnalytics } from './analytics.js';
 
 let currentUser = null;
+let loadedUserId = null;
 let newAvatarBase64 = null;
 
-// --- 1. БАЗОВЫЙ UI (КУРСОР И МОДАЛКИ) — РАБОТАЕТ ВСЕГДА ---
+// --- 1. БАЗОВЫЙ UI (КУРСОР И МОДАЛКИ) ---
 const cursor = document.getElementById('custom-cursor');
 document.addEventListener('mousemove', (e) => {
   if (!cursor) return;
@@ -239,6 +240,9 @@ function applyUsername(name) {
 supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   currentUser = session?.user ?? null;
   if (currentUser) {
+    if (loadedUserId === currentUser.id) return;
+    loadedUserId = currentUser.id;
+
     if (authBtnText) authBtnText.textContent = currentUser.email || 'Account';
     closeAuthModal();
     setMemberSince(currentUser.created_at);
@@ -272,6 +276,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
 
     await autoLoadSteamGames();
   } else {
+    loadedUserId = null;
     if (authBtnText) authBtnText.textContent = 'Login';
     authDropdown?.classList.add('hidden');
     applyUsername('Guest');
