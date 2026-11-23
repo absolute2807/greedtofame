@@ -1,6 +1,8 @@
 import { supabaseClient, STORAGE_KEYS, formatPlaytime, escapeHtml } from './config.js';
 import { getLastSteamData } from './steam.js';
 
+const STEAM_ACCOUNTS_STORAGE_KEY = 'greedtofame_linked_steam_accounts_v1';
+
 let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
 let currentGameStatsPayload = null;
@@ -8,6 +10,413 @@ let cachedAllProfiles = [];
 
 function isRu() {
   return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+}
+
+function getAllGamesList() {
+  const steamData = getLastSteamData();
+  const games = steamData?.response?.games;
+  return Array.isArray(games) ? games : [];
+}
+
+function formatLastPlayed(rtime) {
+  const ts = Number(rtime) || 0;
+  if (!ts) return '—';
+  const d = new Date(ts * 1000);
+  return d.toLocaleDateString(isRu() ? 'ru-RU' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function getSortedAndFilteredGames(searchVal = '', sortVal = 'playtime_desc') {
+  const q = String(searchVal || '').trim().toLowerCase();
+  const list = getAllGamesList().filter((g) =>
+    !q ? true : String(g.name || '').toLowerCase().includes(q)
+  );
+
+  list.sort((a, b) => {
+    if (sortVal === 'playtime_asc') {
+      return (Number(a.playtime_forever) || 0) - (Number(b.playtime_forever) || 0);
+    }
+    if (sortVal === 'name_asc') {
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }
+    if (sortVal === 'last_played_desc') {
+      return (Number(b.rtime_last_played) || 0) - (Number(a.rtime_last_played) || 0);
+    }
+    return (Number(b.playtime_forever) || 0) - (Number(a.playtime_forever) || 0);
+  });
+
+  return list;
+}
+
+// --- ОГРАНИЧЕНИЕ НА 10 ИГР НА ГЛАВНОЙ + МОДАЛКА ВСЕХ ИГР ---
+export function enforceTopTenGamesLimit() {
+  const tbody = document.getElementById('games-tbody');
+  if (!tbody) return;
+
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(
+    (tr) => tr.id !== 'steam-placeholder'
+  );
+
+  rows.forEach((tr, idx) => {
+    if (idx >= 10) {
+      tr.style.display = 'none';
+    } else {
+      tr.style.display = '';
+    }
+  });
+
+  if (document.getElementById('all-games-modal') && !document.getElementById('all-games-modal').classList.contains('hidden')) {
+    renderAllGamesModal();
+  }
+}
+
+export function openAllGamesModal() {
+  const modal = document.getElementById('all-games-modal');
+  const backdrop = document.getElementById('all-games-modal-backdrop');
+  const mainSearch = document.getElementById('game-search-input')?.value || '';
+  const mainSort = document.getElementById('game-sort-select')?.value || 'playtime_desc';
+
+  const modalSearch = document.getElementById('all-games-search-input');
+  const modalSort = document.getElementById('all-games-sort-select');
+  if (modalSearch) modalSearch.value = mainSearch;
+  if (modalSort) modalSort.value = mainSort;
+
+  modal?.classList.remove('hidden');
+  backdrop?.classList.remove('hidden');
+  renderAllGamesModal();
+}
+
+export function closeAllGamesModal() {
+  document.getElementById('all-games-modal')?.classList.add('hidden');
+  document.getElementById('all-games-modal-backdrop')?.classList.add('hidden');
+}
+
+export function renderAllGamesModal() {
+  const tbody = document.getElementById('all-games-tbody');
+  const summaryEl = document.getElementById('all-games-summary');
+  if (!tbody) return;
+
+  const q = document.getElementById('all-games-search-input')?.value || '';
+  const sort = document.getElementById('all-games-sort-select')?.value || 'playtime_desc';
+  const filtered = getSortedAndFilteredGames(q, sort);
+  const totalCount = getAllGamesList().length;
+
+  if (summaryEl) {
+    summaryEl.textContent = isRu()
+      ? `Показано игр: ${filtered.length} из ${totalCount}`
+      : `Showing ${filtered.length} of ${totalCount} games`;
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-8 text-center text-xs text-gray-400">${
+      isRu() ? 'Игры не найдены.' : 'No games found.'
+    }</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  filtered.forEach((g) => {
+    const appid = Number(g.appid);
+    const hours = Math.round((Number(g.playtime_forever) || 0) / 60);
+    const iconUrl = g.img_icon_url
+      ? `https://media.steampowered.com/steamcommunity/public/images/apps/${appid}/${g.img_icon_url}.jpg`
+      : `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${appid}/capsule_184x69.jpg`;
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-white/[0.04] transition cursor-pointer';
+    tr.innerHTML = `
+      <td class="px-5 py-3.5" data-label="${isRu() ? 'Игра' : 'Game'}">
+        <div class="flex items-center gap-3 min-w-0">
+          <img src="${escapeHtml(iconUrl)}" alt="${escapeHtml(g.name || '')}" class="w-8 h-8 rounded object-cover shrink-0 bg-white/5" onerror="this.style.display='none'" />
+          <span class="font-bold text-sm text-white truncate">${escapeHtml(g.name || `App ${appid}`)}</span>
+        </div>
+      </td>
+      <td class="px-5 py-3.5 font-mono text-sm font-semibold text-gray-200" data-label="${isRu() ? 'Время' : 'Playtime'}">
+        ${escapeHtml(formatPlaytime(hours))}
+      </td>
+      <td class="px-5 py-3.5 text-xs text-gray-400" data-label="${isRu() ? 'Последний запуск' : 'Last Played'}">
+        ${escapeHtml(formatLastPlayed(g.rtime_last_played))}
+      </td>
+    `;
+
+    tr.addEventListener('click', () => {
+      closeAllGamesModal();
+      openGameDetailsModal(g);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// --- УПРАВЛЕНИЕ ПРИВЯЗАННЫМИ STEAM-АККАУНТАМИ (Switch Steam Account) ---
+function loadLinkedSteamAccounts() {
+  try {
+    const raw = localStorage.getItem(STEAM_ACCOUNTS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_e) {
+    return [];
+  }
+}
+
+function saveLinkedSteamAccounts(list) {
+  localStorage.setItem(STEAM_ACCOUNTS_STORAGE_KEY, JSON.stringify(list));
+}
+
+async function ensureCurrentSteamInAccounts() {
+  const accounts = loadLinkedSteamAccounts();
+  let currentId = activeSteamIdForWishlist || '';
+
+  if (!currentId) {
+    const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
+    if (user) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('steam_id, username')
+        .eq('id', user.id)
+        .maybeSingle()
+        .catch(() => ({ data: null }));
+      if (profile?.steam_id) {
+        currentId = String(profile.steam_id);
+        activeSteamIdForWishlist = currentId;
+        if (!accounts.some((a) => String(a.steamId) === currentId)) {
+          accounts.unshift({
+            steamId: currentId,
+            label: profile.username || `Steam ${currentId.slice(-4)}`,
+          });
+          saveLinkedSteamAccounts(accounts);
+        }
+      }
+    }
+  } else if (!accounts.some((a) => String(a.steamId) === String(currentId))) {
+    const labelName = document.getElementById('profile-username')?.textContent || `Steam ${String(currentId).slice(-4)}`;
+    accounts.unshift({ steamId: String(currentId), label: labelName });
+    saveLinkedSteamAccounts(accounts);
+  }
+
+  return { accounts, activeId: String(currentId || '') };
+}
+
+function setSteamAccountsFeedback(msg, isError = false) {
+  const el = document.getElementById('steam-accounts-feedback');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `text-xs ${isError ? 'text-red-400' : 'text-green-400'}`;
+  el.classList.remove('hidden');
+}
+
+export async function openSteamAccountsModal() {
+  document.getElementById('auth-dropdown')?.classList.add('hidden');
+  const modal = document.getElementById('steam-accounts-modal');
+  const backdrop = document.getElementById('steam-accounts-modal-backdrop');
+  const fb = document.getElementById('steam-accounts-feedback');
+  if (fb) fb.classList.add('hidden');
+
+  modal?.classList.remove('hidden');
+  backdrop?.classList.remove('hidden');
+  await renderSteamAccountsModal();
+}
+
+export function closeSteamAccountsModal() {
+  document.getElementById('steam-accounts-modal')?.classList.add('hidden');
+  document.getElementById('steam-accounts-modal-backdrop')?.classList.add('hidden');
+}
+
+async function resolveSteamInputToId(rawInput) {
+  const val = String(rawInput || '').trim();
+  if (/^\d{17}$/.test(val)) return val;
+
+  const matchId = val.match(/steamcommunity\.com\/profiles\/(\d{17})/i);
+  if (matchId) return matchId[1];
+
+  let vanity = val;
+  const matchVanity = val.match(/steamcommunity\.com\/id\/([^/?#]+)/i);
+  if (matchVanity) vanity = matchVanity[1];
+
+  if (!vanity) return '';
+
+  try {
+    const { data } = await supabaseClient.functions.invoke('steam-api', {
+      body: { vanity },
+    });
+    const resolved = data?.steamid || data?.response?.steamid || '';
+    return /^\d{17}$/.test(String(resolved)) ? String(resolved) : '';
+  } catch (_e) {
+    return '';
+  }
+}
+
+async function addSteamAccountHandler() {
+  const idInput = document.getElementById('new-steam-id-input');
+  const labelInput = document.getElementById('new-steam-label-input');
+  const rawVal = idInput?.value || '';
+  const customLabel = (labelInput?.value || '').trim();
+
+  if (!rawVal.trim()) {
+    setSteamAccountsFeedback(
+      isRu() ? 'Введи SteamID64 или ссылку на профиль.' : 'Enter a SteamID64 or Steam profile URL.',
+      true
+    );
+    return;
+  }
+
+  setSteamAccountsFeedback(isRu() ? 'Проверяем Steam-аккаунт...' : 'Resolving Steam account...', false);
+  const steamId = await resolveSteamInputToId(rawVal);
+
+  if (!/^\d{17}$/.test(steamId)) {
+    setSteamAccountsFeedback(
+      isRu() ? 'Не удалось определить корректный 17-значный SteamID64.' : 'Could not resolve a valid 17-digit SteamID64.',
+      true
+    );
+    return;
+  }
+
+  const accounts = loadLinkedSteamAccounts();
+  const existsIdx = accounts.findIndex((a) => String(a.steamId) === steamId);
+  const label = customLabel || `Steam (${steamId.slice(-4)})`;
+
+  if (existsIdx >= 0) {
+    accounts[existsIdx].label = label;
+  } else {
+    accounts.push({ steamId, label });
+  }
+  saveLinkedSteamAccounts(accounts);
+
+  if (idInput) idInput.value = '';
+  if (labelInput) labelInput.value = '';
+
+  await switchToSteamAccount(steamId, label, false);
+  setSteamAccountsFeedback(
+    isRu() ? `Аккаунт ${steamId} добавлен и активирован.` : `Steam account ${steamId} added and activated.`,
+    false
+  );
+}
+
+async function switchToSteamAccount(steamId, label = '', closeAfter = true) {
+  const id = String(steamId || '').trim();
+  if (!/^\d{17}$/.test(id)) return;
+
+  setActiveWishlistSteamId(id);
+
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
+    if (user) {
+      await supabaseClient
+        .from('profiles')
+        .update({ steam_id: id })
+        .eq('id', user.id)
+        .catch(() => {});
+    }
+  } catch (_e) {}
+
+  try {
+    await supabaseClient.functions.invoke('steam-api', { body: { steamid: id } });
+  } catch (_e) {}
+
+  const syncBtn = document.getElementById('sync-steam-btn');
+  if (syncBtn) {
+    syncBtn.classList.remove('hidden');
+    syncBtn.click();
+  }
+
+  if (label) {
+    const profName = document.getElementById('profile-username');
+    if (profName) profName.textContent = label;
+  }
+
+  await renderSteamAccountsModal();
+  if (closeAfter) {
+    closeSteamAccountsModal();
+  }
+}
+
+async function removeSteamAccount(steamId) {
+  const id = String(steamId || '').trim();
+  const filtered = loadLinkedSteamAccounts().filter((a) => String(a.steamId) !== id);
+  saveLinkedSteamAccounts(filtered);
+
+  if (String(activeSteamIdForWishlist || '') === id) {
+    const next = filtered[0];
+    if (next) {
+      await switchToSteamAccount(next.steamId, next.label, false);
+    } else {
+      setActiveWishlistSteamId(null);
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
+        if (user) {
+          await supabaseClient.from('profiles').update({ steam_id: null }).eq('id', user.id).catch(() => {});
+        }
+      } catch (_e) {}
+    }
+  }
+
+  await renderSteamAccountsModal();
+}
+
+export async function renderSteamAccountsModal() {
+  const listEl = document.getElementById('steam-accounts-list');
+  if (!listEl) return;
+
+  const { accounts, activeId } = await ensureCurrentSteamInAccounts();
+  const ru = isRu();
+
+  if (accounts.length === 0) {
+    listEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
+      ru ? 'Привязанных Steam-аккаунтов пока нет. Добавь первый выше.' : 'No linked Steam accounts yet. Add one above.'
+    }</p>`;
+    return;
+  }
+
+  listEl.innerHTML = '';
+  accounts.forEach((acc) => {
+    const id = String(acc.steamId);
+    const isActive = id === activeId;
+    const row = document.createElement('div');
+    row.className = `flex items-center justify-between gap-3 p-3 rounded-xl border transition ${
+      isActive ? 'bg-white/[0.06] tier-border' : 'bg-white/[0.02] border-white/10'
+    }`;
+
+    row.innerHTML = `
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-bold text-white truncate">${escapeHtml(acc.label || id)}</p>
+          ${
+            isActive
+              ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full tier-soft-bg">${
+                  ru ? 'АКТИВЕН' : 'ACTIVE'
+                }</span>`
+              : ''
+          }
+        </div>
+        <p class="text-[11px] font-mono text-gray-400 truncate">${escapeHtml(id)}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        ${
+          !isActive
+            ? `<button type="button" class="px-3 py-1.5 text-xs font-bold rounded-lg btn-gradient switch-acc-btn">${
+                ru ? 'Переключить' : 'Switch'
+              }</button>`
+            : ''
+        }
+        <button type="button" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-red-500/30 text-red-300 hover:bg-red-500/10 transition remove-acc-btn">
+          ${ru ? 'Удалить' : 'Remove'}
+        </button>
+      </div>
+    `;
+
+    row.querySelector('.switch-acc-btn')?.addEventListener('click', () => {
+      switchToSteamAccount(id, acc.label, true);
+    });
+
+    row.querySelector('.remove-acc-btn')?.addEventListener('click', () => {
+      removeSteamAccount(id);
+    });
+
+    listEl.appendChild(row);
+  });
 }
 
 export function setActiveWishlistSteamId(steamId) {
@@ -27,9 +436,15 @@ export function refreshDynamicTranslations() {
   if (cachedAllProfiles.length > 0) {
     renderAllProfilesModal();
   }
+  if (document.getElementById('all-games-modal') && !document.getElementById('all-games-modal').classList.contains('hidden')) {
+    renderAllGamesModal();
+  }
+  if (document.getElementById('steam-accounts-modal') && !document.getElementById('steam-accounts-modal').classList.contains('hidden')) {
+    renderSteamAccountsModal();
+  }
 }
 
-// --- 0. ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ (ОНЛАЙН + GetUserStatsForGame) ---
+// --- ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ ---
 export async function openGameDetailsModal(game) {
   if (!game || !game.appid) return;
 
@@ -80,13 +495,14 @@ export async function openGameDetailsModal(game) {
 
   let steamId = activeSteamIdForWishlist || '';
   if (!steamId) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
     if (user) {
       const { data: profile } = await supabaseClient
         .from('profiles')
         .select('steam_id')
         .eq('id', user.id)
-        .maybeSingle();
+        .maybeSingle()
+        .catch(() => ({ data: null }));
       if (profile?.steam_id) {
         steamId = String(profile.steam_id);
         activeSteamIdForWishlist = steamId;
@@ -224,7 +640,7 @@ export function closeGameDetailsModal() {
 
 window.__gtf_openGameDetails = openGameDetailsModal;
 
-// --- 0.5 МОДАЛЬНОЕ ОКНО ВСЕХ ПРОФИЛЕЙ ---
+// --- МОДАЛЬНОЕ ОКНО ВСЕХ ПРОФИЛЕЙ ---
 export function openAllProfilesModal() {
   const modal = document.getElementById('all-profiles-modal');
   const backdrop = document.getElementById('all-profiles-modal-backdrop');
@@ -342,9 +758,6 @@ export function renderAllProfilesModal() {
       closeAllProfilesModal();
       if (typeof window.__gtf_viewCommunityProfile === 'function') {
         window.__gtf_viewCommunityProfile(p);
-      } else {
-        const inlineResults = document.getElementById('community-results');
-        if (inlineResults) inlineResults.classList.remove('hidden');
       }
     });
 
@@ -352,7 +765,7 @@ export function renderAllProfilesModal() {
   });
 }
 
-// --- 1. МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
+// --- МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
 export function openLeaderboardModal() {
   const modal = document.getElementById('leaderboard-modal');
   const backdrop = document.getElementById('leaderboard-modal-backdrop');
@@ -362,10 +775,8 @@ export function openLeaderboardModal() {
 }
 
 export function closeLeaderboardModal() {
-  const modal = document.getElementById('leaderboard-modal');
-  const backdrop = document.getElementById('leaderboard-modal-backdrop');
-  modal?.classList.add('hidden');
-  backdrop?.classList.add('hidden');
+  document.getElementById('leaderboard-modal')?.classList.add('hidden');
+  document.getElementById('leaderboard-modal-backdrop')?.classList.add('hidden');
 }
 
 export async function renderLeaderboard() {
@@ -381,7 +792,6 @@ export async function renderLeaderboard() {
       .limit(20);
 
     if (error) {
-      console.error('Leaderboard profiles error:', error);
       container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${isRu() ? 'Ошибка загрузки профилей.' : 'Failed to load profiles.'}</p>`;
       return;
     }
@@ -412,9 +822,7 @@ export async function renderLeaderboard() {
               );
               topGameName = sorted[0]?.name || '—';
             }
-          } catch (_err) {
-            // Игнорируем ошибку отдельного профиля
-          }
+          } catch (_err) {}
         }
 
         return { ...p, totalHours, gamesCount, topGameName };
@@ -465,15 +873,14 @@ export async function renderLeaderboard() {
   }
 }
 
-// --- 2. РАНДОМАЙЗЕР «ВО ЧТО ПОИГРАТЬ СЕГОДНЯ?» ---
+// --- РАНДОМАЙЗЕР ---
 export function pickRandomGame() {
   const resultEl = document.getElementById('randomizer-result');
   const filterVal = document.getElementById('randomizer-filter')?.value || 'all';
   if (!resultEl) return;
 
-  const steamData = getLastSteamData();
-  const games = steamData?.response?.games;
-  if (!Array.isArray(games) || games.length === 0) {
+  const games = getAllGamesList();
+  if (games.length === 0) {
     resultEl.classList.remove('hidden');
     resultEl.innerHTML = `<p class="text-xs text-gray-400">${
       isRu()
@@ -525,7 +932,7 @@ export function pickRandomGame() {
   `;
 }
 
-// --- 3. WISHLIST & DISCOUNT TRACKER (МОДАЛЬНОЕ ОКНО) ---
+// --- WISHLIST TRACKER ---
 function getDemoWishlistItems() {
   return [
     {
@@ -589,10 +996,8 @@ export function openWishlistModal() {
 }
 
 export function closeWishlistModal() {
-  const modal = document.getElementById('wishlist-modal');
-  const backdrop = document.getElementById('wishlist-modal-backdrop');
-  modal?.classList.add('hidden');
-  backdrop?.classList.add('hidden');
+  document.getElementById('wishlist-modal')?.classList.add('hidden');
+  document.getElementById('wishlist-modal-backdrop')?.classList.add('hidden');
 }
 
 export async function loadWishlistData() {
@@ -608,13 +1013,14 @@ export async function loadWishlistData() {
 
   let steamId = activeSteamIdForWishlist;
   if (!steamId) {
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
     if (user) {
       const { data: profile } = await supabaseClient
         .from('profiles')
         .select('steam_id')
         .eq('id', user.id)
-        .maybeSingle();
+        .maybeSingle()
+        .catch(() => ({ data: null }));
       if (profile?.steam_id) {
         steamId = String(profile.steam_id);
         activeSteamIdForWishlist = steamId;
@@ -651,7 +1057,6 @@ export async function loadWishlistData() {
     });
 
     if (error) {
-      console.error('Wishlist function error:', error);
       if (summaryEl) summaryEl.textContent = isRu() ? 'Не удалось загрузить вишлист.' : 'Failed to fetch wishlist.';
       listEl.innerHTML = `<p class="text-xs text-red-400 py-6 text-center">${
         isRu()
@@ -773,20 +1178,16 @@ export function renderWishlistItems() {
   });
 }
 
-// --- 4. FLEX CARD В МОДАЛЬНОМ ОКНЕ ---
+// --- FLEX CARD ---
 export function openFlexCardModal() {
-  const modal = document.getElementById('flex-card-modal');
-  const backdrop = document.getElementById('flex-card-modal-backdrop');
-  modal?.classList.remove('hidden');
-  backdrop?.classList.remove('hidden');
+  document.getElementById('flex-card-modal')?.classList.remove('hidden');
+  document.getElementById('flex-card-modal-backdrop')?.classList.remove('hidden');
   generateFlexCard();
 }
 
 export function closeFlexCardModal() {
-  const modal = document.getElementById('flex-card-modal');
-  const backdrop = document.getElementById('flex-card-modal-backdrop');
-  modal?.classList.add('hidden');
-  backdrop?.classList.add('hidden');
+  document.getElementById('flex-card-modal')?.classList.add('hidden');
+  document.getElementById('flex-card-modal-backdrop')?.classList.add('hidden');
 }
 
 export function generateFlexCard() {
@@ -871,25 +1272,58 @@ export function generateFlexCard() {
 }
 
 export function initFeatures() {
+  // Наблюдатель за таблицей игр, чтобы на главной всегда было не больше 10 строк
+  const gamesTbody = document.getElementById('games-tbody');
+  if (gamesTbody) {
+    const observer = new MutationObserver(() => {
+      enforceTopTenGamesLimit();
+    });
+    observer.observe(gamesTbody, { childList: true });
+    enforceTopTenGamesLimit();
+  }
+
+  // Модалка всех игр
+  document.getElementById('open-all-games-btn')?.addEventListener('click', openAllGamesModal);
+  document.getElementById('close-all-games-btn')?.addEventListener('click', closeAllGamesModal);
+  document.getElementById('all-games-modal-backdrop')?.addEventListener('click', closeAllGamesModal);
+  document.getElementById('all-games-search-input')?.addEventListener('input', renderAllGamesModal);
+  document.getElementById('all-games-sort-select')?.addEventListener('change', renderAllGamesModal);
+
+  // Кнопка Switch Steam Account в выпадающем меню
+  document.getElementById('auth-change-account')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    openSteamAccountsModal();
+  }, true);
+
+  document.getElementById('close-steam-accounts-btn')?.addEventListener('click', closeSteamAccountsModal);
+  document.getElementById('steam-accounts-modal-backdrop')?.addEventListener('click', closeSteamAccountsModal);
+  document.getElementById('add-steam-account-btn')?.addEventListener('click', addSteamAccountHandler);
+
+  // Детали игры
   document.getElementById('close-game-details-btn')?.addEventListener('click', closeGameDetailsModal);
   document.getElementById('game-details-modal-backdrop')?.addEventListener('click', closeGameDetailsModal);
   document.getElementById('gd-raw-search')?.addEventListener('input', () => {
     if (currentGameStatsPayload) renderGameDetailsStats(currentGameStatsPayload);
   });
 
+  // Все профили (включая поиск внутри модалки)
   document.getElementById('view-all-profiles')?.addEventListener('click', openAllProfilesModal);
   document.getElementById('close-all-profiles-btn')?.addEventListener('click', closeAllProfilesModal);
   document.getElementById('all-profiles-modal-backdrop')?.addEventListener('click', closeAllProfilesModal);
   document.getElementById('refresh-all-profiles-btn')?.addEventListener('click', loadAllProfilesModal);
   document.getElementById('all-profiles-search')?.addEventListener('input', renderAllProfilesModal);
 
+  // Лидерборд
   document.getElementById('open-leaderboard-btn')?.addEventListener('click', openLeaderboardModal);
   document.getElementById('close-leaderboard-btn')?.addEventListener('click', closeLeaderboardModal);
   document.getElementById('leaderboard-modal-backdrop')?.addEventListener('click', closeLeaderboardModal);
   document.getElementById('refresh-leaderboard-btn')?.addEventListener('click', renderLeaderboard);
 
+  // Рандомайзер
   document.getElementById('randomizer-pick-btn')?.addEventListener('click', pickRandomGame);
 
+  // Вишлист
   document.getElementById('open-wishlist-btn')?.addEventListener('click', openWishlistModal);
   document.getElementById('close-wishlist-btn')?.addEventListener('click', closeWishlistModal);
   document.getElementById('wishlist-modal-backdrop')?.addEventListener('click', closeWishlistModal);
@@ -897,6 +1331,7 @@ export function initFeatures() {
   document.getElementById('wishlist-sale-only')?.addEventListener('change', renderWishlistItems);
   document.getElementById('wishlist-sort')?.addEventListener('change', renderWishlistItems);
 
+  // Flex Card
   document.getElementById('share-profile-btn')?.addEventListener('click', openFlexCardModal);
   document.getElementById('close-flex-card-btn')?.addEventListener('click', closeFlexCardModal);
   document.getElementById('flex-card-modal-backdrop')?.addEventListener('click', closeFlexCardModal);
