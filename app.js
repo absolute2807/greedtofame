@@ -5,23 +5,7 @@ import { updateAnalytics } from './analytics.js';
 let currentUser = null;
 let newAvatarBase64 = null;
 
-// --- ЭЛЕМЕНТЫ ---
-const authBtn = document.getElementById('auth-btn');
-const authModal = document.getElementById('auth-modal');
-const authBackdrop = document.getElementById('auth-modal-backdrop');
-const authEmail = document.getElementById('auth-email');
-const authPassword = document.getElementById('auth-password');
-const btnSignin = document.getElementById('btn-signin');
-const btnSignup = document.getElementById('btn-signup');
-const btnCloseModal = document.getElementById('btn-close-modal');
-const authMessage = document.getElementById('auth-message');
-const authBtnText = document.getElementById('auth-btn-text');
-const authDropdown = document.getElementById('auth-dropdown');
-const authLogoutBtn = document.getElementById('auth-logout');
-const authChangeAccountBtn = document.getElementById('auth-change-account');
-const demoBtn = document.getElementById('demo-btn');
-
-// --- КУРСОР И МАГНИТНЫЕ КНОПКИ ---
+// --- 1. БАЗОВЫЙ UI (КУРСОР И МОДАЛКИ) — РАБОТАЕТ ВСЕГДА ---
 const cursor = document.getElementById('custom-cursor');
 document.addEventListener('mousemove', (e) => {
   if (!cursor) return;
@@ -43,7 +27,54 @@ document.querySelectorAll('.magnetic-btn').forEach((btn) => {
   });
 });
 
-// --- ТЕМА, ВРЕМЯ, ПРИВАТНОСТЬ ---
+const authBtn = document.getElementById('auth-btn');
+const authModal = document.getElementById('auth-modal');
+const authBackdrop = document.getElementById('auth-modal-backdrop');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const btnSignin = document.getElementById('btn-signin');
+const btnSignup = document.getElementById('btn-signup');
+const btnCloseModal = document.getElementById('btn-close-modal');
+const authMessage = document.getElementById('auth-message');
+const authBtnText = document.getElementById('auth-btn-text');
+const authDropdown = document.getElementById('auth-dropdown');
+const authLogoutBtn = document.getElementById('auth-logout');
+const authChangeAccountBtn = document.getElementById('auth-change-account');
+const demoBtn = document.getElementById('demo-btn');
+
+function openAuthModal() {
+  authModal?.classList.remove('hidden');
+  authBackdrop?.classList.remove('hidden');
+  if (authMessage) authMessage.textContent = '';
+  authEmail?.focus();
+}
+
+function closeAuthModal() {
+  authModal?.classList.add('hidden');
+  authBackdrop?.classList.add('hidden');
+  if (authMessage) authMessage.textContent = '';
+}
+
+authBtn?.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if ((authBtnText?.textContent || '').trim() === 'Login') {
+    openAuthModal();
+  } else {
+    authDropdown?.classList.toggle('hidden');
+  }
+});
+
+btnCloseModal?.addEventListener('click', closeAuthModal);
+authBackdrop?.addEventListener('click', closeAuthModal);
+
+document.addEventListener('click', (e) => {
+  const container = document.getElementById('auth-btn-container');
+  if (container && !container.contains(e.target)) {
+    authDropdown?.classList.add('hidden');
+  }
+});
+
+// --- 2. ТЕМА, ВРЕМЯ, ПРИВАТНОСТЬ ---
 function applyTheme() {
   const btnDark = document.getElementById('theme-dark');
   const btnLight = document.getElementById('theme-light');
@@ -118,32 +149,7 @@ document.getElementById('toggle-library')?.addEventListener('click', () => {
   updateLibraryVisibility();
 });
 
-// --- ПРОФИЛЬ И АВТОРИЗАЦИЯ ---
-function openAuthModal() {
-  authModal?.classList.remove('hidden');
-  authBackdrop?.classList.remove('hidden');
-  if (authMessage) authMessage.textContent = '';
-  authEmail?.focus();
-}
-
-function closeAuthModal() {
-  authModal?.classList.add('hidden');
-  authBackdrop?.classList.add('hidden');
-  if (authMessage) authMessage.textContent = '';
-}
-
-authBtn?.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (authBtnText?.textContent === 'Login') {
-    openAuthModal();
-  } else {
-    authDropdown?.classList.toggle('hidden');
-  }
-});
-
-btnCloseModal?.addEventListener('click', closeAuthModal);
-authBackdrop?.addEventListener('click', closeAuthModal);
-
+// --- 3. ПРОФИЛЬ И АВТОРИЗАЦИЯ SUPABASE ---
 btnSignin?.addEventListener('click', async (e) => {
   e.preventDefault();
   const email = authEmail?.value.trim() || '';
@@ -205,13 +211,6 @@ async function handleSignOut() {
 
 authLogoutBtn?.addEventListener('click', handleSignOut);
 authChangeAccountBtn?.addEventListener('click', handleSignOut);
-
-document.addEventListener('click', (e) => {
-  const container = document.getElementById('auth-btn-container');
-  if (container && !container.contains(e.target)) {
-    authDropdown?.classList.add('hidden');
-  }
-});
 
 function setMemberSince(dateStr) {
   const el = document.getElementById('stat-member-since');
@@ -285,7 +284,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   }
 });
 
-// --- МОДАЛКИ НАСТРОЕК И ПРОФИЛЯ ---
+// --- 4. МОДАЛКИ НАСТРОЕК И ПРОФИЛЯ ---
 const settingsModal = document.getElementById('settings-modal');
 const settingsBackdrop = document.getElementById('settings-modal-backdrop');
 const usernameModal = document.getElementById('username-modal');
@@ -373,7 +372,7 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   }
 });
 
-// --- ДЕМО-РЕЖИМ ---
+// --- 5. ДЕМО-РЕЖИМ ---
 function enterDemoMode() {
   localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
   const demoData = buildDemoData();
@@ -436,7 +435,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// --- ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ И SHARE ---
+// --- 6. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ И SHARE ---
 document.getElementById('show-analytics-btn')?.addEventListener('click', () => {
   document.getElementById('dashboard-page')?.classList.add('hidden');
   document.getElementById('analytics-page')?.classList.remove('hidden');
@@ -456,7 +455,7 @@ shareBtn?.addEventListener('click', () => {
   });
 });
 
-// --- ВОЗВРАТ ИЗ STEAM OPENID ---
+// --- 7. ВОЗВРАТ ИЗ STEAM OPENID ---
 async function handleSteamReturn() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('openid.mode') !== 'id_res') return;
@@ -473,7 +472,6 @@ async function handleSteamReturn() {
     return;
   }
 
-  // Не затираем username, если профиль уже существует
   const { error } = await supabaseClient
     .from('profiles')
     .upsert({ id: user.id, steam_id: steamId }, { onConflict: 'id' });
@@ -482,7 +480,7 @@ async function handleSteamReturn() {
   else console.error('Ошибка сохранения в базу:', error);
 }
 
-// --- СТАРТ ---
+// --- 8. СТАРТ ---
 (async function init() {
   const savedUsername = localStorage.getItem(STORAGE_KEYS.username);
   if (savedUsername) applyUsername(savedUsername);
