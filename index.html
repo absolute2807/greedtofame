@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=12" />
+  <link rel="stylesheet" href="./styles.css?v=13" />
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
@@ -43,6 +43,47 @@
       </div>
     </div>
   </header>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/70 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="leaderboard-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-white">Leaderboard</h3>
+        <p class="text-xs text-gray-400">Top players ranked by total Steam playtime.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="refresh-leaderboard-btn" type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
+          Refresh
+        </button>
+        <button id="close-leaderboard-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
+      </div>
+    </div>
+    <div id="leaderboard-list" class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1"></div>
+  </div>
+
+  <!-- Flex Card Modal -->
+  <div id="flex-card-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/70 backdrop-blur-sm transition-opacity duration-200"></div>
+  <div id="flex-card-modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 hidden w-full max-w-4xl bg-[#0d0d14] border border-white/10 rounded-2xl p-6 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-lg font-bold text-white">Your Flex Card</h3>
+        <p class="text-xs text-gray-400">Download your PNG gamer card and share it anywhere.</p>
+      </div>
+      <button id="close-flex-card-btn" type="button" class="text-gray-400 hover:text-white transition text-2xl leading-none px-1">&times;</button>
+    </div>
+    <div class="space-y-4">
+      <canvas id="flex-card-canvas" width="900" height="320" class="w-full rounded-xl border border-white/10"></canvas>
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        <button id="flex-card-regenerate-btn" type="button" class="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
+          Redraw Card
+        </button>
+        <a id="flex-card-download" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
+          Download PNG
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- Settings Modal -->
   <div id="settings-modal-backdrop" class="fixed inset-0 z-40 hidden bg-black/60 backdrop-blur-sm transition-opacity duration-200"></div>
@@ -144,7 +185,7 @@
       </div>
       <div class="flex flex-wrap gap-2">
         <button id="demo-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
-        <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Share Profile</button>
+        <button id="share-profile-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
         <button id="edit-profile" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
         <button id="settings-btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
@@ -196,9 +237,14 @@
           </button>
         </div>
 
-        <!-- Community -->
+        <!-- Community + Leaderboard Button -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-2">
-          <h4 class="text-sm font-bold text-white mb-4">Community</h4>
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-bold text-white">Community</h4>
+            <button id="open-leaderboard-btn" type="button" class="px-2.5 py-1 text-xs font-bold rounded-lg border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 transition">
+              Leaderboard 🏆
+            </button>
+          </div>
           <div class="space-y-3">
             <div class="relative">
               <input type="text" id="community-search" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
@@ -371,41 +417,6 @@
             </table>
           </div>
         </section>
-
-        <!-- Leaderboard -->
-        <section class="glass-card rounded-2xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-xl font-bold text-white">Leaderboard</h3>
-              <p class="text-xs text-gray-400">Top players ranked by total Steam playtime.</p>
-            </div>
-            <button id="refresh-leaderboard-btn" type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
-              Refresh
-            </button>
-          </div>
-          <div id="leaderboard-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
-        </section>
-
-        <!-- Flex Card Generator -->
-        <section class="glass-card rounded-2xl p-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <h3 class="text-xl font-bold text-white">Flex Card</h3>
-              <p class="text-xs text-gray-400">Generate a shareable PNG card with your stats and Top 3 games.</p>
-            </div>
-            <button id="flex-card-generate-btn" type="button" class="px-4 py-2 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
-              Generate Card 🖼️
-            </button>
-          </div>
-          <div id="flex-card-preview-wrap" class="hidden space-y-3">
-            <canvas id="flex-card-canvas" width="900" height="320" class="w-full max-w-3xl rounded-xl border border-white/10"></canvas>
-            <div>
-              <a id="flex-card-download" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 transition">
-                Download PNG
-              </a>
-            </div>
-          </div>
-        </section>
       </main>
     </div>
   </div>
@@ -477,6 +488,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=12"></script>
+  <script type="module" src="./js/app.js?v=13"></script>
 </body>
 </html>
