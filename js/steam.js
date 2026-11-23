@@ -65,37 +65,43 @@ function applyRankPalette(totalHours) {
 }
 
 export function renderSteamGames(data) {
-  const games = data?.response?.games;
+  const games = data?.response?.games ?? data?.games?.games;
   const hasGames = Array.isArray(games) && games.length > 0;
   toggleEmptyStates(hasGames);
 
   const gamesTbody = document.getElementById('games-tbody');
   if (!hasGames) {
     if (gamesTbody) {
-      gamesTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library.</td></tr>';
+      gamesTbody.innerHTML = '<tr><td colspan="3" class="px-6 py-8 text-center text-gray-400">No games found in this Steam library. Check if your Steam Game Details privacy is set to Public.</td></tr>';
     }
     return;
   }
 
-  lastSteamData = data;
+  lastSteamData = { response: { games } };
   const totalGames = games.length;
   const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
   const totalHours = Math.round(totalMinutes / 60);
+  const recentMinutes = games.reduce((sum, g) => sum + (g.playtime_2weeks || 0), 0);
+  const recentHours = Math.round(recentMinutes / 60);
   const suffix = prefs.timeFormat === 'days' ? 'd' : 'h';
 
   const totalGamesEl = document.getElementById('stat-total-games');
   const totalHoursEl = document.getElementById('stat-total-hours');
   const hoursCard = document.getElementById('hours-card');
+  const recentHoursEl = document.getElementById('stat-recent-hours');
 
   if (totalGamesEl) totalGamesEl.textContent = totalGames.toLocaleString();
+  if (recentHoursEl) recentHoursEl.textContent = `${recentHours}hrs in last 2 weeks`;
+
+  const targetValue = prefs.timeFormat === 'days' ? Math.round(totalHours / 24) : totalHours;
   if (totalHoursEl) {
     totalHoursEl.classList.remove('stat-number');
-    animateValue(totalHoursEl, 0, prefs.timeFormat === 'days' ? Math.round(totalHours / 24) : totalHours, 1500, suffix);
+    animateValue(totalHoursEl, 0, targetValue, 1500, suffix);
     setTimeout(() => totalHoursEl.classList.add('stat-number'), 1500);
   }
   if (hoursCard) {
     hoursCard.classList.remove('stat-number');
-    animateValue(hoursCard, 0, prefs.timeFormat === 'days' ? Math.round(totalHours / 24) : totalHours, 1500, suffix);
+    animateValue(hoursCard, 0, targetValue, 1500, suffix);
     setTimeout(() => hoursCard.classList.add('stat-number'), 1500);
   }
 
@@ -232,9 +238,19 @@ export async function autoLoadSteamGames() {
     const { data, error } = await supabaseClient.functions.invoke('steam-api', {
       body: { steamid: profile.steam_id },
     });
-    if (!error && data?.response?.games) {
-      renderSteamGames(data);
-      updateAnalytics(data.response.games);
+
+    if (error) {
+      console.error('steam-api invoke error:', error);
+      return;
+    }
+
+    const gamesPayload = data?.games ?? data?.response ?? null;
+    if (gamesPayload) {
+      const normalizedData = { response: gamesPayload };
+      renderSteamGames(normalizedData);
+      if (Array.isArray(gamesPayload.games)) {
+        updateAnalytics(gamesPayload.games);
+      }
     }
   } catch (e) {
     console.error('Failed to auto-load Steam games:', e);
