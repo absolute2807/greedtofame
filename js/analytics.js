@@ -1,112 +1,201 @@
+import { formatPlaytime } from './config.js';
+
 let barChartInstance = null;
 let lineChartInstance = null;
 
 export function updateAnalytics(games) {
   if (!Array.isArray(games) || games.length === 0) return;
 
-  const sortedGames = [...games].sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
-  const top10 = sortedGames.slice(0, 10);
-  const barGames = [...top10].reverse();
+  const totalGames = games.length;
+  const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
+  const totalHours = Math.round(totalMinutes / 60);
+  const avgHours = totalHours / totalGames;
 
-  const labels = barGames.map((g) => g.name);
-  const exactHours = barGames.map((g) => Number(((g.playtime_forever || 0) / 60).toFixed(1)));
-  // Для логарифмической оси избегаем 0, сохраняя реальное число в тултипе
-  const logSafeValues = exactHours.map((h) => (h > 0 ? h : 0.1));
+  const sortedByTotal = [...games].sort(
+    (a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0)
+  );
+  const topGame = sortedByTotal[0];
 
-  const barCtx = document.getElementById('barChart');
-  if (barCtx && window.Chart) {
+  // --- 1. FUN FACTS ---
+  const avgEl = document.getElementById('analytics-avg-time');
+  const topEl = document.getElementById('analytics-top-game');
+  const totalEl = document.getElementById('analytics-total-games');
+
+  if (avgEl) avgEl.textContent = `${avgHours.toFixed(1)} hours/game`;
+  if (topEl) {
+    const topH = Math.round((topGame?.playtime_forever || 0) / 60);
+    topEl.textContent = topGame ? `${topGame.name} (${formatPlaytime(topH)})` : '—';
+  }
+  if (totalEl) totalEl.textContent = totalGames.toLocaleString();
+
+  // --- 2. РЕАЛЬНАЯ СТОИМОСТЬ БИБЛИОТЕКИ ИЗ STEAM STORE ---
+  const valueEl = document.getElementById('analytics-value');
+  const valueNoteEl = valueEl?.closest('.glass-card')?.querySelector('p.text-xs');
+
+  const hasRealPrices = games.some((g) => typeof g.price_usd === 'number');
+  if (hasRealPrices) {
+    const currentTotal = games.reduce((sum, g) => sum + (Number(g.price_usd) || 0), 0);
+    const fullTotal = games.reduce(
+      (sum, g) => sum + (Number(g.initial_price_usd) || Number(g.price_usd) || 0),
+      0
+    );
+    const paidCount = games.filter((g) => (Number(g.price_usd) || 0) > 0).length;
+    const mostExpensive = [...games].sort(
+      (a, b) => (Number(b.price_usd) || 0) - (Number(a.price_usd) || 0)
+    )[0];
+
+    if (valueEl) {
+      valueEl.textContent = currentTotal.toLocaleString('en-US', {
+        minimumFractionDigits: currentTotal % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    if (valueNoteEl) {
+      const parts = [
+        `Steam Store US prices • ${paidCount} paid / ${totalGames - paidCount} free`,
+      ];
+      if (fullTotal > currentTotal) {
+        parts.push(`Full retail: $${fullTotal.toFixed(0)}`);
+      }
+      if (mostExpensive && Number(mostExpensive.price_usd) > 0) {
+        parts.push(`Top: ${mostExpensive.name} ($${Number(mostExpensive.price_usd).toFixed(2)})`);
+      }
+      valueNoteEl.textContent = parts.join(' • ');
+    }
+  } else {
+    const fallbackValue = totalGames * 15;
+    if (valueEl) valueEl.textContent = fallbackValue.toLocaleString();
+    if (valueNoteEl) valueNoteEl.textContent = '*Approximate value (Steam prices unavailable)';
+  }
+
+  // --- 3. ГРАФИК TOP 10 GAMES BY HOURS ---
+  const top10 = sortedByTotal.slice(0, 10);
+  const barCtx = document.getElementById('barChart')?.getContext('2d');
+  if (barCtx) {
     if (barChartInstance) barChartInstance.destroy();
-    barChartInstance = new window.Chart(barCtx, {
+    barChartInstance = new Chart(barCtx, {
       type: 'bar',
       data: {
-        labels,
+        labels: top10.map((g) => g.name),
         datasets: [
           {
             label: 'Hours Played',
-            data: logSafeValues,
-            realHours: exactHours,
-            backgroundColor: 'rgba(168, 85, 247, 0.7)',
-            borderColor: 'rgba(168, 85, 247, 1)',
+            data: top10.map((g) => Math.round((g.playtime_forever || 0) / 60)),
+            backgroundColor: 'rgba(168, 85, 247, 0.65)',
+            borderColor: '#a855f7',
             borderWidth: 1,
-            borderRadius: 5,
-            animation: { duration: 1200, easing: 'easeOutQuart' },
+            borderRadius: 6,
           },
         ],
       },
       options: {
-        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        scales: {
-          x: {
-            type: 'logarithmic',
-            min: 0.1,
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            ticks: { color: '#9ca3af' },
-          },
-          y: {
-            grid: { display: false },
-            ticks: { color: '#9ca3af', font: { size: 11 } },
-          },
-        },
         plugins: {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `${ctx.dataset.realHours[ctx.dataIndex]} h`,
+              label: (ctx) => `${ctx.parsed.y} hrs`,
             },
           },
         },
-      },
-    });
-  }
-
-  const lineCtx = document.getElementById('lineChart');
-  if (lineCtx && window.Chart) {
-    if (lineChartInstance) lineChartInstance.destroy();
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const randomData = days.map(() => Math.floor(Math.random() * 5));
-    lineChartInstance = new window.Chart(lineCtx, {
-      type: 'line',
-      data: {
-        labels: days,
-        datasets: [
-          {
-            label: 'Hours per Day',
-            data: randomData,
-            borderColor: 'rgba(34, 211, 238, 1)',
-            backgroundColor: 'rgba(34, 211, 238, 0.1)',
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#0a0a0f',
-            pointBorderColor: 'rgba(34, 211, 238, 1)',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
         scales: {
-          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-          x: { grid: { display: false }, ticks: { color: '#9ca3af' } },
+          x: {
+            ticks: { color: '#9ca3af', maxRotation: 35, minRotation: 0 },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#9ca3af' },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+          },
         },
-        plugins: { legend: { display: false } },
       },
     });
   }
 
-  const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
-  const totalHours = Math.round(totalMinutes / 60);
+  // --- 4. РЕАЛЬНАЯ АКТИВНОСТЬ ЗА ПОСЛЕДНИЕ 2 НЕДЕЛИ ---
+  const recentGames = [...games]
+    .filter((g) => (g.playtime_2weeks || 0) > 0)
+    .sort((a, b) => (b.playtime_2weeks || 0) - (a.playtime_2weeks || 0));
 
-  const avgTimeEl = document.getElementById('analytics-avg-time');
-  const topGameEl = document.getElementById('analytics-top-game');
-  const totalGamesEl = document.getElementById('analytics-total-games');
-  const valueEl = document.getElementById('analytics-value');
+  const lineCtx = document.getElementById('lineChart')?.getContext('2d');
+  if (lineCtx) {
+    if (lineChartInstance) lineChartInstance.destroy();
 
-  if (avgTimeEl) avgTimeEl.textContent = `${Math.round(totalHours / games.length)} hours/game`;
-  if (topGameEl) topGameEl.textContent = top10[0].name;
-  if (totalGamesEl) totalGamesEl.textContent = String(games.length);
-  if (valueEl) valueEl.textContent = String(games.length * 15);
+    if (recentGames.length === 0) {
+      lineChartInstance = new Chart(lineCtx, {
+        type: 'bar',
+        data: {
+          labels: ['No activity in last 14 days'],
+          datasets: [
+            {
+              label: 'Hours (2 weeks)',
+              data: [0],
+              backgroundColor: 'rgba(34, 211, 238, 0.25)',
+              borderColor: '#22d3ee',
+              borderWidth: 1,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#6b7280' }, grid: { display: false } },
+            y: {
+              beginAtZero: true,
+              max: 5,
+              ticks: { color: '#6b7280' },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+            },
+          },
+        },
+      });
+    } else {
+      lineChartInstance = new Chart(lineCtx, {
+        type: 'bar',
+        data: {
+          labels: recentGames.map((g) => g.name),
+          datasets: [
+            {
+              label: 'Hours in last 2 weeks',
+              data: recentGames.map((g) => Number(((g.playtime_2weeks || 0) / 60).toFixed(1))),
+              backgroundColor: 'rgba(34, 211, 238, 0.55)',
+              borderColor: '#22d3ee',
+              borderWidth: 1.5,
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.x} hrs in last 2 weeks`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { color: '#9ca3af', callback: (v) => `${v}h` },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+            },
+            y: {
+              ticks: { color: '#e5e7eb' },
+              grid: { display: false },
+            },
+          },
+        },
+      });
+    }
+  }
 }
