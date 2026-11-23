@@ -11,14 +11,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=3" />
+  <link rel="stylesheet" href="./styles.css?v=4" />
 </head>
 <body class="min-h-screen selection:bg-purple-500 selection:text-white">
 
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
 
-  <!-- Demo badge (скрыт по умолчанию) -->
+  <!-- Demo badge -->
   <div id="demo-badge" class="demo-badge hidden">DEMO MODE</div>
 
   <!-- Header -->
@@ -143,7 +143,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Left Column: Profile Card -->
+      <!-- Left Column: Profile Card & Community -->
       <aside class="lg:col-span-3 space-y-6">
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-1">
           <div class="flex flex-col items-center">
@@ -178,6 +178,10 @@
               <span id="stat-total-hours" class="text-sm font-semibold text-white stat-number">0h</span>
             </div>
           </div>
+
+          <button id="back-to-my-profile-btn" class="hidden mt-5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition">
+            ← Back to My Profile
+          </button>
         </div>
 
         <!-- Community -->
@@ -189,6 +193,7 @@
               <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
             <button id="view-all-profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
+            <div id="community-results" class="mt-3 space-y-2 hidden max-h-64 overflow-y-auto pr-1"></div>
           </div>
         </div>
       </aside>
@@ -284,15 +289,33 @@
 
         <!-- Games List -->
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-4">
               <h3 class="text-xl font-bold text-white">Your Games</h3>
               <button id="show-analytics-btn" class="text-xs font-semibold px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full hover:bg-purple-500/30 transition">Analytics ↗</button>
             </div>
-            <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
-              <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-              <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
-            </button>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <input
+                type="text"
+                id="game-search-input"
+                placeholder="Search game..."
+                class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition w-40 sm:w-48"
+              />
+              <select
+                id="game-sort-select"
+                class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+              >
+                <option value="playtime_desc">Hours: High → Low</option>
+                <option value="playtime_asc">Hours: Low → High</option>
+                <option value="name_asc">Name: A → Z</option>
+                <option value="last_played_desc">Last Played</option>
+              </select>
+              <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
+                <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+              </button>
+            </div>
           </div>
 
           <div id="library-hidden-placeholder" class="hidden py-12 text-center">
@@ -389,6 +412,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=3"></script>
+  <script type="module" src="./js/app.js?v=4"></script>
 </body>
 </html>
