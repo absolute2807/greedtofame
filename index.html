@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=21" />
+  <link rel="stylesheet" href="./styles.css?v=22" />
 </head>
-<body class="min-h-screen selection:bg-purple-500 selection:text-white">
+<body class="min-h-screen selection:bg-white/20 selection:text-white">
 
   <!-- Кастомный курсор -->
   <div class="custom-cursor" id="custom-cursor"></div>
@@ -26,15 +26,15 @@
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl btn-gradient flex items-center justify-center shadow-lg">
-          <span class="text-white font-extrabold tracking-tight">GT</span>
+          <span class="font-extrabold tracking-tight">GT</span>
         </div>
         <span class="text-xl font-bold neon-text tracking-tight">GreedToFame</span>
-        <span id="playtime-tier-badge" class="hidden sm:inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border border-purple-500/40 text-purple-400 bg-white/5">Standard</span>
+        <span id="playtime-tier-badge" class="hidden sm:inline-flex items-center text-xs font-semibold px-2.5 py-0.5 rounded-full border tier-border tier-text bg-white/5">Standard</span>
       </div>
       <div id="auth-btn-container" class="relative">
-        <button id="auth-btn" class="px-5 py-2 text-sm font-semibold text-white btn-gradient rounded-lg transition focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center gap-2 shadow-lg">
+        <button id="auth-btn" class="px-5 py-2 text-sm font-semibold btn-gradient rounded-lg transition focus:outline-none tier-ring flex items-center gap-2 shadow-lg">
           <span id="auth-btn-text" data-i18n="sign_in_steam">Sign in with Steam</span>
-          <svg id="auth-btn-chevron" class="w-4 h-4 text-white/80 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          <svg id="auth-btn-chevron" class="w-4 h-4 opacity-80 shrink-0 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
         <div id="auth-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg z-50">
           <button id="auth-change-account" data-i18n="switch_steam" class="text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition">Switch Steam Account</button>
@@ -55,14 +55,14 @@
 
       <div class="absolute bottom-4 left-6 right-6 z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-3 pointer-events-none">
         <div class="min-w-0">
-          <p id="gd-appid" class="text-[11px] font-mono text-purple-300 uppercase tracking-wider">AppID: —</p>
+          <p id="gd-appid" class="text-[11px] font-mono tier-text uppercase tracking-wider">AppID: —</p>
           <h3 id="gd-title" class="text-2xl font-extrabold text-white truncate">—</h3>
         </div>
         <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
           <a id="gd-store-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="gd_store" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/15 bg-black/50 hover:bg-white/10 text-gray-200 transition">
             Steam Store ↗
           </a>
-          <a id="gd-launch-link" href="#" data-i18n="gd_launch" class="px-3.5 py-1.5 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
+          <a id="gd-launch-link" href="#" data-i18n="gd_launch" class="px-3.5 py-1.5 text-xs font-bold rounded-lg btn-gradient shadow-lg transition">
             Launch ▶
           </a>
         </div>
@@ -87,7 +87,7 @@
 
         <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10">
           <p class="text-[11px] font-semibold text-gray-400 uppercase" data-i18n="gd_recent_2w">Last 2 Weeks</p>
-          <p id="gd-recent" class="text-lg font-extrabold text-purple-300 font-mono mt-1">0h</p>
+          <p id="gd-recent" class="text-lg font-extrabold tier-text font-mono mt-1">0h</p>
         </div>
 
         <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10">
@@ -105,7 +105,7 @@
             id="gd-raw-search"
             data-i18n-placeholder="gd_search_stat"
             placeholder="Filter raw stat keys..."
-            class="hidden bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 w-full sm:w-52"
+            class="hidden bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-white tier-ring w-full sm:w-52"
           />
         </div>
         <div id="gd-stats-body"></div>
@@ -131,11 +131,11 @@
 
     <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-white/10">
       <label class="inline-flex items-center gap-2 text-xs font-semibold text-gray-200 cursor-pointer select-none">
-        <input id="wishlist-sale-only" type="checkbox" class="rounded border-white/20 bg-white/5 text-purple-500 focus:ring-purple-500" />
+        <input id="wishlist-sale-only" type="checkbox" class="rounded border-white/20 bg-white/5 tier-ring" />
         <span data-i18n="on_sale_only">On Sale Only (Discounts)</span>
       </label>
 
-      <select id="wishlist-sort" class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+      <select id="wishlist-sort" class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 tier-ring">
         <option value="discount_desc" data-i18n="sort_discount">Discount: Highest First</option>
         <option value="price_asc" data-i18n="sort_price">Price: Low → High</option>
         <option value="priority" data-i18n="sort_priority">Wishlist Priority</option>
@@ -180,7 +180,7 @@
         <button id="flex-card-regenerate-btn" type="button" data-i18n="redraw_card" class="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition">
           Redraw Card
         </button>
-        <a id="flex-card-download" data-i18n="download_png" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg btn-gradient text-white shadow-lg transition">
+        <a id="flex-card-download" data-i18n="download_png" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg btn-gradient shadow-lg transition">
           Download PNG
         </a>
       </div>
@@ -230,9 +230,9 @@
 
     <div class="flex flex-col items-center mb-4">
       <div class="relative mb-2">
-        <img id="modal-avatar-preview" src="https://ui-avatars.com/api/?name=Guest&background=random&size=256" class="w-20 h-20 rounded-full border-2 border-purple-500 object-cover" alt="Avatar preview" />
-        <div class="absolute bottom-0 right-0 bg-purple-600 rounded-full p-1 border-2 border-[#0a0a0f]">
-          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <img id="modal-avatar-preview" src="https://ui-avatars.com/api/?name=Guest&background=random&size=256" class="w-20 h-20 rounded-full border-2 tier-border object-cover" alt="Avatar preview" />
+        <div class="absolute bottom-0 right-0 btn-gradient rounded-full p-1 border-2 border-[#0a0a0f]">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         </div>
       </div>
       <input type="file" id="avatar-upload" class="hidden" accept="image/png, image/jpeg, image/jpg" />
@@ -243,7 +243,7 @@
     </div>
 
     <label class="block text-sm text-gray-400 mb-1" data-i18n="username_label">Username</label>
-    <input type="text" id="username-input" value="Guest" data-i18n-placeholder="username_placeholder" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+    <input type="text" id="username-input" value="Guest" data-i18n-placeholder="username_placeholder" placeholder="Enter new username" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white tier-ring mb-4" />
 
     <div class="flex gap-3">
       <button id="username-save" data-i18n="save" class="flex-1 py-3 text-sm font-bold rounded-lg border transition bg-transparent border-white/20 text-white hover:bg-white/5">Save</button>
@@ -256,14 +256,14 @@
     <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
       <div>
-        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight"><span data-i18n="welcome_back">Welcome back,</span> <span id="welcome-username" class="text-purple-400 neon-text">Guest</span></h2>
+        <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight"><span data-i18n="welcome_back">Welcome back,</span> <span id="welcome-username" class="tier-text neon-text">Guest</span></h2>
         <p class="mt-2 text-gray-400" data-i18n="welcome_sub">Here's what you've been playing lately.</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <button id="demo-btn" data-i18n="try_demo" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
-        <button id="share-profile-btn" data-i18n="flex_card_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
-        <button id="edit-profile" data-i18n="edit_profile_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
-        <button id="settings-btn" data-i18n="settings_btn" class="magnetic-btn px-4 py-2 text-sm font-medium text-white btn-gradient rounded-lg shadow-lg transition">Settings</button>
+        <button id="share-profile-btn" data-i18n="flex_card_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
+        <button id="edit-profile" data-i18n="edit_profile_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
+        <button id="settings-btn" data-i18n="settings_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg shadow-lg transition">Settings</button>
       </div>
     </div>
 
@@ -273,20 +273,20 @@
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-1">
           <div class="flex flex-col items-center">
             <div class="relative mb-4">
-              <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-purple-500/40 object-cover transition-all duration-500" />
+              <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Guest&background=random&size=512" alt="Avatar" class="w-24 h-24 rounded-full border-4 tier-border object-cover transition-all duration-500" />
             </div>
             <h3 id="profile-username" class="text-xl font-bold text-white">Guest</h3>
-            <p class="text-xs text-purple-400 font-medium mt-1" data-i18n="player_profile">Player Profile</p>
+            <p class="text-xs tier-text font-medium mt-1" data-i18n="player_profile">Player Profile</p>
           </div>
 
           <div class="mt-6 pt-6 border-t border-white/5">
             <p id="connect-platform-title" class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" data-i18n="steam_account">Steam Account</p>
-            <a href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback" id="connect-steam-btn" class="w-full btn-gradient text-white font-semibold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
+            <a href="https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback" id="connect-steam-btn" class="w-full btn-gradient font-semibold py-3 px-4 rounded-xl text-xs sm:text-sm shadow-lg transition transform hover:-translate-y-0.5 text-center flex items-center justify-center gap-2 whitespace-nowrap overflow-hidden">
               <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
               <span id="steam-btn-text" class="truncate" data-i18n="sign_in_steam">Sign in with Steam</span>
             </a>
             <button id="sync-steam-btn" type="button" class="hidden mt-2.5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 transition flex items-center justify-center gap-2">
-              <svg id="sync-steam-icon" class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <svg id="sync-steam-icon" class="w-4 h-4 tier-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
               <span id="sync-steam-text" data-i18n="sync_steam">Sync from Steam</span>
             </button>
             <p id="steam-instruction-text" class="mt-3 text-xs text-gray-400 leading-relaxed text-center" data-i18n="steam_instruction">One-click login via Steam. Your games and playtime load automatically.</p>
@@ -308,7 +308,7 @@
             </div>
           </div>
 
-          <button id="back-to-my-profile-btn" data-i18n="back_my_profile" class="hidden mt-5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 transition">
+          <button id="back-to-my-profile-btn" data-i18n="back_my_profile" class="hidden mt-5 w-full py-2.5 px-4 text-xs font-semibold rounded-xl border tier-border tier-text hover:bg-white/5 transition">
             ← Back to My Profile
           </button>
         </div>
@@ -317,16 +317,16 @@
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-2">
           <div class="flex items-center justify-between mb-4">
             <h4 class="text-sm font-bold text-white" data-i18n="community">Community</h4>
-            <button id="open-leaderboard-btn" type="button" data-i18n="leaderboard_btn" class="px-2.5 py-1 text-xs font-bold rounded-lg border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 transition">
+            <button id="open-leaderboard-btn" type="button" data-i18n="leaderboard_btn" class="px-2.5 py-1 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition">
               Leaderboard 🏆
             </button>
           </div>
           <div class="space-y-3">
             <div class="relative">
-              <input type="text" id="community-search" data-i18n-placeholder="search_players" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+              <input type="text" id="community-search" data-i18n-placeholder="search_players" placeholder="Search players..." class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 pl-10 text-sm text-white tier-ring transition" />
               <svg class="w-4 h-4 text-gray-500 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
-            <button id="view-all-profiles" data-i18n="view_all_profiles" class="w-full btn-gradient text-white font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
+            <button id="view-all-profiles" data-i18n="view_all_profiles" class="w-full btn-gradient font-semibold py-3 rounded-lg text-sm shadow-lg transition">View All Profiles</button>
             <div id="community-results" class="mt-3 space-y-2 hidden max-h-64 overflow-y-auto pr-1"></div>
           </div>
         </div>
@@ -336,13 +336,13 @@
           <h4 class="text-sm font-bold text-white mb-1" data-i18n="randomizer_title">What to play tonight?</h4>
           <p class="text-xs text-gray-400 mb-3" data-i18n="randomizer_sub">Pick a random game from your library.</p>
           <div class="space-y-2.5">
-            <select id="randomizer-filter" class="w-full bg-[#111117] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <select id="randomizer-filter" class="w-full bg-[#111117] border border-white/10 rounded-lg px-3 py-2 text-xs text-gray-200 tier-ring">
               <option value="all" data-i18n="filter_all">All Games</option>
               <option value="unplayed" data-i18n="filter_unplayed">Never Played (0h)</option>
               <option value="dusty" data-i18n="filter_dusty">Not Played > 1 Year</option>
               <option value="light" data-i18n="filter_light">Short Sessions (≤ 15h)</option>
             </select>
-            <button id="randomizer-pick-btn" type="button" data-i18n="pick_random_btn" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
+            <button id="randomizer-pick-btn" type="button" data-i18n="pick_random_btn" class="w-full btn-gradient font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
               Pick Random Game 🎲
             </button>
             <div id="randomizer-result" class="hidden pt-1"></div>
@@ -353,7 +353,7 @@
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
           <h4 class="text-sm font-bold text-white mb-1" data-i18n="wishlist_card_title">Wishlist & Sales</h4>
           <p class="text-xs text-gray-400 mb-3" data-i18n="wishlist_card_sub">Track prices and discounts from your public Steam Wishlist.</p>
-          <button id="open-wishlist-btn" type="button" data-i18n="open_wishlist_btn" class="w-full btn-gradient text-white font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
+          <button id="open-wishlist-btn" type="button" data-i18n="open_wishlist_btn" class="w-full btn-gradient font-semibold py-2.5 rounded-lg text-xs shadow-lg transition">
             Open Wishlist Tracker 🏷️
           </button>
         </div>
@@ -456,7 +456,7 @@
                 <h3 class="text-xl font-bold text-white" data-i18n="your_games">Your Games</h3>
                 <p class="text-[11px] text-gray-500" data-i18n="click_game_hint">Click any game to view live online & in-game stats</p>
               </div>
-              <button id="show-analytics-btn" data-i18n="analytics_btn" class="text-xs font-semibold px-3 py-1 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-full hover:bg-purple-500/30 transition">Analytics ↗</button>
+              <button id="show-analytics-btn" data-i18n="analytics_btn" class="text-xs font-semibold px-3 py-1 border tier-soft-bg rounded-full hover:brightness-110 transition">Analytics ↗</button>
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5">
@@ -465,11 +465,11 @@
                 id="game-search-input"
                 data-i18n-placeholder="search_game"
                 placeholder="Search game..."
-                class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition w-40 sm:w-48"
+                class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white tier-ring transition w-40 sm:w-48"
               />
               <select
                 id="game-sort-select"
-                class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 tier-ring transition"
               >
                 <option value="playtime_desc" data-i18n="sort_hours_desc">Hours: High → Low</option>
                 <option value="playtime_asc" data-i18n="sort_hours_asc">Hours: Low → High</option>
@@ -478,7 +478,7 @@
               </select>
               <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
                 <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+                <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
               </button>
             </div>
           </div>
@@ -542,21 +542,21 @@
         <h3 class="text-xl font-bold text-white mb-4" data-i18n="fun_facts">Fun Facts</h3>
         <ul class="space-y-4">
           <li class="flex items-center gap-3">
-            <div class="p-2 bg-purple-500/20 rounded-lg text-purple-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+            <div class="p-2 rounded-lg tier-soft-bg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
             <div>
               <p class="text-sm text-gray-400" data-i18n="avg_playtime">Average Playtime / Game</p>
               <p id="analytics-avg-time" class="text-lg font-bold text-white">—</p>
             </div>
           </li>
           <li class="flex items-center gap-3">
-            <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
+            <div class="p-2 rounded-lg tier-soft-bg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
             <div>
               <p class="text-sm text-gray-400" data-i18n="most_played_game">Most Played Game</p>
               <p id="analytics-top-game" class="text-lg font-bold text-white">—</p>
             </div>
           </li>
           <li class="flex items-center gap-3">
-            <div class="p-2 bg-cyan-500/20 rounded-lg text-cyan-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div>
+            <div class="p-2 rounded-lg tier-soft-bg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div>
             <div>
               <p class="text-sm text-gray-400" data-i18n="total_games_lib">Total Games in Library</p>
               <p id="analytics-total-games" class="text-lg font-bold text-white">—</p>
@@ -577,6 +577,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=21"></script>
+  <script type="module" src="./js/app.js?v=22"></script>
 </body>
 </html>
