@@ -88,10 +88,29 @@ body.light-theme .header-bg {
   background-color: rgba(243, 244, 246, 0.85) !important;
 }
 
-/* --- КАРТОЧКИ И КНОПКИ --- */
+/* --- КАРТОЧКИ, КНОПКИ И АКЦЕНТЫ ТИРА --- */
 .neon-text {
   color: var(--tier-color);
   text-shadow: 0 0 14px color-mix(in srgb, var(--tier-color) 45%, transparent);
+}
+
+.tier-text {
+  color: var(--tier-color) !important;
+}
+
+.tier-border {
+  border-color: color-mix(in srgb, var(--tier-color) 45%, transparent) !important;
+}
+
+.tier-soft-bg {
+  background-color: color-mix(in srgb, var(--tier-color) 16%, transparent) !important;
+  border-color: color-mix(in srgb, var(--tier-color) 35%, transparent) !important;
+  color: var(--tier-color) !important;
+}
+
+.tier-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tier-color) 70%, transparent);
 }
 
 .btn-gradient {
