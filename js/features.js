@@ -6,10 +6,87 @@ const STEAM_ACCOUNTS_STORAGE_KEY = 'greedtofame_linked_steam_accounts_v1';
 let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
 let currentGameStatsPayload = null;
+let gameStatsViewMode = 'compact'; // 'compact' | 'detailed'
 let cachedAllProfiles = [];
+
+const KNOWN_STAT_LABELS = {
+  'Stat.InfectedKilled.Total': { en: 'Infected Killed', ru: 'Убито заражённых' },
+  'Stat.FinaleFinished.Total': { en: 'Finales Completed', ru: 'Завершено финалов' },
+  'Stat.GamesPlayed.Total': { en: 'Matches / Campaigns Played', ru: 'Сыграно игр / кампаний' },
+  'Stat.TotalPlayTime.Total': { en: 'In-Game Tracked Time', ru: 'Учтённое время в игре' },
+  'Stat.KitsUsed.Total': { en: 'Medkits Used', ru: 'Использовано аптечек' },
+  'Stat.KitsShared.Total': { en: 'Medkits Shared', ru: 'Передано аптечек команде' },
+  'Stat.PillsUsed.Total': { en: 'Pain Pills Used', ru: 'Принято обезболивающих' },
+  'Stat.TeamRevivedMost.Total': { en: 'Most Revived Teammate', ru: 'Больше всего поднятий' },
+  'Stat.TeamProtectedMost.Total': { en: 'Most Protected Teammate', ru: 'Больше всего защит союзников' },
+  'Stat.WasRevived.Total': { en: 'Times Revived', ru: 'Подняли союзники' },
+};
 
 function isRu() {
   return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+}
+
+function humanizeStatKey(rawName) {
+  const name = String(rawName || '');
+  if (KNOWN_STAT_LABELS[name]) {
+    return isRu() ? KNOWN_STAT_LABELS[name].ru : KNOWN_STAT_LABELS[name].en;
+  }
+  const cleaned = name
+    .replace(/^Stat\./i, '')
+    .replace(/^total_/i, '')
+    .replace(/\.Total$/i, '')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[._-]+/g, ' ')
+    .trim();
+  if (!cleaned) return name;
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+
+function classifyStatCategory(rawName) {
+  const s = String(rawName || '').toLowerCase();
+  if (
+    s.includes('kill') ||
+    s.includes('damage') ||
+    s.includes('shot') ||
+    s.includes('hit') ||
+    s.includes('death') ||
+    s.includes('headshot') ||
+    s.includes('weapon') ||
+    s.includes('infected') ||
+    s.includes('zombie') ||
+    s.includes('tank') ||
+    s.includes('witch')
+  ) {
+    return 'combat';
+  }
+  if (
+    s.includes('reviv') ||
+    s.includes('heal') ||
+    s.includes('kit') ||
+    s.includes('pill') ||
+    s.includes('team') ||
+    s.includes('protect') ||
+    s.includes('share') ||
+    s.includes('assist') ||
+    s.includes('mvp')
+  ) {
+    return 'team';
+  }
+  if (
+    s.includes('win') ||
+    s.includes('round') ||
+    s.includes('match') ||
+    s.includes('game') ||
+    s.includes('finale') ||
+    s.includes('mission') ||
+    s.includes('level') ||
+    s.includes('time') ||
+    s.includes('score') ||
+    s.includes('bomb')
+  ) {
+    return 'progress';
+  }
+  return 'other';
 }
 
 function getAllGamesList() {
@@ -61,14 +138,13 @@ export function enforceTopTenGamesLimit() {
   );
 
   rows.forEach((tr, idx) => {
-    if (idx >= 10) {
-      tr.style.display = 'none';
-    } else {
-      tr.style.display = '';
-    }
+    tr.style.display = idx >= 10 ? 'none' : '';
   });
 
-  if (document.getElementById('all-games-modal') && !document.getElementById('all-games-modal').classList.contains('hidden')) {
+  if (
+    document.getElementById('all-games-modal') &&
+    !document.getElementById('all-games-modal').classList.contains('hidden')
+  ) {
     renderAllGamesModal();
   }
 }
@@ -151,7 +227,7 @@ export function renderAllGamesModal() {
   });
 }
 
-// --- УПРАВЛЕНИЕ ПРИВЯЗАННЫМИ STEAM-АККАУНТАМИ (Switch Steam Account) ---
+// --- УПРАВЛЕНИЕ ПРИВЯЗАННЫМИ STEAM-АККАУНТАМИ ---
 function loadLinkedSteamAccounts() {
   try {
     const raw = localStorage.getItem(STEAM_ACCOUNTS_STORAGE_KEY);
@@ -192,7 +268,8 @@ async function ensureCurrentSteamInAccounts() {
       }
     }
   } else if (!accounts.some((a) => String(a.steamId) === String(currentId))) {
-    const labelName = document.getElementById('profile-username')?.textContent || `Steam ${String(currentId).slice(-4)}`;
+    const labelName =
+      document.getElementById('profile-username')?.textContent || `Steam ${String(currentId).slice(-4)}`;
     accounts.unshift({ steamId: String(currentId), label: labelName });
     saveLinkedSteamAccounts(accounts);
   }
@@ -436,15 +513,41 @@ export function refreshDynamicTranslations() {
   if (cachedAllProfiles.length > 0) {
     renderAllProfilesModal();
   }
-  if (document.getElementById('all-games-modal') && !document.getElementById('all-games-modal').classList.contains('hidden')) {
+  if (
+    document.getElementById('all-games-modal') &&
+    !document.getElementById('all-games-modal').classList.contains('hidden')
+  ) {
     renderAllGamesModal();
   }
-  if (document.getElementById('steam-accounts-modal') && !document.getElementById('steam-accounts-modal').classList.contains('hidden')) {
+  if (
+    document.getElementById('steam-accounts-modal') &&
+    !document.getElementById('steam-accounts-modal').classList.contains('hidden')
+  ) {
     renderSteamAccountsModal();
   }
 }
 
-// --- ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ ---
+function setGameStatsMode(mode) {
+  gameStatsViewMode = mode === 'detailed' ? 'detailed' : 'compact';
+  const compactBtn = document.getElementById('gd-mode-compact');
+  const detailedBtn = document.getElementById('gd-mode-detailed');
+
+  if (compactBtn && detailedBtn) {
+    if (gameStatsViewMode === 'compact') {
+      compactBtn.className = 'px-2.5 py-1 rounded-md bg-white/15 text-white transition';
+      detailedBtn.className = 'px-2.5 py-1 rounded-md text-gray-400 hover:text-white transition';
+    } else {
+      detailedBtn.className = 'px-2.5 py-1 rounded-md bg-white/15 text-white transition';
+      compactBtn.className = 'px-2.5 py-1 rounded-md text-gray-400 hover:text-white transition';
+    }
+  }
+
+  if (currentGameStatsPayload) {
+    renderGameDetailsStats(currentGameStatsPayload);
+  }
+}
+
+// --- ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ (Пункты 1, 2, 4) ---
 export async function openGameDetailsModal(game) {
   if (!game || !game.appid) return;
 
@@ -459,8 +562,10 @@ export async function openGameDetailsModal(game) {
   const playtimeEl = document.getElementById('gd-playtime');
   const recentEl = document.getElementById('gd-recent');
   const achEl = document.getElementById('gd-achievements');
+  const achBarEl = document.getElementById('gd-achievements-bar');
   const statsBodyEl = document.getElementById('gd-stats-body');
   const rawSearchEl = document.getElementById('gd-raw-search');
+  const toggleWrapEl = document.getElementById('gd-view-mode-toggle');
 
   const appid = Number(game.appid);
   const totalHours = Math.round((Number(game.playtime_forever) || 0) / 60);
@@ -478,12 +583,19 @@ export async function openGameDetailsModal(game) {
   if (recentEl) recentEl.textContent = `${recentHours}h`;
   if (liveOnlineEl) liveOnlineEl.textContent = '...';
   if (achEl) achEl.textContent = '—';
+  if (achBarEl) achBarEl.style.width = '0%';
   if (rawSearchEl) {
     rawSearchEl.value = '';
     rawSearchEl.classList.add('hidden');
   }
+  if (toggleWrapEl) {
+    toggleWrapEl.classList.add('hidden');
+  }
 
+  gameStatsViewMode = 'compact';
+  setGameStatsMode('compact');
   currentGameStatsPayload = null;
+
   if (statsBodyEl) {
     statsBodyEl.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center">${
       isRu() ? 'Загружаем живой онлайн и статистику игрока...' : 'Fetching live player count & in-game stats...'
@@ -541,10 +653,13 @@ export async function openGameDetailsModal(game) {
         const effectiveTotal = Math.max(total, unlocked);
         const pct = Math.min(100, Math.round((unlocked / effectiveTotal) * 100));
         achEl.textContent = `${unlocked}/${effectiveTotal} (${pct}%)`;
+        if (achBarEl) achBarEl.style.width = `${pct}%`;
       } else if (unlocked > 0) {
         achEl.textContent = `${unlocked}`;
+        if (achBarEl) achBarEl.style.width = '100%';
       } else {
         achEl.textContent = '—';
+        if (achBarEl) achBarEl.style.width = '0%';
       }
     }
 
@@ -560,17 +675,41 @@ export async function openGameDetailsModal(game) {
   }
 }
 
+function buildTopHighlights(data) {
+  const ru = isRu();
+  if (Array.isArray(data.highlights) && data.highlights.length > 0) {
+    return data.highlights.slice(0, 4).map((h) => ({
+      label: ru ? h.ru : h.en,
+      value: String(h.value),
+    }));
+  }
+
+  const rawStats = Array.isArray(data.raw_stats) ? data.raw_stats : [];
+  if (rawStats.length === 0) return [];
+
+  const sorted = [...rawStats]
+    .filter((s) => typeof Number(s.value) === 'number' && !Number.isNaN(Number(s.value)))
+    .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0));
+
+  return sorted.slice(0, 4).map((s) => ({
+    label: humanizeStatKey(s.name),
+    value: Number(s.value).toLocaleString(ru ? 'ru-RU' : 'en-US'),
+  }));
+}
+
 function renderGameDetailsStats(data) {
   const statsBodyEl = document.getElementById('gd-stats-body');
   const rawSearchEl = document.getElementById('gd-raw-search');
+  const toggleWrapEl = document.getElementById('gd-view-mode-toggle');
   if (!statsBodyEl) return;
 
   const ru = isRu();
-  const highlights = Array.isArray(data.highlights) ? data.highlights : [];
   const rawStats = Array.isArray(data.raw_stats) ? data.raw_stats : [];
+  const topHighlights = buildTopHighlights(data);
 
-  if (highlights.length === 0 && rawStats.length === 0) {
+  if (topHighlights.length === 0 && rawStats.length === 0) {
     rawSearchEl?.classList.add('hidden');
+    toggleWrapEl?.classList.add('hidden');
     statsBodyEl.innerHTML = `
       <div class="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-center">
         <p class="text-xs text-gray-400">${
@@ -583,51 +722,127 @@ function renderGameDetailsStats(data) {
     return;
   }
 
-  let html = '';
-
-  if (highlights.length > 0) {
-    html += `<div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-4">`;
-    for (const h of highlights) {
-      const label = ru ? h.ru : h.en;
-      html += `
-        <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10">
-          <p class="text-[11px] text-gray-400 truncate">${escapeHtml(label)}</p>
-          <p class="text-base font-extrabold text-white font-mono mt-0.5 truncate">${escapeHtml(h.value)}</p>
-        </div>
-      `;
-    }
-    html += `</div>`;
-  }
-
   if (rawStats.length > 0) {
     rawSearchEl?.classList.remove('hidden');
-    const filterTerm = (rawSearchEl?.value || '').trim().toLowerCase();
-    const filteredRaw = filterTerm
-      ? rawStats.filter((s) => String(s.name || '').toLowerCase().includes(filterTerm))
-      : rawStats;
+    toggleWrapEl?.classList.remove('hidden');
+  } else {
+    rawSearchEl?.classList.add('hidden');
+    toggleWrapEl?.classList.add('hidden');
+  }
 
+  let html = '';
+
+  // Пункт 2: карточки-хайлайты сверху
+  if (topHighlights.length > 0) {
     html += `
-      <details ${highlights.length === 0 ? 'open' : ''} class="rounded-xl border border-white/10 bg-white/[0.02] p-3">
-        <summary class="text-xs font-semibold text-gray-300 cursor-pointer select-none">
-          ${ru ? `Все параметры Steam API (${filteredRaw.length})` : `All Steam API Raw Stats (${filteredRaw.length})`}
-        </summary>
-        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
-          ${filteredRaw
-            .slice(0, 120)
+      <div class="mb-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">${
+          ru ? 'Ключевые показатели' : 'Top Highlights'
+        }</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          ${topHighlights
             .map(
-              (s) => `
-              <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/30 border border-white/5">
-                <span class="text-[11px] font-mono text-gray-400 truncate">${escapeHtml(s.name)}</span>
-                <span class="text-xs font-mono font-bold text-white shrink-0">${escapeHtml(
-                  Number(s.value).toLocaleString(ru ? 'ru-RU' : 'en-US')
-                )}</span>
+              (h) => `
+              <div class="p-3 rounded-xl bg-white/[0.04] border border-white/10">
+                <p class="text-[11px] text-gray-400 truncate">${escapeHtml(h.label)}</p>
+                <p class="text-base font-extrabold text-white font-mono mt-0.5 truncate">${escapeHtml(h.value)}</p>
               </div>
             `
             )
             .join('')}
         </div>
-      </details>
+      </div>
     `;
+  }
+
+  // Пункты 1 и 4: группировка по категориям, человекочитаемые названия + мини-бары + Compact/Detailed
+  if (rawStats.length > 0) {
+    const filterTerm = (rawSearchEl?.value || '').trim().toLowerCase();
+    const filteredRaw = filterTerm
+      ? rawStats.filter((s) => {
+          const rawName = String(s.name || '').toLowerCase();
+          const humanName = humanizeStatKey(s.name).toLowerCase();
+          return rawName.includes(filterTerm) || humanName.includes(filterTerm);
+        })
+      : rawStats;
+
+    const groups = {
+      combat: {
+        title: ru ? 'Бой и урон' : 'Combat & Damage',
+        items: [],
+      },
+      team: {
+        title: ru ? 'Команда и поддержка' : 'Team & Support',
+        items: [],
+      },
+      progress: {
+        title: ru ? 'Матчи и прогресс' : 'Matches & Progress',
+        items: [],
+      },
+      other: {
+        title: ru ? 'Прочие показатели' : 'Other Stats',
+        items: [],
+      },
+    };
+
+    for (const s of filteredRaw) {
+      const cat = classifyStatCategory(s.name);
+      groups[cat].items.push(s);
+    }
+
+    const maxPerGroup = gameStatsViewMode === 'compact' ? 6 : 80;
+    const categoryOrder = ['combat', 'team', 'progress', 'other'];
+
+    html += `<div class="space-y-3">`;
+    for (const key of categoryOrder) {
+      const grp = groups[key];
+      if (!grp || grp.items.length === 0) continue;
+
+      const sortedGrp = [...grp.items].sort(
+        (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
+      );
+      const maxVal = Math.max(
+        1,
+        ...sortedGrp.map((item) => Math.abs(Number(item.value) || 0))
+      );
+      const visibleItems = sortedGrp.slice(0, maxPerGroup);
+      const isOpenDefault = gameStatsViewMode === 'detailed' || Boolean(filterTerm) || key !== 'other';
+
+      html += `
+        <details ${isOpenDefault ? 'open' : ''} class="rounded-xl border border-white/10 bg-white/[0.02] p-3.5">
+          <summary class="flex items-center justify-between text-xs font-bold text-gray-200 cursor-pointer select-none">
+            <span>${escapeHtml(grp.title)}</span>
+            <span class="text-[11px] font-mono text-gray-400">${visibleItems.length} / ${grp.items.length}</span>
+          </summary>
+          <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-64 overflow-y-auto pr-1">
+            ${visibleItems
+              .map((s) => {
+                const numVal = Number(s.value) || 0;
+                const pct = Math.min(100, Math.max(4, Math.round((Math.abs(numVal) / maxVal) * 100)));
+                const humanLabel = humanizeStatKey(s.name);
+                return `
+                  <div class="p-2.5 rounded-lg bg-black/35 border border-white/5 space-y-1.5">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="min-w-0">
+                        <p class="text-xs font-semibold text-white truncate">${escapeHtml(humanLabel)}</p>
+                        <p class="text-[10px] font-mono text-gray-500 truncate">${escapeHtml(s.name)}</p>
+                      </div>
+                      <span class="text-xs font-mono font-bold text-white shrink-0">${escapeHtml(
+                        numVal.toLocaleString(ru ? 'ru-RU' : 'en-US')
+                      )}</span>
+                    </div>
+                    <div class="w-full h-1 rounded-full bg-white/10 overflow-hidden">
+                      <div class="h-full rounded-full btn-gradient opacity-80" style="width: ${pct}%"></div>
+                    </div>
+                  </div>
+                `;
+              })
+              .join('')}
+          </div>
+        </details>
+      `;
+    }
+    html += `</div>`;
   }
 
   statsBodyEl.innerHTML = html;
@@ -767,10 +982,8 @@ export function renderAllProfilesModal() {
 
 // --- МОДАЛЬНОЕ ОКНО ЛИДЕРБОРДА ---
 export function openLeaderboardModal() {
-  const modal = document.getElementById('leaderboard-modal');
-  const backdrop = document.getElementById('leaderboard-modal-backdrop');
-  modal?.classList.remove('hidden');
-  backdrop?.classList.remove('hidden');
+  document.getElementById('leaderboard-modal')?.classList.remove('hidden');
+  document.getElementById('leaderboard-modal-backdrop')?.classList.remove('hidden');
   renderLeaderboard();
 }
 
@@ -983,10 +1196,8 @@ function getDemoWishlistItems() {
 }
 
 export function openWishlistModal() {
-  const modal = document.getElementById('wishlist-modal');
-  const backdrop = document.getElementById('wishlist-modal-backdrop');
-  modal?.classList.remove('hidden');
-  backdrop?.classList.remove('hidden');
+  document.getElementById('wishlist-modal')?.classList.remove('hidden');
+  document.getElementById('wishlist-modal-backdrop')?.classList.remove('hidden');
 
   if (cachedWishlistItems.length > 0) {
     renderWishlistItems();
@@ -1272,7 +1483,6 @@ export function generateFlexCard() {
 }
 
 export function initFeatures() {
-  // Наблюдатель за таблицей игр, чтобы на главной всегда было не больше 10 строк
   const gamesTbody = document.getElementById('games-tbody');
   if (gamesTbody) {
     const observer = new MutationObserver(() => {
@@ -1300,14 +1510,16 @@ export function initFeatures() {
   document.getElementById('steam-accounts-modal-backdrop')?.addEventListener('click', closeSteamAccountsModal);
   document.getElementById('add-steam-account-btn')?.addEventListener('click', addSteamAccountHandler);
 
-  // Детали игры
+  // Детали игры + Compact/Detailed + поиск
   document.getElementById('close-game-details-btn')?.addEventListener('click', closeGameDetailsModal);
   document.getElementById('game-details-modal-backdrop')?.addEventListener('click', closeGameDetailsModal);
+  document.getElementById('gd-mode-compact')?.addEventListener('click', () => setGameStatsMode('compact'));
+  document.getElementById('gd-mode-detailed')?.addEventListener('click', () => setGameStatsMode('detailed'));
   document.getElementById('gd-raw-search')?.addEventListener('input', () => {
     if (currentGameStatsPayload) renderGameDetailsStats(currentGameStatsPayload);
   });
 
-  // Все профили (включая поиск внутри модалки)
+  // Все профили
   document.getElementById('view-all-profiles')?.addEventListener('click', openAllProfilesModal);
   document.getElementById('close-all-profiles-btn')?.addEventListener('click', closeAllProfilesModal);
   document.getElementById('all-profiles-modal-backdrop')?.addEventListener('click', closeAllProfilesModal);
