@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=24" />
+  <link rel="stylesheet" href="./styles.css?v=25" />
 </head>
 <body class="min-h-screen selection:bg-white/20 selection:text-white">
 
@@ -155,7 +155,7 @@
       </div>
     </div>
 
-    <div class="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+    <div class="p-6 space-y-5 max-h-[72vh] overflow-y-auto">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10">
           <p class="text-[11px] font-semibold text-gray-400 uppercase" data-i18n="gd_online_now">Online Right Now</p>
@@ -178,18 +178,27 @@
         <div class="p-3.5 rounded-xl bg-white/[0.03] border border-white/10">
           <p class="text-[11px] font-semibold text-gray-400 uppercase" data-i18n="gd_achievements">Achievements</p>
           <p id="gd-achievements" class="text-lg font-extrabold text-cyan-300 font-mono mt-1">—</p>
+          <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-2">
+            <div id="gd-achievements-bar" class="h-full rounded-full btn-gradient transition-all duration-300" style="width: 0%"></div>
+          </div>
         </div>
       </div>
 
       <div id="gd-stats-section">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-          <h4 class="text-sm font-bold text-white" data-i18n="gd_ingame_stats">In-Game Statistics</h4>
+          <div class="flex items-center gap-2.5">
+            <h4 class="text-sm font-bold text-white" data-i18n="gd_ingame_stats">In-Game Statistics</h4>
+            <div id="gd-view-mode-toggle" class="hidden inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-0.5 text-[11px] font-semibold">
+              <button id="gd-mode-compact" type="button" class="px-2.5 py-1 rounded-md bg-white/15 text-white transition">Compact</button>
+              <button id="gd-mode-detailed" type="button" class="px-2.5 py-1 rounded-md text-gray-400 hover:text-white transition">Detailed</button>
+            </div>
+          </div>
           <input
             type="text"
             id="gd-raw-search"
             data-i18n-placeholder="gd_search_stat"
-            placeholder="Filter raw stat keys..."
-            class="hidden bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-white tier-ring w-full sm:w-52"
+            placeholder="Filter stats or keys..."
+            class="hidden bg-white/5 border border-white/10 rounded-lg px-3 py-1 text-xs text-white tier-ring w-full sm:w-56"
           />
         </div>
         <div id="gd-stats-body"></div>
@@ -367,7 +376,6 @@
 
   <!-- MAIN DASHBOARD PAGE -->
   <div id="dashboard-page" class="max-w-7xl mx-auto px-6 py-10 transition-opacity duration-300">
-    <!-- Intro / Welcome -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
       <div>
         <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight"><span data-i18n="welcome_back">Welcome back,</span> <span id="welcome-username" class="tier-text neon-text">Guest</span></h2>
@@ -382,7 +390,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Left Column: Profile Card, Community, Randomizer & Wishlist Tracker -->
       <aside class="lg:col-span-3 space-y-6">
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-1">
           <div class="flex flex-col items-center">
@@ -427,7 +434,6 @@
           </button>
         </div>
 
-        <!-- Community Block (без списка игроков и поля поиска на главной) -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-2">
           <div class="mb-4">
             <h4 class="text-sm font-bold text-white" data-i18n="community">Community</h4>
@@ -440,7 +446,6 @@
           </div>
         </div>
 
-        <!-- Randomizer: What to play tonight? -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-3">
           <h4 class="text-sm font-bold text-white mb-1" data-i18n="randomizer_title">What to play tonight?</h4>
           <p class="text-xs text-gray-400 mb-3" data-i18n="randomizer_sub">Pick a random game from your library.</p>
@@ -458,7 +463,6 @@
           </div>
         </div>
 
-        <!-- Wishlist & Discount Tracker -->
         <div class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
           <h4 class="text-sm font-bold text-white mb-1" data-i18n="wishlist_card_title">Wishlist & Sales</h4>
           <p class="text-xs text-gray-400 mb-3" data-i18n="wishlist_card_sub">Track prices and discounts from your public Steam Wishlist.</p>
@@ -468,9 +472,7 @@
         </div>
       </aside>
 
-      <!-- Right Column: Main Content -->
       <main id="main-dashboard" class="lg:col-span-9 space-y-10">
-        <!-- Statistics -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="glass-card rounded-2xl p-6 relative overflow-hidden group animate-fade-in-up delay-1">
             <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider" data-i18n="hours_played">Hours Played</p>
@@ -499,7 +501,6 @@
           </div>
         </section>
 
-        <!-- Hall of Fame (Top 3) -->
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-3">
           <div class="flex items-center justify-between mb-2">
             <div>
@@ -554,7 +555,6 @@
           </div>
         </section>
 
-        <!-- Games List (ТОП-10 на главной + кнопка открытия всех игр рядом с глазом) -->
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div class="flex items-center gap-4">
@@ -686,6 +686,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=24"></script>
+  <script type="module" src="./js/app.js?v=25"></script>
 </body>
 </html>
