@@ -6,8 +6,8 @@ let cachedWishlistItems = [];
 let currentGameStatsPayload = null;
 let gameStatsViewMode = 'compact';
 let cachedAllProfiles = [];
+let isSyncingSettings = false;
 
-// Живые русские переводы метрик из API Steam
 const EXACT_STAT_LABELS_RU = {
   // Rust
   acquired_metal_ore: 'Добыто железной руды',
@@ -184,7 +184,6 @@ function getStatDisplayLabel(rawName) {
   return isRu() ? translateStatToRu(rawName) : humanizeStatKeyEn(rawName);
 }
 
-// --- STEAM LINKED НЕКЛИКАБЕЛЬНА ПОСЛЕ ПРИВЯЗКИ ---
 function enforceSteamLinkedNonClickable() {
   const btn = document.getElementById('connect-steam-btn');
   const textEl = document.getElementById('steam-btn-text');
@@ -216,52 +215,58 @@ function enforceSteamLinkedNonClickable() {
   }
 }
 
-// --- СТИЛЬ АКТИВНЫХ КНОПОК В SETTINGS В ТОН ДАШБОРДА ---
 function syncSettingsButtonsVisualStyle() {
-  const ids = [
-    'format-hours',
-    'format-days',
-    'theme-dark',
-    'theme-light',
-    'lang-en',
-    'lang-ru',
-  ];
+  if (isSyncingSettings) return;
+  isSyncingSettings = true;
 
-  const isLightTheme =
-    document.body.classList.contains('light-theme') ||
-    document.documentElement.classList.contains('light-theme');
+  try {
+    const ids = [
+      'format-hours',
+      'format-days',
+      'theme-dark',
+      'theme-light',
+      'lang-en',
+      'lang-ru',
+    ];
 
-  ids.forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
+    const isLightTheme =
+      document.body.classList.contains('light-theme') ||
+      document.documentElement.classList.contains('light-theme');
 
-    const isSelected =
-      el.classList.contains('border-purple-500') ||
-      el.classList.contains('bg-purple-500/10') ||
-      el.classList.contains('text-purple-400') ||
-      el.classList.contains('btn-gradient') ||
-      el.getAttribute('aria-pressed') === 'true';
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
 
-    el.classList.remove(
-      'border-purple-500',
-      'bg-purple-500/10',
-      'text-purple-400',
-      'border-white/10',
-      'text-gray-400',
-      'hover:bg-white/5'
-    );
+      const isSelected =
+        el.classList.contains('border-purple-500') ||
+        el.classList.contains('bg-purple-500/10') ||
+        el.classList.contains('text-purple-400') ||
+        el.classList.contains('btn-gradient') ||
+        el.getAttribute('aria-pressed') === 'true';
 
-    if (isSelected) {
-      el.classList.add('btn-gradient', 'border-transparent', 'shadow-md');
-    } else {
-      el.classList.add(
-        'border-transparent',
-        isLightTheme ? 'text-slate-600' : 'text-gray-400',
-        'hover:text-white',
+      el.classList.remove(
+        'border-purple-500',
+        'bg-purple-500/10',
+        'text-purple-400',
+        'border-white/10',
+        'text-gray-400',
         'hover:bg-white/5'
       );
-    }
-  });
+
+      if (isSelected) {
+        el.classList.add('btn-gradient', 'border-transparent', 'shadow-md');
+      } else {
+        el.classList.add(
+          'border-transparent',
+          isLightTheme ? 'text-slate-600' : 'text-gray-400',
+          'hover:text-white',
+          'hover:bg-white/5'
+        );
+      }
+    });
+  } finally {
+    isSyncingSettings = false;
+  }
 }
 
 function getAllGamesList() {
@@ -465,7 +470,6 @@ export function closeGameDetailsModal() {
 
 window.__gtf_openGameDetails = openGameDetailsModal;
 
-// --- ПРОФИЛИ, ЛИДЕРБОРД, РАНДОМАЙЗЕР, ВИШЛИСТ, FLEX CARD ---
 export function openAllProfilesModal() {
   document.getElementById('all-profiles-modal')?.classList.remove('hidden');
   document.getElementById('all-profiles-modal-backdrop')?.classList.remove('hidden');
@@ -698,12 +702,7 @@ export function initFeatures() {
     enforceSteamLinkedNonClickable();
   }
 
-  const settingsModal = document.getElementById('settings-modal');
-  if (settingsModal) {
-    const settingsObserver = new MutationObserver(() => syncSettingsButtonsVisualStyle());
-    settingsObserver.observe(settingsModal, { attributes: true, attributeFilter: ['class'], subtree: true });
-    syncSettingsButtonsVisualStyle();
-  }
+  syncSettingsButtonsVisualStyle();
 
   ['format-hours', 'format-days', 'theme-dark', 'theme-light', 'lang-en', 'lang-ru'].forEach((id) => {
     document.getElementById(id)?.addEventListener('click', () => {
