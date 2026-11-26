@@ -3,6 +3,10 @@ import { formatPlaytime } from './config.js';
 let barChartInstance = null;
 let lineChartInstance = null;
 
+function isRu() {
+  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+}
+
 function getTierColorHex() {
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--tier-color').trim();
   return raw || '#a855f7';
@@ -11,6 +15,7 @@ function getTierColorHex() {
 export function updateAnalytics(games) {
   if (!Array.isArray(games) || games.length === 0) return;
 
+  const ru = isRu();
   const totalGames = games.length;
   const totalMinutes = games.reduce((sum, g) => sum + (g.playtime_forever || 0), 0);
   const totalHours = Math.round(totalMinutes / 60);
@@ -26,12 +31,16 @@ export function updateAnalytics(games) {
   const topEl = document.getElementById('analytics-top-game');
   const totalEl = document.getElementById('analytics-total-games');
 
-  if (avgEl) avgEl.textContent = `${avgHours.toFixed(1)} hours/game`;
+  if (avgEl) {
+    avgEl.textContent = ru
+      ? `${avgHours.toFixed(1)} ч/игра`
+      : `${avgHours.toFixed(1)} hours/game`;
+  }
   if (topEl) {
     const topH = Math.round((topGame?.playtime_forever || 0) / 60);
     topEl.textContent = topGame ? `${topGame.name} (${formatPlaytime(topH)})` : '—';
   }
-  if (totalEl) totalEl.textContent = totalGames.toLocaleString();
+  if (totalEl) totalEl.textContent = totalGames.toLocaleString(ru ? 'ru-RU' : 'en-US');
 
   // --- 2. РЕАЛЬНАЯ СТОИМОСТЬ БИБЛИОТЕКИ ИЗ STEAM STORE ---
   const valueEl = document.getElementById('analytics-value');
@@ -57,21 +66,32 @@ export function updateAnalytics(games) {
     }
 
     if (valueNoteEl) {
-      const parts = [
-        `Steam Store US prices • ${paidCount} paid / ${totalGames - paidCount} free`,
-      ];
+      const parts = ru
+        ? [`Цены Steam Store • ${paidCount} платных / ${totalGames - paidCount} бесплатных`]
+        : [`Steam Store US prices • ${paidCount} paid / ${totalGames - paidCount} free`];
+
       if (fullTotal > currentTotal) {
-        parts.push(`Full retail: $${fullTotal.toFixed(0)}`);
+        parts.push(
+          ru ? `Без скидок: $${fullTotal.toFixed(0)}` : `Full retail: $${fullTotal.toFixed(0)}`
+        );
       }
       if (mostExpensive && Number(mostExpensive.price_usd) > 0) {
-        parts.push(`Top: ${mostExpensive.name} ($${Number(mostExpensive.price_usd).toFixed(2)})`);
+        parts.push(
+          ru
+            ? `Самая дорогая: ${mostExpensive.name} ($${Number(mostExpensive.price_usd).toFixed(2)})`
+            : `Top: ${mostExpensive.name} ($${Number(mostExpensive.price_usd).toFixed(2)})`
+        );
       }
       valueNoteEl.textContent = parts.join(' • ');
     }
   } else {
     const fallbackValue = totalGames * 15;
-    if (valueEl) valueEl.textContent = fallbackValue.toLocaleString();
-    if (valueNoteEl) valueNoteEl.textContent = '*Approximate value (Steam prices unavailable)';
+    if (valueEl) valueEl.textContent = fallbackValue.toLocaleString(ru ? 'ru-RU' : 'en-US');
+    if (valueNoteEl) {
+      valueNoteEl.textContent = ru
+        ? '*Примерная оценка (цены Steam Store недоступны)'
+        : '*Approximate value (Steam prices unavailable)';
+    }
   }
 
   // --- 3. ГРАФИК TOP 10 GAMES BY HOURS ---
@@ -86,7 +106,7 @@ export function updateAnalytics(games) {
         labels: top10.map((g) => g.name),
         datasets: [
           {
-            label: 'Hours Played',
+            label: ru ? 'Наиграно часов' : 'Hours Played',
             data: top10.map((g) => Math.round((g.playtime_forever || 0) / 60)),
             backgroundColor: `${tierColor}99`,
             borderColor: tierColor,
@@ -102,7 +122,7 @@ export function updateAnalytics(games) {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `${ctx.parsed.y} hrs`,
+              label: (ctx) => (ru ? `${ctx.parsed.y} ч` : `${ctx.parsed.y} hrs`),
             },
           },
         },
@@ -134,10 +154,10 @@ export function updateAnalytics(games) {
       lineChartInstance = new Chart(lineCtx, {
         type: 'bar',
         data: {
-          labels: ['No activity in last 14 days'],
+          labels: [ru ? 'Нет активности за последние 14 дней' : 'No activity in last 14 days'],
           datasets: [
             {
-              label: 'Hours (2 weeks)',
+              label: ru ? 'Часы (за 2 недели)' : 'Hours (2 weeks)',
               data: [0],
               backgroundColor: 'rgba(34, 211, 238, 0.25)',
               borderColor: '#22d3ee',
@@ -168,7 +188,7 @@ export function updateAnalytics(games) {
           labels: recentGames.map((g) => g.name),
           datasets: [
             {
-              label: 'Hours in last 2 weeks',
+              label: ru ? 'Часов за последние 2 недели' : 'Hours in last 2 weeks',
               data: recentGames.map((g) => Number(((g.playtime_2weeks || 0) / 60).toFixed(1))),
               backgroundColor: 'rgba(34, 211, 238, 0.55)',
               borderColor: '#22d3ee',
@@ -185,14 +205,15 @@ export function updateAnalytics(games) {
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: (ctx) => `${ctx.parsed.x} hrs in last 2 weeks`,
+                label: (ctx) =>
+                  ru ? `${ctx.parsed.x} ч за последние 2 недели` : `${ctx.parsed.x} hrs in last 2 weeks`,
               },
             },
           },
           scales: {
             x: {
               beginAtZero: true,
-              ticks: { color: '#9ca3af', callback: (v) => `${v}h` },
+              ticks: { color: '#9ca3af', callback: (v) => (ru ? `${v}ч` : `${v}h`) },
               grid: { color: 'rgba(255,255,255,0.05)' },
             },
             y: {
