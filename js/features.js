@@ -1,14 +1,21 @@
-import { supabaseClient, STORAGE_KEYS, formatPlaytime, escapeHtml } from './config.js';
-import { getLastSteamData } from './steam.js';
+import {
+  supabaseClient,
+  STORAGE_KEYS,
+  formatPlaytime,
+  escapeHtml,
+  getActiveSteamId,
+  setActiveSteamId,
+} from './config.js';
+import { getLastSteamData, loadSteamStatsForId } from './steam.js';
 import { STEAM_STATS_RU } from './steam-stats-ru.js';
 
-const STEAM_ACCOUNTS_STORAGE_KEY = 'greedtofame_linked_steam_accounts_v1';
+const LEADERBOARD_CACHE_TTL = 3 * 60 * 1000;
 
-let activeSteamIdForWishlist = null;
 let cachedWishlistItems = [];
 let currentGameStatsPayload = null;
-let gameStatsViewMode = 'compact'; // 'compact' | 'detailed'
+let gameStatsViewMode = 'compact';
 let cachedAllProfiles = [];
+let leaderboardCache = { timestamp: 0, data: null };
 
 const KNOWN_STAT_LABELS = {
   'Stat.InfectedKilled.Total': { en: 'Infected Killed', ru: 'Убито заражённых' },
@@ -24,20 +31,15 @@ const KNOWN_STAT_LABELS = {
 };
 
 function isRu() {
-  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+  return localStorage.getItem(STORAGE_KEYS.lang) === 'ru';
 }
 
 function translateStatToRu(rawName) {
   const name = String(rawName || '').trim();
   const lower = name.toLowerCase();
 
-  if (STEAM_STATS_RU[lower]) {
-    return STEAM_STATS_RU[lower];
-  }
-
-  if (KNOWN_STAT_LABELS[name]?.ru) {
-    return KNOWN_STAT_LABELS[name].ru;
-  }
+  if (STEAM_STATS_RU[lower]) return STEAM_STATS_RU[lower];
+  if (KNOWN_STAT_LABELS[name]?.ru) return KNOWN_STAT_LABELS[name].ru;
 
   const normalized = lower
     .replace(/^stat\./, '')
@@ -73,9 +75,7 @@ function translateStatToRu(rawName) {
 
   for (const [regex, formatter] of phraseRules) {
     const match = normalized.match(regex);
-    if (match) {
-      return formatter(match[0], match[1]);
-    }
+    if (match) return formatter(match[0], match[1]);
   }
 
   const translated = translateTokenRu(normalized);
@@ -162,12 +162,8 @@ function translateTokenRu(phrase) {
 
 function humanizeStatKey(rawName) {
   const name = String(rawName || '');
-  if (isRu()) {
-    return translateStatToRu(name);
-  }
-  if (KNOWN_STAT_LABELS[name]) {
-    return KNOWN_STAT_LABELS[name].en;
-  }
+  if (isRu()) return translateStatToRu(name);
+  if (KNOWN_STAT_LABELS[name]) return KNOWN_STAT_LABELS[name].en;
   const cleaned = name
     .replace(/^Stat\./i, '')
     .replace(/^total_/i, '')
@@ -367,7 +363,7 @@ export function renderAllGamesModal() {
 // --- УПРАВЛЕНИЕ ПРИВЯЗАННЫМИ STEAM-АККАУНТАМИ ---
 function loadLinkedSteamAccounts() {
   try {
-    const raw = localStorage.getItem(STEAM_ACCOUNTS_STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.linkedSteamAccounts);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch (_e) {
@@ -376,12 +372,12 @@ function loadLinkedSteamAccounts() {
 }
 
 function saveLinkedSteamAccounts(list) {
-  localStorage.setItem(STEAM_ACCOUNTS_STORAGE_KEY, JSON.stringify(list));
+  localStorage.setItem(STORAGE_KEYS.linkedSteamAccounts, JSON.stringify(list));
 }
 
 async function ensureCurrentSteamInAccounts() {
   const accounts = loadLinkedSteamAccounts();
-  let currentId = activeSteamIdForWishlist || '';
+  let currentId = getActiveSteamId() || '';
 
   if (!currentId) {
     const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
@@ -394,7 +390,7 @@ async function ensureCurrentSteamInAccounts() {
         .catch(() => ({ data: null }));
       if (profile?.steam_id) {
         currentId = String(profile.steam_id);
-        activeSteamIdForWishlist = currentId;
+        setActiveSteamId(currentId);
         if (!accounts.some((a) => String(a.steamId) === currentId)) {
           accounts.unshift({
             steamId: currentId,
@@ -513,6 +509,7 @@ async function switchToSteamAccount(steamId, label = '', closeAfter = true) {
   const id = String(steamId || '').trim();
   if (!/^\d{17}$/.test(id)) return;
 
+  setActiveSteamId(id);
   setActiveWishlistSteamId(id);
 
   try {
@@ -526,15 +523,18 @@ async function switchToSteamAccount(steamId, label = '', closeAfter = true) {
     }
   } catch (_e) {}
 
-  try {
-    await supabaseClient.functions.invoke('steam-api', { body: { steamid: id } });
-  } catch (_e) {}
+  const steamBtnText = document.getElementById('steam-btn-text');
+  if (steamBtnText) {
+    steamBtnText.textContent = isRu() ? `Steam привязан (${id})` : `Steam Linked (${id})`;
+  }
 
   const syncBtn = document.getElementById('sync-steam-btn');
-  if (syncBtn) {
-    syncBtn.classList.remove('hidden');
-    syncBtn.click();
-  }
+  if (syncBtn) syncBtn.classList.remove('hidden');
+
+  await loadSteamStatsForId(id, {
+    applyPlayer: true,
+    updateOwnAnalytics: true,
+  });
 
   if (label) {
     const profName = document.getElementById('profile-username');
@@ -552,11 +552,12 @@ async function removeSteamAccount(steamId) {
   const filtered = loadLinkedSteamAccounts().filter((a) => String(a.steamId) !== id);
   saveLinkedSteamAccounts(filtered);
 
-  if (String(activeSteamIdForWishlist || '') === id) {
+  if (String(getActiveSteamId() || '') === id) {
     const next = filtered[0];
     if (next) {
       await switchToSteamAccount(next.steamId, next.label, false);
     } else {
+      setActiveSteamId(null);
       setActiveWishlistSteamId(null);
       try {
         const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
@@ -634,10 +635,11 @@ export async function renderSteamAccountsModal() {
 }
 
 export function setActiveWishlistSteamId(steamId) {
-  if (activeSteamIdForWishlist !== steamId) {
-    activeSteamIdForWishlist = steamId || null;
-    cachedWishlistItems = [];
+  const normalized = steamId ? String(steamId) : null;
+  if (getActiveSteamId() !== normalized) {
+    setActiveSteamId(normalized);
   }
+  cachedWishlistItems = [];
 }
 
 export function refreshDynamicTranslations() {
@@ -717,7 +719,7 @@ export async function openGameDetailsModal(game) {
   if (storeLinkEl) storeLinkEl.href = `https://store.steampowered.com/app/${appid}`;
   if (launchLinkEl) launchLinkEl.href = `steam://run/${appid}`;
   if (playtimeEl) playtimeEl.textContent = formatPlaytime(totalHours);
-  if (recentEl) recentEl.textContent = `${recentHours}h`;
+  if (recentEl) recentEl.textContent = isRu() ? `${recentHours}ч` : `${recentHours}h`;
   if (liveOnlineEl) liveOnlineEl.textContent = '...';
   if (achEl) achEl.textContent = '—';
   if (achBarEl) achBarEl.style.width = '0%';
@@ -742,7 +744,7 @@ export async function openGameDetailsModal(game) {
   modal?.classList.remove('hidden');
   backdrop?.classList.remove('hidden');
 
-  let steamId = activeSteamIdForWishlist || '';
+  let steamId = getActiveSteamId() || '';
   if (!steamId) {
     const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
     if (user) {
@@ -754,7 +756,7 @@ export async function openGameDetailsModal(game) {
         .catch(() => ({ data: null }));
       if (profile?.steam_id) {
         steamId = String(profile.steam_id);
-        activeSteamIdForWishlist = steamId;
+        setActiveSteamId(steamId);
       }
     }
   }
@@ -1119,7 +1121,7 @@ export function renderAllProfilesModal() {
 export function openLeaderboardModal() {
   document.getElementById('leaderboard-modal')?.classList.remove('hidden');
   document.getElementById('leaderboard-modal-backdrop')?.classList.remove('hidden');
-  renderLeaderboard();
+  renderLeaderboard(false);
 }
 
 export function closeLeaderboardModal() {
@@ -1127,11 +1129,62 @@ export function closeLeaderboardModal() {
   document.getElementById('leaderboard-modal-backdrop')?.classList.add('hidden');
 }
 
-export async function renderLeaderboard() {
+function drawLeaderboardRows(container, enriched) {
+  container.innerHTML = '';
+  const gamesWord = isRu() ? 'игр' : 'games';
+  const topWord = isRu() ? 'Топ' : 'Top';
+
+  enriched.forEach((player, index) => {
+    const rank = index + 1;
+    const name = player.username || 'Player';
+    const avatarSrc =
+      player.avatar_url ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=128`;
+
+    const medalClass =
+      rank === 1
+        ? 'text-yellow-400 border-yellow-500/40 bg-yellow-500/10'
+        : rank === 2
+        ? 'text-slate-200 border-slate-400/40 bg-slate-400/10'
+        : rank === 3
+        ? 'text-amber-500 border-amber-500/40 bg-amber-500/10'
+        : 'text-gray-400 border-white/10 bg-white/5';
+
+    const row = document.createElement('div');
+    row.className =
+      'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 transition';
+    row.innerHTML = `
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-extrabold shrink-0 ${medalClass}">#${rank}</span>
+        <img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(name)}" class="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-white truncate">${escapeHtml(name)}</p>
+          <p class="text-[11px] text-gray-400 truncate">${topWord}: ${escapeHtml(player.topGameName)} • ${player.gamesCount} ${gamesWord}</p>
+        </div>
+      </div>
+      <span class="text-sm font-mono font-bold tier-text shrink-0">${escapeHtml(formatPlaytime(player.totalHours))}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+export async function renderLeaderboard(forceRefresh = false) {
   const container = document.getElementById('leaderboard-list');
   if (!container) return;
 
-  container.innerHTML = `<p class="text-xs text-gray-400 py-4 text-center">${isRu() ? 'Загрузка таблицы лидеров...' : 'Loading leaderboard...'}</p>`;
+  const isFresh =
+    !forceRefresh &&
+    Array.isArray(leaderboardCache.data) &&
+    Date.now() - leaderboardCache.timestamp < LEADERBOARD_CACHE_TTL;
+
+  if (isFresh) {
+    drawLeaderboardRows(container, leaderboardCache.data);
+    return;
+  }
+
+  container.innerHTML = `<p class="text-xs text-gray-400 py-4 text-center">${
+    isRu() ? 'Загрузка таблицы лидеров...' : 'Loading leaderboard...'
+  }</p>`;
 
   try {
     const { data: profiles, error } = await supabaseClient
@@ -1140,12 +1193,16 @@ export async function renderLeaderboard() {
       .limit(20);
 
     if (error) {
-      container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${isRu() ? 'Ошибка загрузки профилей.' : 'Failed to load profiles.'}</p>`;
+      container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${
+        isRu() ? 'Ошибка загрузки профилей.' : 'Failed to load profiles.'
+      }</p>`;
       return;
     }
 
     if (!Array.isArray(profiles) || profiles.length === 0) {
-      container.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">${isRu() ? 'В таблице лидеров пока нет игроков.' : 'No players in leaderboard yet.'}</p>`;
+      container.innerHTML = `<p class="text-xs text-gray-500 py-4 text-center">${
+        isRu() ? 'В таблице лидеров пока нет игроков.' : 'No players in leaderboard yet.'
+      }</p>`;
       return;
     }
 
@@ -1178,46 +1235,13 @@ export async function renderLeaderboard() {
     );
 
     enriched.sort((a, b) => b.totalHours - a.totalHours);
-
-    container.innerHTML = '';
-    enriched.forEach((player, index) => {
-      const rank = index + 1;
-      const name = player.username || 'Player';
-      const avatarSrc =
-        player.avatar_url ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=128`;
-
-      const medalClass =
-        rank === 1
-          ? 'text-yellow-400 border-yellow-500/40 bg-yellow-500/10'
-          : rank === 2
-          ? 'text-slate-200 border-slate-400/40 bg-slate-400/10'
-          : rank === 3
-          ? 'text-amber-500 border-amber-500/40 bg-amber-500/10'
-          : 'text-gray-400 border-white/10 bg-white/5';
-
-      const gamesWord = isRu() ? 'игр' : 'games';
-      const topWord = isRu() ? 'Топ' : 'Top';
-
-      const row = document.createElement('div');
-      row.className =
-        'flex items-center justify-between gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 transition';
-      row.innerHTML = `
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="w-7 h-7 rounded-lg border flex items-center justify-center text-xs font-extrabold shrink-0 ${medalClass}">#${rank}</span>
-          <img src="${escapeHtml(avatarSrc)}" alt="${escapeHtml(name)}" class="w-9 h-9 rounded-full object-cover border border-white/10 shrink-0" />
-          <div class="min-w-0">
-            <p class="text-sm font-bold text-white truncate">${escapeHtml(name)}</p>
-            <p class="text-[11px] text-gray-400 truncate">${topWord}: ${escapeHtml(player.topGameName)} • ${player.gamesCount} ${gamesWord}</p>
-          </div>
-        </div>
-        <span class="text-sm font-mono font-bold tier-text shrink-0">${escapeHtml(formatPlaytime(player.totalHours))}</span>
-      `;
-      container.appendChild(row);
-    });
+    leaderboardCache = { timestamp: Date.now(), data: enriched };
+    drawLeaderboardRows(container, enriched);
   } catch (err) {
     console.error('Leaderboard fatal error:', err);
-    container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${isRu() ? 'Ошибка загрузки лидерборда.' : 'Error loading leaderboard.'}</p>`;
+    container.innerHTML = `<p class="text-xs text-red-400 py-4 text-center">${
+      isRu() ? 'Ошибка загрузки лидерборда.' : 'Error loading leaderboard.'
+    }</p>`;
   }
 }
 
@@ -1351,13 +1375,14 @@ export async function loadWishlistData() {
   const summaryEl = document.getElementById('wishlist-summary');
   if (!listEl) return;
 
-  if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true' && !activeSteamIdForWishlist) {
+  const currentSteamId = getActiveSteamId();
+  if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true' && !currentSteamId) {
     cachedWishlistItems = getDemoWishlistItems();
     renderWishlistItems();
     return;
   }
 
-  let steamId = activeSteamIdForWishlist;
+  let steamId = currentSteamId;
   if (!steamId) {
     const { data: { user } } = await supabaseClient.auth.getUser().catch(() => ({ data: { user: null } }));
     if (user) {
@@ -1369,7 +1394,7 @@ export async function loadWishlistData() {
         .catch(() => ({ data: null }));
       if (profile?.steam_id) {
         steamId = String(profile.steam_id);
-        activeSteamIdForWishlist = steamId;
+        setActiveSteamId(steamId);
       }
     }
   }
@@ -1544,20 +1569,22 @@ export function generateFlexCard() {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const ru = isRu();
   const username = document.getElementById('profile-username')?.textContent || 'Player';
-  const tierText = document.getElementById('playtime-tier-badge')?.textContent || 'Standard';
+  const tierText =
+    document.getElementById('playtime-tier-badge')?.textContent || (ru ? 'Бронзовый' : 'Bronze');
   const totalGamesText = document.getElementById('stat-total-games')?.textContent || '0';
-  const totalHoursText = document.getElementById('stat-total-hours')?.textContent || '0h';
+  const totalHoursText = document.getElementById('stat-total-hours')?.textContent || formatPlaytime(0);
 
   const p1 = document.getElementById('podium-name-1')?.textContent || '—';
-  const p1h = document.getElementById('podium-hours-1')?.textContent || '0h';
+  const p1h = document.getElementById('podium-hours-1')?.textContent || formatPlaytime(0);
   const p2 = document.getElementById('podium-name-2')?.textContent || '—';
-  const p2h = document.getElementById('podium-hours-2')?.textContent || '0h';
+  const p2h = document.getElementById('podium-hours-2')?.textContent || formatPlaytime(0);
   const p3 = document.getElementById('podium-name-3')?.textContent || '—';
-  const p3h = document.getElementById('podium-hours-3')?.textContent || '0h';
+  const p3h = document.getElementById('podium-hours-3')?.textContent || formatPlaytime(0);
 
   const tierColor =
-    getComputedStyle(document.documentElement).getPropertyValue('--tier-color').trim() || '#cbd5e1';
+    getComputedStyle(document.documentElement).getPropertyValue('--tier-color').trim() || '#d97706';
 
   const w = canvas.width;
   const h = canvas.height;
@@ -1583,12 +1610,12 @@ export function generateFlexCard() {
 
   ctx.fillStyle = '#9ca3af';
   ctx.font = '600 20px Outfit, sans-serif';
-  ctx.fillText(`${isRu() ? 'Ранг' : 'Tier'}: ${tierText}`, 48, 160);
+  ctx.fillText(`${ru ? 'Ранг' : 'Tier'}: ${tierText}`, 48, 160);
 
   ctx.fillStyle = '#9ca3af';
   ctx.font = '600 16px Outfit, sans-serif';
-  ctx.fillText(isRu() ? 'ВСЕГО ЧАСОВ' : 'TOTAL PLAYTIME', 48, 220);
-  ctx.fillText(isRu() ? 'ВСЕГО ИГР' : 'TOTAL GAMES', 280, 220);
+  ctx.fillText(ru ? 'ВСЕГО ЧАСОВ' : 'TOTAL PLAYTIME', 48, 220);
+  ctx.fillText(ru ? 'ВСЕГО ИГР' : 'TOTAL GAMES', 280, 220);
 
   ctx.fillStyle = '#ffffff';
   ctx.font = '800 32px Outfit, sans-serif';
@@ -1597,7 +1624,7 @@ export function generateFlexCard() {
 
   ctx.fillStyle = tierColor;
   ctx.font = '700 18px Outfit, sans-serif';
-  ctx.fillText(isRu() ? 'ТОП-3 ИГРЫ' : 'TOP 3 GAMES', 490, 96);
+  ctx.fillText(ru ? 'ТОП-3 ИГРЫ' : 'TOP 3 GAMES', 490, 96);
 
   const podiumRows = [
     { label: `#1 ${p1}`, hrs: p1h, color: '#facc15', y: 142 },
@@ -1665,7 +1692,7 @@ export function initFeatures() {
   document.getElementById('open-leaderboard-btn')?.addEventListener('click', openLeaderboardModal);
   document.getElementById('close-leaderboard-btn')?.addEventListener('click', closeLeaderboardModal);
   document.getElementById('leaderboard-modal-backdrop')?.addEventListener('click', closeLeaderboardModal);
-  document.getElementById('refresh-leaderboard-btn')?.addEventListener('click', renderLeaderboard);
+  document.getElementById('refresh-leaderboard-btn')?.addEventListener('click', () => renderLeaderboard(true));
 
   // Рандомайзер
   document.getElementById('randomizer-pick-btn')?.addEventListener('click', pickRandomGame);
