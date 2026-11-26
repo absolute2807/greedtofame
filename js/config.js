@@ -5,10 +5,13 @@ export const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABAS
 
 export const STORAGE_KEYS = {
   username: 'gt_username',
+  customName: 'greedtofame_custom_name',
   timeFormat: 'gt_time_format',
   theme: 'gt_theme',
   libraryHidden: 'gt_library_hidden',
   demoMode: 'gt_demo_mode',
+  lang: 'greedtofame_lang',
+  linkedSteamAccounts: 'greedtofame_linked_steam_accounts_v1',
 };
 
 export const prefs = {
@@ -17,17 +20,33 @@ export const prefs = {
   libraryHidden: localStorage.getItem(STORAGE_KEYS.libraryHidden) === 'true',
 };
 
+let activeSteamId = null;
+
+export function getActiveSteamId() {
+  return activeSteamId;
+}
+
+export function setActiveSteamId(steamId) {
+  activeSteamId = steamId ? String(steamId) : null;
+}
+
 export function setPref(key, storageKey, value) {
   prefs[key] = value;
   localStorage.setItem(storageKey, String(value));
 }
 
 export function formatPlaytime(hours, format = prefs.timeFormat) {
-  return format === 'days' ? `${Math.round(hours / 24)}d` : `${hours}h`;
+  const ru = localStorage.getItem(STORAGE_KEYS.lang) === 'ru';
+  if (format === 'days') {
+    const days = Math.round((Number(hours) || 0) / 24);
+    return ru ? `${days}д` : `${days}d`;
+  }
+  const h = Number(hours) || 0;
+  return ru ? `${h}ч` : `${h}h`;
 }
 
 export function escapeHtml(str = '') {
-  return String(str)
+  return String(str ?? '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
