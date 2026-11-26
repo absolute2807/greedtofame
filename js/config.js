@@ -52,53 +52,38 @@ export function animateValue(obj, start, end, duration, suffix = 'h') {
 
 export function applyPlaytimeTier(totalHours = 0, isRu = false) {
   const hours = Number(totalHours) || 0;
+
   let tier = {
-    nameEn: 'Standard',
-    nameRu: 'Новичок',
-    color: '#cbd5e1',
-    softBg: 'rgba(203, 213, 225, 0.12)',
-    grad: 'linear-gradient(135deg, #64748b 0%, #94a3b8 100%)',
+    nameEn: 'Bronze',
+    nameRu: 'Бронзовый',
+    color: '#d97706',
+    softBg: 'rgba(217, 119, 6, 0.14)',
+    grad: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)',
   };
 
   if (hours >= 5000) {
     tier = {
       nameEn: 'Mythic',
       nameRu: 'Мифический',
-      color: '#f43f5e',
-      softBg: 'rgba(244, 63, 94, 0.14)',
-      grad: 'linear-gradient(135deg, #e11d48 0%, #f59e0b 100%)',
-    };
-  } else if (hours >= 2000) {
-    tier = {
-      nameEn: 'Legend',
-      nameRu: 'Легенда',
-      color: '#facc15',
-      softBg: 'rgba(250, 204, 21, 0.14)',
-      grad: 'linear-gradient(135deg, #eab308 0%, #f97316 100%)',
+      color: '#ef4444',
+      softBg: 'rgba(239, 68, 68, 0.15)',
+      grad: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
     };
   } else if (hours >= 1000) {
     tier = {
-      nameEn: 'Veteran',
-      nameRu: 'Ветеран',
-      color: '#a855f7',
-      softBg: 'rgba(168, 85, 247, 0.15)',
-      grad: 'linear-gradient(135deg, #9333ea 0%, #3b82f6 100%)',
+      nameEn: 'Gold',
+      nameRu: 'Золотой',
+      color: '#facc15',
+      softBg: 'rgba(250, 204, 21, 0.14)',
+      grad: 'linear-gradient(135deg, #eab308 0%, #f59e0b 100%)',
     };
-  } else if (hours >= 300) {
+  } else if (hours >= 500) {
     tier = {
-      nameEn: 'Pro',
-      nameRu: 'Профи',
-      color: '#22d3ee',
-      softBg: 'rgba(34, 211, 238, 0.14)',
-      grad: 'linear-gradient(135deg, #06b6d4 0%, #6366f1 100%)',
-    };
-  } else if (hours >= 50) {
-    tier = {
-      nameEn: 'Gamer',
-      nameRu: 'Геймер',
-      color: '#34d399',
-      softBg: 'rgba(52, 211, 153, 0.14)',
-      grad: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+      nameEn: 'Silver',
+      nameRu: 'Серебряный',
+      color: '#e2e8f0',
+      softBg: 'rgba(226, 232, 240, 0.14)',
+      grad: 'linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%)',
     };
   }
 
