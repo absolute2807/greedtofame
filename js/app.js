@@ -29,7 +29,13 @@ const TRANSLATIONS = {
     gd_recent_2w: 'Last 2 Weeks',
     gd_achievements: 'Achievements',
     gd_ingame_stats: 'In-Game Statistics',
-    gd_search_stat: 'Filter raw stat keys...',
+    gd_search_stat: 'Filter stats or keys...',
+    steam_accounts_modal_title: 'Manage Steam Accounts',
+    steam_accounts_modal_sub: 'Add, switch, or remove linked Steam accounts.',
+    all_games_title: 'All Games Library',
+    all_games_btn: 'All Games',
+    all_profiles_title: 'All Profiles',
+    all_profiles_sub: 'Browse community players and open their profiles.',
     wishlist_modal_title: 'Wishlist & Discount Tracker',
     wishlist_modal_sub: 'Public Steam Wishlist with live store discounts.',
     refresh: 'Refresh',
@@ -140,6 +146,12 @@ const TRANSLATIONS = {
     gd_achievements: 'Достижения',
     gd_ingame_stats: 'Внутриигровая статистика',
     gd_search_stat: 'Поиск по параметрам...',
+    steam_accounts_modal_title: 'Аккаунты Steam',
+    steam_accounts_modal_sub: 'Добавляй, переключай или удаляй привязанные аккаунты Steam.',
+    all_games_title: 'Вся библиотека игр',
+    all_games_btn: 'Все игры',
+    all_profiles_title: 'Все профили',
+    all_profiles_sub: 'Игроки сообщества GreedToFame — нажми, чтобы открыть профиль.',
     wishlist_modal_title: 'Список желаемого и скидки',
     wishlist_modal_sub: 'Публичный вишлист Steam с актуальными ценами и скидками.',
     refresh: 'Обновить',
@@ -255,6 +267,7 @@ let loadedUserId = null;
 let newAvatarBase64 = null;
 let viewingOtherUser = false;
 let activeSteamIdForWishlist = null;
+let isSigningOut = false;
 
 function closeGameDetailsModal() {
   document.getElementById('game-details-modal')?.classList.add('hidden');
@@ -279,6 +292,7 @@ function updateLanguageButtonsUI() {
 
 export function applyLanguage(lang) {
   const normalized = lang === 'ru' ? 'ru' : 'en';
+  const ru = normalized === 'ru';
   localStorage.setItem(LANG_STORAGE_KEY, normalized);
   document.documentElement.lang = normalized;
 
@@ -293,39 +307,74 @@ export function applyLanguage(lang) {
     if (key) el.setAttribute('placeholder', t(key));
   });
 
+  // Локализация элементов модалки Steam-аккаунтов и кнопки All Games
+  const openAllGamesBtn = document.getElementById('open-all-games-btn');
+  if (openAllGamesBtn) openAllGamesBtn.textContent = t('all_games_btn');
+
+  const newSteamIdInput = document.getElementById('new-steam-id-input');
+  if (newSteamIdInput) {
+    newSteamIdInput.placeholder = ru
+      ? 'SteamID64 (17 цифр) или ссылка / ник'
+      : 'SteamID64 (17 digits) or vanity';
+  }
+
+  const newSteamLabelInput = document.getElementById('new-steam-label-input');
+  if (newSteamLabelInput) {
+    newSteamLabelInput.placeholder = ru
+      ? 'Метка (необязательно, напр. Основа)'
+      : 'Label (optional, e.g. Main / Smurf)';
+  }
+
+  const addSteamAccBtn = document.getElementById('add-steam-account-btn');
+  if (addSteamAccBtn) {
+    addSteamAccBtn.textContent = ru ? '+ Добавить аккаунт Steam' : '+ Add Steam Account';
+  }
+
+  const openIdLink = document.querySelector('#steam-accounts-modal a[href*="steam-auth-callback"]');
+  if (openIdLink) {
+    openIdLink.textContent = ru ? 'Войти через Steam OpenID ↗' : 'Login via Steam OpenID ↗';
+  }
+
+  const compactModeBtn = document.getElementById('gd-mode-compact');
+  if (compactModeBtn) compactModeBtn.textContent = ru ? 'Кратко' : 'Compact';
+
+  const detailedModeBtn = document.getElementById('gd-mode-detailed');
+  if (detailedModeBtn) detailedModeBtn.textContent = ru ? 'Подробно' : 'Detailed';
+
   if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
     const steamBtnText = document.getElementById('steam-btn-text');
     const instructionText = document.getElementById('steam-instruction-text');
     if (steamBtnText) {
-      steamBtnText.textContent = normalized === 'ru' ? 'Демо-режим активен' : 'Demo Mode Active';
+      steamBtnText.textContent = ru ? 'Демо-режим активен' : 'Demo Mode Active';
     }
     if (instructionText) {
-      instructionText.textContent =
-        normalized === 'ru'
-          ? 'Это демо-профиль с тестовыми данными. Войди через Steam, чтобы увидеть реальную статистику.'
-          : 'This is a demo profile with fake data. Sign in with Steam to see your real stats.';
+      instructionText.textContent = ru
+        ? 'Это демо-профиль с тестовыми данными. Войди через Steam, чтобы увидеть реальную статистику.'
+        : 'This is a demo profile with fake data. Sign in with Steam to see your real stats.';
     }
   } else if (activeSteamIdForWishlist) {
     const steamBtnText = document.getElementById('steam-btn-text');
     const instructionText = document.getElementById('steam-instruction-text');
     if (steamBtnText) {
-      steamBtnText.textContent =
-        normalized === 'ru'
-          ? `Steam привязан (${activeSteamIdForWishlist})`
-          : `Steam Linked (${activeSteamIdForWishlist})`;
+      steamBtnText.textContent = ru
+        ? `Steam привязан (${activeSteamIdForWishlist})`
+        : `Steam Linked (${activeSteamIdForWishlist})`;
     }
     if (instructionText) {
-      instructionText.textContent =
-        normalized === 'ru'
-          ? 'Аккаунт Steam подключён. Статистика и игры синхронизируются автоматически.'
-          : 'Your Steam account is linked. Games and playtime sync automatically.';
+      instructionText.textContent = ru
+        ? 'Аккаунт Steam подключён. Статистика и игры синхронизируются автоматически.'
+        : 'Your Steam account is linked. Games and playtime sync automatically.';
     }
   }
 
   updateLanguageButtonsUI();
 
-  if (getLastSteamData()) {
-    renderSteamGames(getLastSteamData());
+  const lastData = getLastSteamData();
+  if (lastData) {
+    renderSteamGames(lastData);
+    if (Array.isArray(lastData?.response?.games)) {
+      updateAnalytics(lastData.response.games);
+    }
   }
   refreshDynamicTranslations();
 }
@@ -381,13 +430,20 @@ document.addEventListener('click', (e) => {
 });
 
 async function handleSignOut() {
+  isSigningOut = true;
   authDropdown?.classList.add('hidden');
-  await supabaseClient.auth.signOut();
-  window.location.reload();
+  document.body.style.opacity = '0.6';
+  document.body.style.pointerEvents = 'none';
+  try {
+    await supabaseClient.auth.signOut();
+  } finally {
+    window.location.reload();
+  }
 }
 
 authLogoutBtn?.addEventListener('click', handleSignOut);
 authChangeAccountBtn?.addEventListener('click', async () => {
+  isSigningOut = true;
   authDropdown?.classList.add('hidden');
   await supabaseClient.auth.signOut();
   window.location.href = STEAM_AUTH_URL;
@@ -442,13 +498,21 @@ function updateLibraryVisibility() {
 document.getElementById('theme-dark')?.addEventListener('click', () => {
   setPref('theme', STORAGE_KEYS.theme, 'dark');
   applyTheme();
-  if (getLastSteamData()) renderSteamGames(getLastSteamData());
+  const lastData = getLastSteamData();
+  if (lastData) {
+    renderSteamGames(lastData);
+    if (Array.isArray(lastData?.response?.games)) updateAnalytics(lastData.response.games);
+  }
 });
 
 document.getElementById('theme-light')?.addEventListener('click', () => {
   setPref('theme', STORAGE_KEYS.theme, 'light');
   applyTheme();
-  if (getLastSteamData()) renderSteamGames(getLastSteamData());
+  const lastData = getLastSteamData();
+  if (lastData) {
+    renderSteamGames(lastData);
+    if (Array.isArray(lastData?.response?.games)) updateAnalytics(lastData.response.games);
+  }
 });
 
 document.getElementById('format-hours')?.addEventListener('click', () => {
@@ -498,6 +562,8 @@ function applyUsername(name) {
 }
 
 supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+  if (isSigningOut) return;
+
   currentUser = session?.user ?? null;
   if (currentUser) {
     if (loadedUserId === currentUser.id) return;
@@ -774,6 +840,8 @@ async function openCommunityProfile(profile) {
   document.getElementById('main-dashboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+window.__gtf_viewCommunityProfile = openCommunityProfile;
+
 backToMyProfileBtn?.addEventListener('click', () => {
   viewingOtherUser = false;
   backToMyProfileBtn.classList.add('hidden');
@@ -919,7 +987,6 @@ async function handleSteamCallbackToken() {
   toggleEmptyStates(false);
   initFeatures();
 
-  // Надёжное закрытие окна детальной статистики игры
   document.getElementById('close-game-details-btn')?.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
