@@ -1,10 +1,10 @@
-import { formatPlaytime } from './config.js';
+import { STORAGE_KEYS, formatPlaytime } from './config.js';
 
 let barChartInstance = null;
 let lineChartInstance = null;
 
 function isRu() {
-  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+  return localStorage.getItem(STORAGE_KEYS.lang) === 'ru';
 }
 
 function getTierColorHex() {
