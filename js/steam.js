@@ -1,17 +1,17 @@
 import {
   supabaseClient,
   STORAGE_KEYS,
-  prefs,
   formatPlaytime,
   escapeHtml,
   applyPlaytimeTier,
+  setActiveSteamId,
 } from './config.js';
 import { updateAnalytics } from './analytics.js';
 
 let lastSteamData = null;
 
 function isRu() {
-  return (window.__gtf_lang ? window.__gtf_lang() : localStorage.getItem('greedtofame_lang')) === 'ru';
+  return localStorage.getItem(STORAGE_KEYS.lang) === 'ru';
 }
 
 export function getLastSteamData() {
@@ -324,7 +324,7 @@ export function renderSteamGames(steamData) {
 function applySteamPlayerSummary(player) {
   if (!player) return;
 
-  const hasCustomName = Boolean(localStorage.getItem('greedtofame_custom_name'));
+  const hasCustomName = Boolean(localStorage.getItem(STORAGE_KEYS.customName));
   if (!hasCustomName && player.personaname) {
     const welcomeEl = document.getElementById('welcome-username');
     const profileNameEl = document.getElementById('profile-username');
@@ -401,6 +401,7 @@ export async function autoLoadSteamGames() {
       return;
     }
 
+    setActiveSteamId(steamId);
     syncBtn?.classList.remove('hidden');
     if (steamBtnText) {
       steamBtnText.textContent = isRu() ? `Steam привязан (${steamId})` : `Steam Linked (${steamId})`;
@@ -433,6 +434,7 @@ export async function syncFromSteamProfile() {
   const steamId = profile?.steam_id || user.user_metadata?.steam_id;
   if (!steamId) return;
 
+  setActiveSteamId(steamId);
   await loadSteamStatsForId(String(steamId), {
     applyPlayer: true,
     updateOwnAnalytics: true,
