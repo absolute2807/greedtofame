@@ -101,11 +101,11 @@
           id="all-games-search-input"
           data-i18n-placeholder="search_game"
           placeholder="Search game..."
-          class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white tier-ring w-44 sm:w-56"
+          class="h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-xs text-white tier-ring w-44 sm:w-56"
         />
         <select
           id="all-games-sort-select"
-          class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 tier-ring"
+          class="h-9 bg-[#111117] border border-white/10 rounded-xl px-3 text-xs text-gray-200 tier-ring"
         >
           <option value="playtime_desc" data-i18n="sort_hours_desc">Hours: High → Low</option>
           <option value="playtime_asc" data-i18n="sort_hours_asc">Hours: Low → High</option>
@@ -145,10 +145,10 @@
           <h3 id="gd-title" class="text-2xl font-extrabold text-white truncate">—</h3>
         </div>
         <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
-          <a id="gd-store-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="gd_store" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/15 bg-black/50 hover:bg-white/10 text-gray-200 transition">
+          <a id="gd-store-link" href="#" target="_blank" rel="noopener noreferrer" data-i18n="gd_store" class="px-3 py-1.5 text-xs font-bold rounded-lg border border-white/15 bg-black/50 hover:bg-white/10 text-gray-200 transition whitespace-nowrap">
             Steam Store ↗
           </a>
-          <a id="gd-launch-link" href="#" data-i18n="gd_launch" class="px-3.5 py-1.5 text-xs font-bold rounded-lg btn-gradient shadow-lg transition">
+          <a id="gd-launch-link" href="#" data-i18n="gd_launch" class="px-3.5 py-1.5 text-xs font-bold rounded-lg btn-gradient shadow-lg transition whitespace-nowrap">
             Launch ▶
           </a>
         </div>
@@ -376,16 +376,16 @@
 
   <!-- MAIN DASHBOARD PAGE -->
   <div id="dashboard-page" class="max-w-7xl mx-auto px-6 py-10 transition-opacity duration-300">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 animate-fade-in-up">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 animate-fade-in-up">
       <div>
         <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight"><span data-i18n="welcome_back">Welcome back,</span> <span id="welcome-username" class="tier-text neon-text">Guest</span></h2>
-        <p class="mt-2 text-gray-400" data-i18n="welcome_sub">Here's what you've been playing lately.</p>
+        <p class="mt-1.5 text-gray-400" data-i18n="welcome_sub">Here's what you've been playing lately.</p>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <button id="demo-btn" data-i18n="try_demo" class="magnetic-btn px-4 py-2 text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10">Try demo profile</button>
-        <button id="share-profile-btn" data-i18n="flex_card_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg transition border border-white/5">Flex Card</button>
-        <button id="edit-profile" data-i18n="edit_profile_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg transition border border-white/5">Edit Profile</button>
-        <button id="settings-btn" data-i18n="settings_btn" class="magnetic-btn px-4 py-2 text-sm font-medium btn-gradient rounded-lg shadow-lg transition">Settings</button>
+      <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+        <button id="demo-btn" data-i18n="try_demo" class="magnetic-btn h-9 px-4 text-xs sm:text-sm font-medium text-cyan-300 border border-cyan-500/40 rounded-lg transition hover:bg-cyan-500/10 whitespace-nowrap">Try demo profile</button>
+        <button id="share-profile-btn" data-i18n="flex_card_btn" class="magnetic-btn h-9 px-4 text-xs sm:text-sm font-medium btn-gradient rounded-lg transition border border-white/5 whitespace-nowrap">Flex Card</button>
+        <button id="edit-profile" data-i18n="edit_profile_btn" class="magnetic-btn h-9 px-4 text-xs sm:text-sm font-medium btn-gradient rounded-lg transition border border-white/5 whitespace-nowrap">Edit Profile</button>
+        <button id="settings-btn" data-i18n="settings_btn" class="magnetic-btn h-9 px-4 text-xs sm:text-sm font-medium btn-gradient rounded-lg shadow-lg transition whitespace-nowrap">Settings</button>
       </div>
     </div>
 
@@ -556,38 +556,53 @@
         </section>
 
         <section class="glass-card rounded-2xl p-6 animate-fade-in-up delay-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-4">
+          <div class="flex flex-col gap-4 mb-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 class="text-xl font-bold text-white" data-i18n="your_games">Your Games</h3>
-                <p class="text-[11px] text-gray-500" data-i18n="click_game_hint">Click any game to view live online & in-game stats</p>
+                <p class="text-xs text-gray-500 mt-0.5" data-i18n="click_game_hint">Click any game to view live online & in-game stats</p>
               </div>
-              <button id="show-analytics-btn" data-i18n="analytics_btn" class="text-xs font-semibold px-3 py-1 border tier-soft-bg rounded-full hover:brightness-110 transition">Analytics ↗</button>
+              <button
+                id="show-analytics-btn"
+                data-i18n="analytics_btn"
+                class="h-9 px-4 text-xs font-semibold border tier-soft-bg rounded-xl hover:brightness-110 transition whitespace-nowrap inline-flex items-center gap-1.5 shrink-0"
+              >
+                Analytics ↗
+              </button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
               <input
                 type="text"
                 id="game-search-input"
                 data-i18n-placeholder="search_game"
                 placeholder="Search game..."
-                class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white tier-ring transition w-40 sm:w-48"
+                class="h-9 bg-white/5 border border-white/10 rounded-xl px-3.5 text-xs text-white tier-ring transition flex-1 min-w-[160px]"
               />
               <select
                 id="game-sort-select"
-                class="bg-[#111117] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-gray-200 tier-ring transition"
+                class="h-9 bg-[#111117] border border-white/10 rounded-xl px-3 text-xs text-gray-200 tier-ring transition shrink-0"
               >
                 <option value="playtime_desc" data-i18n="sort_hours_desc">Hours: High → Low</option>
                 <option value="playtime_asc" data-i18n="sort_hours_asc">Hours: Low → High</option>
                 <option value="name_asc" data-i18n="sort_name_asc">Name: A → Z</option>
                 <option value="last_played_desc" data-i18n="sort_last_played">Last Played</option>
               </select>
-              <button id="open-all-games-btn" type="button" class="px-3 py-1.5 text-xs font-bold rounded-lg border tier-soft-bg hover:brightness-110 transition">
+              <button
+                id="open-all-games-btn"
+                type="button"
+                class="h-9 px-3.5 text-xs font-bold rounded-xl border tier-soft-bg hover:brightness-110 transition whitespace-nowrap shrink-0"
+              >
                 All Games
               </button>
-              <button id="toggle-library" class="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="Hide/Show Library">
-                <svg id="icon-eye-open" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <svg id="icon-eye-closed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
+              <button
+                id="toggle-library"
+                type="button"
+                class="h-9 w-9 inline-flex items-center justify-center text-gray-400 hover:text-white transition-colors rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 shrink-0"
+                title="Hide/Show Library"
+              >
+                <svg id="icon-eye-open" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <svg id="icon-eye-closed" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>
               </button>
             </div>
           </div>
