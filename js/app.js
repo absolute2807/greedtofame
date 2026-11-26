@@ -1,4 +1,12 @@
-import { supabaseClient, STORAGE_KEYS, prefs, setPref, escapeHtml } from './config.js';
+import {
+  supabaseClient,
+  STORAGE_KEYS,
+  prefs,
+  setPref,
+  escapeHtml,
+  getActiveSteamId,
+  setActiveSteamId,
+} from './config.js';
 import {
   renderSteamGames,
   renderFilteredGamesTable,
@@ -13,7 +21,6 @@ import { updateAnalytics } from './analytics.js';
 import { initFeatures, setActiveWishlistSteamId, refreshDynamicTranslations } from './features.js';
 
 const STEAM_AUTH_URL = 'https://tcdtdftgpdjmrpqoltlg.supabase.co/functions/v1/steam-auth-callback';
-const LANG_STORAGE_KEY = 'greedtofame_lang';
 
 const TRANSLATIONS = {
   en: {
@@ -226,7 +233,7 @@ const TRANSLATIONS = {
     analytics_btn: 'Аналитика ↗',
     search_game: 'Поиск игры...',
     sort_hours_desc: 'Часы: больше → меньше',
-    sort_hours_asc: 'Часы: меньше → больше',
+    sort_hours_asc: 'Часы: меньше → меньше',
     sort_name_asc: 'Название: А → Я',
     sort_last_played: 'Последний запуск',
     library_hidden_title: 'Библиотека скрыта для приватности.',
@@ -251,7 +258,7 @@ const TRANSLATIONS = {
 };
 
 export function getCurrentLang() {
-  return localStorage.getItem(LANG_STORAGE_KEY) === 'ru' ? 'ru' : 'en';
+  return localStorage.getItem(STORAGE_KEYS.lang) === 'ru' ? 'ru' : 'en';
 }
 
 export function t(key) {
@@ -266,7 +273,6 @@ let currentUser = null;
 let loadedUserId = null;
 let newAvatarBase64 = null;
 let viewingOtherUser = false;
-let activeSteamIdForWishlist = null;
 let isSigningOut = false;
 
 function closeGameDetailsModal() {
@@ -293,7 +299,7 @@ function updateLanguageButtonsUI() {
 export function applyLanguage(lang) {
   const normalized = lang === 'ru' ? 'ru' : 'en';
   const ru = normalized === 'ru';
-  localStorage.setItem(LANG_STORAGE_KEY, normalized);
+  localStorage.setItem(STORAGE_KEYS.lang, normalized);
   document.documentElement.lang = normalized;
 
   document.querySelectorAll('[data-i18n]').forEach((el) => {
@@ -307,7 +313,6 @@ export function applyLanguage(lang) {
     if (key) el.setAttribute('placeholder', t(key));
   });
 
-  // Локализация элементов модалки Steam-аккаунтов и кнопки All Games
   const openAllGamesBtn = document.getElementById('open-all-games-btn');
   if (openAllGamesBtn) openAllGamesBtn.textContent = t('all_games_btn');
 
@@ -341,6 +346,7 @@ export function applyLanguage(lang) {
   const detailedModeBtn = document.getElementById('gd-mode-detailed');
   if (detailedModeBtn) detailedModeBtn.textContent = ru ? 'Подробно' : 'Detailed';
 
+  const currentSteamId = getActiveSteamId();
   if (localStorage.getItem(STORAGE_KEYS.demoMode) === 'true') {
     const steamBtnText = document.getElementById('steam-btn-text');
     const instructionText = document.getElementById('steam-instruction-text');
@@ -352,13 +358,13 @@ export function applyLanguage(lang) {
         ? 'Это демо-профиль с тестовыми данными. Войди через Steam, чтобы увидеть реальную статистику.'
         : 'This is a demo profile with fake data. Sign in with Steam to see your real stats.';
     }
-  } else if (activeSteamIdForWishlist) {
+  } else if (currentSteamId) {
     const steamBtnText = document.getElementById('steam-btn-text');
     const instructionText = document.getElementById('steam-instruction-text');
     if (steamBtnText) {
       steamBtnText.textContent = ru
-        ? `Steam привязан (${activeSteamIdForWishlist})`
-        : `Steam Linked (${activeSteamIdForWishlist})`;
+        ? `Steam привязан (${currentSteamId})`
+        : `Steam Linked (${currentSteamId})`;
     }
     if (instructionText) {
       instructionText.textContent = ru
@@ -586,13 +592,13 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
 
       if (profile && !error) {
         if (profile.steam_id) {
-          activeSteamIdForWishlist = String(profile.steam_id);
-          setActiveWishlistSteamId(activeSteamIdForWishlist);
+          setActiveSteamId(profile.steam_id);
+          setActiveWishlistSteamId(String(profile.steam_id));
         }
         if (profile.username) {
           displayName = profile.username;
           applyUsername(profile.username);
-          localStorage.setItem('greedtofame_custom_name', profile.username);
+          localStorage.setItem(STORAGE_KEYS.customName, profile.username);
         }
         if (profile.avatar_url) {
           const avatarImg = document.getElementById('profile-avatar');
@@ -610,7 +616,7 @@ supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     await autoLoadSteamGames();
   } else {
     loadedUserId = null;
-    activeSteamIdForWishlist = null;
+    setActiveSteamId(null);
     setActiveWishlistSteamId(null);
     if (authBtnText) authBtnText.textContent = t('sign_in_steam');
     authBtnChevron?.classList.add('hidden');
@@ -634,6 +640,32 @@ const usernameBackdrop = document.getElementById('username-modal-backdrop');
 const usernameInput = document.getElementById('username-input');
 const modalAvatarPreview = document.getElementById('modal-avatar-preview');
 const avatarUploadInput = document.getElementById('avatar-upload');
+
+function compressAvatarImage(file, maxSize = 256, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = maxSize;
+        canvas.height = maxSize;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return reject(new Error('Canvas context unavailable'));
+
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, maxSize, maxSize);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = evt.target?.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 function openSettingsModal() {
   updateTimeFormatUI();
@@ -675,20 +707,20 @@ document.querySelectorAll('.username-close').forEach((btn) => btn.addEventListen
 
 document.getElementById('upload-avatar-btn')?.addEventListener('click', () => avatarUploadInput?.click());
 
-avatarUploadInput?.addEventListener('change', (e) => {
+avatarUploadInput?.addEventListener('change', async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    alert(getCurrentLang() === 'ru' ? 'Файл слишком большой (макс. 2 МБ).' : 'File too large (max 2MB).');
+  if (file.size > 5 * 1024 * 1024) {
+    alert(getCurrentLang() === 'ru' ? 'Файл слишком большой (макс. 5 МБ).' : 'File too large (max 5MB).');
     avatarUploadInput.value = '';
     return;
   }
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    newAvatarBase64 = evt.target?.result || null;
+  try {
+    newAvatarBase64 = await compressAvatarImage(file, 256, 0.82);
     if (modalAvatarPreview && newAvatarBase64) modalAvatarPreview.src = newAvatarBase64;
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    console.error('Avatar compression failed:', err);
+  }
 });
 
 document.getElementById('username-save')?.addEventListener('click', async () => {
@@ -696,7 +728,7 @@ document.getElementById('username-save')?.addEventListener('click', async () => 
   if (!newName) return;
 
   localStorage.setItem(STORAGE_KEYS.username, newName);
-  localStorage.setItem('greedtofame_custom_name', newName);
+  localStorage.setItem(STORAGE_KEYS.customName, newName);
   applyUsername(newName);
   if (currentUser && authBtnText) authBtnText.textContent = newName;
 
@@ -827,12 +859,14 @@ async function openCommunityProfile(profile) {
   backToMyProfileBtn?.classList.remove('hidden');
 
   if (profile.steam_id) {
+    setActiveSteamId(profile.steam_id);
     setActiveWishlistSteamId(String(profile.steam_id));
     await loadSteamStatsForId(profile.steam_id, {
       applyPlayer: !profile.avatar_url,
       updateOwnAnalytics: false,
     });
   } else {
+    setActiveSteamId(null);
     setActiveWishlistSteamId(null);
     renderSteamGames({ response: { games: [] } });
   }
@@ -862,13 +896,10 @@ communitySearchEl?.addEventListener('input', (e) => {
   }, 250);
 });
 
-document.getElementById('view-all-profiles')?.addEventListener('click', () => {
-  fetchProfiles(communitySearchEl?.value || '', 20);
-});
-
 // --- 7. ДЕМО-РЕЖИМ ---
 function enterDemoMode() {
   localStorage.setItem(STORAGE_KEYS.demoMode, 'true');
+  setActiveSteamId(null);
   setActiveWishlistSteamId(null);
   const demoData = buildDemoData();
   applyUsername('DemoPlayer');
