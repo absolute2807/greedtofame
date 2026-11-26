@@ -39,7 +39,6 @@ function translateStatToRu(rawName) {
     return KNOWN_STAT_LABELS[name].ru;
   }
 
-  // Фразовый fallback для нестандартных / модовых ключей
   const normalized = lower
     .replace(/^stat\./, '')
     .replace(/\.total$/, '')
@@ -685,7 +684,7 @@ function setGameStatsMode(mode) {
   }
 }
 
-// --- ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ (Пункты 1, 2, 4) ---
+// --- ДЕТАЛЬНАЯ СТАТИСТИКА ИГРЫ ---
 export async function openGameDetailsModal(game) {
   if (!game || !game.appid) return;
 
@@ -870,7 +869,6 @@ function renderGameDetailsStats(data) {
 
   let html = '';
 
-  // Пункт 2: карточки-хайлайты сверху
   if (topHighlights.length > 0) {
     html += `
       <div class="mb-4">
@@ -893,7 +891,6 @@ function renderGameDetailsStats(data) {
     `;
   }
 
-  // Пункты 1 и 4: группировка по категориям, человекочитаемые названия + мини-бары + Compact/Detailed
   if (rawStats.length > 0) {
     const filterTerm = (rawSearchEl?.value || '').trim().toLowerCase();
     const filteredRaw = filterTerm
